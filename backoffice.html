@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="sq">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cardeals.al — Paneli i Biznesit</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-storage-compat.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+firebase.initializeApp({apiKey:"AIzaSyAU8hVTqury1MbC0Sx-CXGY1YQrr5VJhyE",authDomain:"cardeals-al.firebaseapp.com",projectId:"cardeals-al",storageBucket:"cardeals-al.firebasestorage.app",messagingSenderId:"839953227675",appId:"1:839953227675:web:6fb6aa9350bd3bd507cb3e"});
+const auth=firebase.auth(),db=firebase.firestore(),storage=firebase.storage();
+const {getDoc,doc,setDoc,updateDoc}=firebase.firestore;
+
+const PLANS={basic:{name:'Basic',fee:0.08,monthly:0,color:'#8892a4',icon:'⚙️'},silver:{name:'Silver',fee:0.05,monthly:15,color:'#94a3b8',icon:'🥈'},gold:{name:'Gold',fee:0.03,monthly:40,color:'#f5c518',icon:'🥇'},platinum:{name:'Platinum',fee:0.01,monthly:80,color:'#e2e8f0',icon:'💎'}};
+const PLATFORM_FEE=0.08;
+let currentUser=null,currentBiz=null,myParts=[],myOrders=[],lang='sq',currentPage='dashboard',deletePartId=null;
+let salesChart=null,categoryChart=null;
+let selectedImages=[];
+
+function getCatEmoji(cat){const e={brakes:'🔘',engine:'⚙️',electrical:'⚡',suspension:'🔩',body:'🚗',ac:'🌡️'};return e[cat]||'🔧';}
+
+// ════════════════════════════════════
+//  IMAGE UPLOAD WITH AGGRESSIVE COMPRESSION
+// ════════════════════════════════════
+
+function compressImage(file, maxWidth=600, maxHeight=600, quality=0.5) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      const img = new Image();
+      img.onload = function() {
+        let width = img.width;
+        let height = img.height;
+        
+        // Aggressive scale down
+        if (width > maxWidth) {
+          height = Math.round((height * maxWidth) / width);
+          width = maxWidth;
+        }
+        if (height > maxHeight) {
+          width = Math.round((width * maxHeight) / height);
+          height = maxHeight;
+        }
+        
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        
+        // Sharpen slightly for better appearance at low quality
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = 'high';
+        ctx.drawImage(img, 0, 0, width, height);
+        
+        canvas.toBlob((blob) => {
+          const compressedFile = new File([blob], file.name.replace(/\.[^/.]+$/, '.jpg'), {
+            type: 'image/jpeg',
+            lastModified: Date.now()
+          });
+          resolve(compressedFile);
+        }, 'image/jpeg', quality);
+      };
+      img.onerror = reject;
+      img.src = e.target.result;
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+window.triggerImageUpload=function(){document.getElementById('imageInput').click();};
+
+window.handleImageSelect = function(event) {
+  const files = event.target.files;
+  if (!files.length) return;
+  
+  for (let i = 0; i < files.length; i++) {
+    const file = files[i];
+    
+    if (!file.type.match('image.*')) {
+      showToast('⚠️ Vetëm foto lejohen!', true);
+      continue;
+    }
+    
+    if (file.size > 10 * 1024 * 1024) {
+      showToast('⚠️ Maksimumi 10MB për foto!', true);
+      continue;
+    }
+    
+    if (selectedImages.length >= 5) {
+      showToast('⚠️ Maksimumi 5 foto!', true);
+      break;
+    }
+    
+    compressImage(file, 600, 600, 0.5).then(compressedFile => {
+      selectedImages.push(compressedFile);
+      renderImagePreviews();
+      const okb = (file.size / 1024).toFixed(0);
+      const ckb = (compressedFile.size / 1024).toFixed(0);
+      showToast(`✅ Foto u kompresua! ${okb}KB → ${ckb}KB`, false);
+    }).catch(err => {
+      console.error('Compression failed:', err);
+      selectedImages.push(file);
+      renderImagePreviews();
+      showToast('⚠️ Duke përdorur foton origjinale.', true);
+    });
+  }
+  
+  event.target.value = '';
+};
+
+function renderImagePreviews(){
+  const container=document.getElementById('imagePreviews');
+  if(!container)return;
+  if(!selectedImages.length){container.innerHTML='<div style="color:#8892a4;font-size:0.85rem;text-align:center;padding:1rem;">📷 Asnjë foto e zgjedhur</div>';return;}
+  container.innerHTML=selectedImages.map((file,index)=>{
+    const url=URL.createObjectURL(file);
+    const sizeKB=(file.size/1024).toFixed(0);
+    return `<div style="position:relative;display:inline-block;margin:0.25rem;">
+      <img src="${url}" style="width:80px;height:80px;object-fit:cover;border-radius:8px;border:2px solid var(--border);" />
+      <button onclick="removeImage(${index})" style="position:absolute;top:-8px;right:-8px;background:var(--red);color:white;border:none;border-radius:50%;width:22px;height:22px;font-size:0.7rem;cursor:pointer;font-weight:bold;">✕</button>
+      <div style="font-size:0.6rem;color:#22c55e;text-align:center;">${sizeKB}KB</div>
+    </div>`;
+  }).join('');
+}
+
+window.removeImage=function(index){selectedImages.splice(index,1);renderImagePreviews();};
+
+async function uploadImages(partId){
+  if(!selectedImages.length)return[];
+  const uploadPromises=selectedImages.map(async(file,index)=>{
+    const filename=`parts/${currentUser.uid}/${partId}_${index}_${Date.now()}.jpg`;
+    const storageRef=storage.ref(filename);
+    await storageRef.put(file);
+    return await storageRef.getDownloadURL();
+  });
+  return await Promise.all(uploadPromises);
+}
+
+// ════════════════════════════════════
+//  AUTH — LOGIN / REGISTER / LOGOUT
+// ════════════════════════════════════
+
+auth.onAuthStateChanged(async user=>{if(user){currentUser=user;await loadBusinessProfile(user.uid);showApp();}else{currentUser=null;currentBiz=null;showLogin();}});
+async function loadBusinessProfile(uid){try{const bizDoc=await getDoc(doc(db,"businesses",uid));if(bizDoc.exists())currentBiz=bizDoc.data();else currentBiz={name:currentUser.email,plan:'basic',city:'Tiranë'};updateBizDisplay();}catch(e){currentBiz={name:currentUser?.email||'Biznesi',plan:'basic',city:''};updateBizDisplay();}}
+function updateBizDisplay(){const el=document.getElementById('bizName'),pl=document.getElementById('bizPlan');if(el)el.textContent=currentBiz?.businessName||currentBiz?.name||'Biznesi Im';const plan=currentBiz?.plan||'basic',planData=PLANS[plan];if(pl)pl.textContent=planData.icon+' '+planData.name.toUpperCase()+' · '+Math.round(planData.fee*100)+'%';renderPlanCards();}
+function renderPlanCards(){const plan=currentBiz?.plan||'basic';const cpd=document.getElementById('currentPlanDisplay');if(cpd){const p=PLANS[plan];cpd.innerHTML=`<div style="background:rgba(255,255,255,0.04);border:2px solid ${p.color};border-radius:12px;padding:1.25rem;display:flex;align-items:center;gap:1.25rem;"><div style="font-size:2.5rem">${p.icon}</div><div style="flex:1"><div style="font-family:'Bebas Neue',sans-serif;font-size:1.4rem;letter-spacing:2px;color:${p.color}">${p.name.toUpperCase()}</div><div style="font-size:0.85rem;color:#8892a4;">${p.monthly===0?'Falas':'€'+p.monthly+'/muaj'} · <strong>${Math.round(p.fee*100)}% komision</strong></div></div></div>`;}
+  const pc=document.getElementById('planCards');if(!pc)return;
+  pc.innerHTML=Object.entries(PLANS).map(([key,p])=>{const isCurrent=key===plan;return `<div style="background:${isCurrent?'rgba(255,255,255,0.06)':'var(--panel)'};border:2px solid ${isCurrent?p.color:'var(--border)'};border-radius:12px;padding:1.25rem;position:relative;"><div style="text-align:center;margin-bottom:1rem;"><div style="font-size:2rem;">${p.icon}</div><div style="font-family:'Bebas Neue',sans-serif;font-size:1.3rem;letter-spacing:2px;color:${p.color}">${p.name.toUpperCase()}</div><div style="font-size:1.5rem;font-weight:800;">${p.monthly===0?'Falas':'€'+p.monthly+'<span style="font-size:0.75rem;">/muaj</span>'}</div></div><div style="border-top:1px solid var(--border);padding-top:1rem;"><div style="display:flex;justify-content:space-between;font-size:0.85rem;margin-bottom:0.5rem;"><span style="color:#8892a4">Komision</span><strong style="color:${p.color}">${Math.round(p.fee*100)}%</strong></div>${!isCurrent?`<button onclick="requestUpgrade('${key}')" style="width:100%;background:${p.color};color:${p.color==='#f5c518'||p.color==='#e2e8f0'?'#000':'#fff'};border:none;border-radius:8px;padding:9px;font-weight:800;cursor:pointer;">UPGRADE →</button>`:'<div style="text-align:center;color:#8892a4;">✓ Aktiv</div>'}</div></div>`;}).join('');}
+window.requestUpgrade=async function(planKey){
+  if(!currentUser||!currentBiz)return;
+  try{await db.collection("plan_requests").add({businessId:currentUser.uid,businessName:currentBiz?.businessName||currentBiz?.name||'',email:currentUser?.email||'',fromPlan:currentBiz?.plan||'basic',toPlan:planKey,status:'pending',createdAt:firebase.firestore.FieldValue.serverTimestamp()});showToast('✅ Kërkesa u dërgua! Do të njoftoheni kur të aprovohet.');}catch(e){showToast('❌ Gabim',true);}
+};
+
+window.doLogin=async function(){const e=document.getElementById('loginEmail').value.trim(),p=document.getElementById('loginPass').value,btn=document.getElementById('loginBtn');if(!e||!p){showToast('⚠️ Plotëso fushat',true);return;}btn.textContent='Duke hyrë...';btn.disabled=true;try{await auth.signInWithEmailAndPassword(e,p);}catch(err){showToast('❌ '+err.message,true);btn.textContent='HYRJA →';btn.disabled=false;}};
+window.doRegister=async function(){const n=document.getElementById('regBizName').value.trim(),e=document.getElementById('regEmail').value.trim(),p=document.getElementById('regPass').value,p2=document.getElementById('regPass2').value,ph=document.getElementById('regPhone').value.trim(),c=document.getElementById('regCity').value,btn=document.getElementById('regBtn');if(!n||!e||!p||!ph){showToast('⚠️ Plotëso fushat',true);return;}if(p!==p2){showToast('⚠️ Fjalëkalimet nuk përputhen',true);return;}btn.textContent='Duke u regjistruar...';btn.disabled=true;try{const cred=await auth.createUserWithEmailAndPassword(e,p);await setDoc(doc(db,"businesses",cred.user.uid),{businessName:n,email:e,phone:ph,city:c,plan:'basic',commissionRate:8,createdAt:firebase.firestore.FieldValue.serverTimestamp(),uid:cred.user.uid});showToast('🎉 Llogaria u krijua!');}catch(err){showToast('❌ '+err.message,true);btn.textContent='KRIJO LLOGARINË →';btn.disabled=false;}};
+window.doLogout=async()=>{await auth.signOut();};
+
+// ════════════════════════════════════
+//  PARTS — LOAD / ADD / DELETE
+// ════════════════════════════════════
+
+async function loadMyParts(){if(!currentUser)return;db.collection("parts").where("uid","==",currentUser.uid).onSnapshot(snap=>{myParts=snap.docs.map(d=>({id:d.id,...d.data()}));myParts.sort((a,b)=>(b.createdAt?.toMillis?.()||0)-(a.createdAt?.toMillis?.()||0));renderMyParts();updateDashboardStats();},e=>{console.error(e);});}
+async function loadMyOrders(){if(!currentUser)return;db.collection("orders").where("sellerUid","==",currentUser.uid).onSnapshot(snap=>{myOrders=snap.docs.map(d=>({id:d.id,...d.data()}));myOrders.sort((a,b)=>(b.createdAt?.toMillis?.()||0)-(a.createdAt?.toMillis?.()||0));renderOrders('all');renderRecentOrders();updateDashboardStats();updateCharts();},e=>{console.error(e);});}
+
+window.submitPart=async function(){
+  const name=document.getElementById('fName').value.trim(),price=parseFloat(document.getElementById('fPrice').value),fits=document.getElementById('fFits').value.trim(),cat=document.getElementById('fCat').value,cond=document.getElementById('fCond').value,stock=parseInt(document.getElementById('fStock').value)||1,desc=document.getElementById('fDesc').value.trim(),btn=document.getElementById('submitPartBtn');
+  if(!name||!price||!fits){showToast('⚠️ Plotëso fushat',true);return;}
+  btn.textContent='Duke publikuar...';btn.disabled=true;
+  try{
+    const partRef=await db.collection("parts").add({
+      name:{sq:name,en:name},basePrice:price,fits,category:cat,condition:cond,stock,description:desc,
+      emoji:getCatEmoji(cat),sellerName:currentBiz?.businessName||currentBiz?.name||'',sellerCity:currentBiz?.city||'',
+      uid:currentUser.uid,status:'active',views:0,sales:0,rating:5,images:[],
+      createdAt:firebase.firestore.FieldValue.serverTimestamp()
+    });
+    if(selectedImages.length>0){btn.textContent='Duke ngarkuar fotot...';const imageUrls=await uploadImages(partRef.id);await partRef.update({images:imageUrls});}
+    showToast('✅ Pjesa u publikua!');
+    ['fName','fFits','fPrice','fStock','fDesc'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+    selectedImages=[];renderImagePreviews();calcFee();showPage('parts');
+  }catch(e){showToast('❌ Gabim',true);btn.textContent='PUBLIKO PJESËN ✓';btn.disabled=false;}
+};
+
+window.deletePart=function(id){deletePartId=id;document.getElementById('deleteModal').classList.add('open');};
+window.confirmDelete=async function(){
+  if(!deletePartId)return;
+  try{
+    const part=myParts.find(p=>p.id===deletePartId);
+    if(part?.images?.length){for(const url of part.images){try{const ref=storage.refFromURL(url);await ref.delete();}catch(e){console.log('Could not delete image:',e);}}}
+    await db.collection("parts").doc(deletePartId).delete();
+    showToast('🗑️ Pjesa u fshi.');
+  }catch(e){showToast('❌ Gabim',true);}
+  closeModal('deleteModal');deletePartId=null;
+};
+
+window.togglePartStatus=async function(id,s){const ns=s==='active'?'inactive':'active';await db.collection("parts").doc(id).update({status:ns});showToast('✅ Statusi u ndryshua!');};
+window.saveSettings=async function(){if(!currentUser)return;const n=document.getElementById('setBizName').value.trim(),p=document.getElementById('setPhone').value.trim(),c=document.getElementById('setCity').value;await db.collection("businesses").doc(currentUser.uid).update({businessName:n,phone:p,city:c});currentBiz={...currentBiz,businessName:n,phone:p,city:c};updateBizDisplay();showToast('✅ Ndryshimet u ruajtën!');};
+
+// ════════════════════════════════════
+//  RENDER FUNCTIONS
+// ════════════════════════════════════
+
+function updateDashboardStats(){const e=myOrders.filter(o=>o.status==='sold').reduce((s,o)=>s+(o.platformFee||0),0);document.getElementById('statEarn').textContent=e.toLocaleString()+' L';document.getElementById('statSales').textContent=myOrders.filter(o=>o.status==='sold').length;document.getElementById('statViews').textContent=myParts.reduce((s,p)=>s+(p.views||0),0).toLocaleString();document.getElementById('statParts').textContent=myParts.filter(p=>p.status==='active').length;}
+function renderMyParts(){
+  const tbody=document.getElementById('myPartsBody');if(!tbody)return;
+  if(!myParts.length){tbody.innerHTML='<tr><td colspan="8"><div style="text-align:center;padding:3rem;color:#8892a4;">📦 Nuk keni pjesë të listuara.</div></td></tr>';return;}
+  tbody.innerHTML=myParts.map(p=>{
+    const name=typeof p.name==='object'?p.name[lang]||p.name.sq:p.name;
+    const thumb=p.images?.length?`<img src="${p.images[0]}" style="width:40px;height:40px;object-fit:cover;border-radius:6px;vertical-align:middle;margin-right:8px;" />`:'';
+    return `<tr><td>${thumb}${p.emoji||'🔩'} <strong>${name}</strong><br><small style="color:#666">${p.fits||''}</small></td><td style="color:#8892a4">${p.category||''}</td><td><span class="status-badge ${p.condition==='new'?'badge-active':'badge-used'}">${p.condition==='new'?'E Re':'E Përdorur'}</span></td><td>${(p.basePrice||0).toLocaleString()} L</td><td style="font-weight:800;color:#f5c518">${((p.basePrice||0)+Math.round((p.basePrice||0)*PLATFORM_FEE)).toLocaleString()} L</td><td style="font-weight:700;">${p.stock||0}</td><td><span class="status-badge ${p.status==='active'?'badge-active':'badge-inactive'}">${p.status==='active'?'Aktiv':'Joaktiv'}</span></td><td><div style="display:flex;gap:0.5rem;"><button class="icon-btn" onclick="togglePartStatus('${p.id}','${p.status}')">${p.status==='active'?'⏸️':'▶️'}</button><button class="icon-btn" style="border-color:#e02020;color:#e02020" onclick="deletePart('${p.id}')">🗑️</button></div></td></tr>`;
+  }).join('');
+}
+function renderRecentOrders(){const tbody=document.getElementById('recentOrdersBody');if(!tbody)return;const recent=myOrders.slice(0,5);tbody.innerHTML=recent.length?recent.map(o=>orderRow(o)).join(''):'<tr><td colspan="7" style="text-align:center;padding:2rem;color:#8892a4;">Ende nuk keni porosi.</td></tr>';}
+function renderOrders(filter){const tbody=document.getElementById('allOrdersBody');if(!tbody)return;let filtered=myOrders;if(filter==='pending')filtered=myOrders.filter(o=>o.status==='pending');if(filter==='sold')filtered=myOrders.filter(o=>o.status==='sold');if(filter==='pickup')filtered=myOrders.filter(o=>o.payMethod==='pickup');document.getElementById('orderCount').textContent=filtered.length+' porosi';tbody.innerHTML=filtered.length?filtered.map(o=>orderRow(o,true)).join(''):'<tr><td colspan="8" style="text-align:center;padding:2rem;color:#8892a4;">Ende nuk keni porosi.</td></tr>';}
+function orderRow(o,showDate=false){const sm={sold:'badge-sold',pending:'badge-pending',cancelled:'badge-inactive'},sl=o.status==='sold'?'Shitur':o.status==='pending'?'Në Pritje':'Anuluar',pl=o.payMethod==='online'?'💳 Online':'🤝 Marrje',ds=o.createdAt?.toDate?o.createdAt.toDate().toLocaleDateString('sq-AL'):'—',actions=o.status==='pending'?`<div style="display:flex;gap:0.4rem;"><button class="icon-btn" style="background:rgba(34,197,94,0.15);border-color:#22c55e;color:#22c55e;padding:5px 10px;font-size:0.75rem;font-weight:800;" onclick="markOrderSold('${o.id}')">✅ Konfirmo</button><button class="icon-btn" style="background:rgba(224,32,32,0.1);border-color:#e02020;color:#e02020;padding:5px 10px;font-size:0.75rem;" onclick="markOrderCancelled('${o.id}')">✕ Anulo</button></div>`:`<button class="icon-btn" style="padding:5px 10px;font-size:0.75rem;" onclick="viewOrderDetails('${o.id}')">👁️ Detaje</button>`;return `<tr><td style="font-weight:800;color:#e02020">#${o.id?.slice(-6)||'000000'}</td><td>${o.partEmoji||'🔩'} ${o.partName||'—'}</td><td><div style="font-weight:700">${o.buyerName||'—'}</div><div style="font-size:0.75rem;color:#8892a4">${o.buyerPhone||''}</div></td>${showDate?`<td style="color:#8892a4;font-size:0.8rem">${ds}</td>`:''}<td style="font-weight:800;color:#f5c518">${(o.totalPrice||0).toLocaleString()} L</td><td><span class="status-badge ${sm[o.status]||'badge-inactive'}">${sl}</span></td><td style="font-size:0.8rem;">${pl}</td><td>${actions}</td></tr>`;}
+window.markOrderSold=async function(id){const o=myOrders.find(x=>x.id===id);if(!o)return;await db.collection("orders").doc(id).update({status:'sold',completedAt:firebase.firestore.FieldValue.serverTimestamp()});if(o.partId){const pr=db.collection("parts").doc(o.partId),ps=await pr.get();if(ps.exists){const cs=ps.data().stock||0,ns=Math.max(0,cs-(o.quantity||1)),updates={stock:ns,sales:(ps.data().sales||0)+(o.quantity||1)};if(ns===0)updates.status='inactive';await updateDoc(pr,updates);showToast('✅ Shitur!');}}};
+window.markOrderCancelled=async function(id){if(!confirm('Anulo këtë porosi?'))return;await db.collection("orders").doc(id).update({status:'cancelled'});showToast('🚫 Porosia u anulua.');};
+window.viewOrderDetails=function(id){const o=myOrders.find(x=>x.id===id);if(!o)return;document.getElementById('orderDetailContent').innerHTML=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;margin-bottom:1.25rem;"><div class="dash-card"><div class="dash-num">${(o.totalPrice||0).toLocaleString()} L</div><div class="dash-label">Çmimi Total</div></div><div class="dash-card"><div class="dash-num" style="color:#e02020">+${(o.platformFee||0).toLocaleString()} L</div><div class="dash-label">Fitimi yt</div></div></div><div style="background:var(--bg);border-radius:10px;padding:1.25rem;font-size:0.88rem;line-height:2;"><div>📦 Pjesa: ${o.partEmoji||''} ${o.partName||'—'}</div><div>👤 Blerësi: ${o.buyerName||'—'}</div><div>📞 Telefon: <a href="tel:${o.buyerPhone||''}" style="color:#3b82f6">${o.buyerPhone||'—'}</a></div></div>`;document.getElementById('orderDetailModal').classList.add('open');};
+
+// ════════════════════════════════════
+//  CHARTS
+// ════════════════════════════════════
+
+function updateCharts(){
+  const sold=myOrders.filter(o=>o.status==='sold');
+  const now=new Date();const days=[];for(let i=6;i>=0;i--){const d=new Date(now);d.setDate(d.getDate()-i);days.push(d);}
+  const dailyData=days.map(day=>sold.filter(o=>{const od=o.createdAt?.toDate?o.createdAt.toDate():new Date();return od.toDateString()===day.toDateString();}).length);
+  const labels=days.map(d=>d.toLocaleDateString('sq-AL',{weekday:'short',day:'numeric'}));
+  const ctx1=document.getElementById('salesChart')?.getContext('2d');
+  if(ctx1){if(salesChart)salesChart.destroy();salesChart=new Chart(ctx1,{type:'bar',data:{labels,datasets:[{label:'Shitje',data:dailyData,backgroundColor:'#e02020',borderRadius:6}]},options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,ticks:{stepSize:1}}}}});}
+  const catMap={};myParts.forEach(p=>{const c=p.category||'other';catMap[c]=(catMap[c]||0)+1;});
+  const cats=Object.keys(catMap),catVals=Object.values(catMap);
+  const ctx2=document.getElementById('categoryChart')?.getContext('2d');
+  if(ctx2){if(categoryChart)categoryChart.destroy();categoryChart=new Chart(ctx2,{type:'doughnut',data:{labels:cats,datasets:[{data:catVals,backgroundColor:['#e02020','#f59e0b','#3b82f6','#22c55e','#a855f7','#06b6d4']}]},options:{responsive:true,plugins:{legend:{position:'bottom'}}}});}
+  document.getElementById('donutTotal').textContent=sold.length;
+}
+
+// ════════════════════════════════════
+//  EARNINGS
+// ════════════════════════════════════
+
+let currentEarnFilter='all';
+window.filterEarnings=function(f,btn){currentEarnFilter=f;document.querySelectorAll('.ot-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderEarnings();};
+function renderEarnings(){
+  const sold=myOrders.filter(o=>o.status==='sold'),now=new Date(),thisMonthKey=now.getFullYear()+'-'+(now.getMonth()+1).toString().padStart(2,'0');
+  let filtered=sold;
+  if(currentEarnFilter==='thismonth')filtered=sold.filter(o=>{const d=o.createdAt?.toDate?o.createdAt.toDate():new Date();return(d.getFullYear()+'-'+(d.getMonth()+1).toString().padStart(2,'0'))===thisMonthKey;});
+  else if(currentEarnFilter==='online')filtered=sold.filter(o=>o.payMethod==='online');
+  else if(currentEarnFilter==='pickup')filtered=sold.filter(o=>o.payMethod==='pickup');
+  document.getElementById('salesCount').textContent=filtered.length+' shitje';
+  const totalNet=sold.reduce((s,o)=>s+((o.totalPrice||0)-(o.platformFee||0)),0);
+  document.getElementById('earnTotalVal').textContent=totalNet.toLocaleString()+' L';
+  document.getElementById('earnMonthVal').textContent=sold.filter(o=>{const d=o.createdAt?.toDate?o.createdAt.toDate():new Date();return(d.getFullYear()+'-'+(d.getMonth()+1).toString().padStart(2,'0'))===thisMonthKey;}).reduce((s,o)=>s+((o.totalPrice||0)-(o.platformFee||0)),0).toLocaleString()+' L';
+  document.getElementById('earnTotalOrders').textContent=sold.length;
+  document.getElementById('earnFeeVal').textContent=sold.reduce((s,o)=>s+(o.platformFee||0),0).toLocaleString()+' L';
+  const salesBody=document.getElementById('salesListBody');
+  if(salesBody){salesBody.innerHTML=filtered.length?filtered.map(o=>{const d=o.createdAt?.toDate?o.createdAt.toDate():new Date(),gross=o.totalPrice||0,fee=o.platformFee||0,net=gross-fee;return `<tr><td style="font-weight:800;color:#e02020;font-size:0.8rem">#${o.id?.slice(-6)||'—'}</td><td>${o.partEmoji||'🔩'} ${o.partName||'—'}</td><td>${o.buyerName||'—'}</td><td style="font-size:0.75rem;">${o.buyerPhone||'—'}</td><td style="color:#8892a4;font-size:0.78rem;">${d.toLocaleDateString('sq-AL')}</td><td style="font-weight:800;color:#f5c518">${gross.toLocaleString()} L</td><td style="font-weight:800;color:#e02020">-${fee.toLocaleString()} L</td><td style="font-weight:800;color:#22c55e">+${net.toLocaleString()} L</td></tr>`;}).join(''):'<tr><td colspan="8" style="text-align:center;padding:2rem;">Ende nuk keni shitje.</td></tr>';}
+  const byMonth={};sold.forEach(o=>{const d=o.createdAt?.toDate?o.createdAt.toDate():new Date(),key=d.getFullYear()+'-'+(d.getMonth()+1).toString().padStart(2,'0'),label=d.toLocaleDateString('sq-AL',{month:'long',year:'numeric'});if(!byMonth[key])byMonth[key]={label,orders:0,gross:0,fee:0,net:0};byMonth[key].orders++;byMonth[key].gross+=o.totalPrice||0;byMonth[key].fee+=o.platformFee||0;byMonth[key].net+=(o.totalPrice||0)-(o.platformFee||0);});
+  const tbody=document.getElementById('earningsBody');if(tbody)tbody.innerHTML=Object.values(byMonth).reverse().map(m=>`<tr><td style="font-weight:800">${m.label}</td><td style="font-weight:700">${m.orders}</td><td style="color:#f5c518;font-weight:800">${m.gross.toLocaleString()} L</td><td style="color:#e02020;font-weight:800">-${m.fee.toLocaleString()} L</td><td style="color:#22c55e;font-weight:800">+${m.net.toLocaleString()} L</td><td><span class="status-badge badge-active">✓ Konfirmuar</span></td></tr>`).join('')||'<tr><td colspan="6" style="text-align:center;padding:2rem;">Ende nuk keni shitje.</td></tr>';
+}
+
+window.calcFee=function(){const price=parseFloat(document.getElementById('fPrice')?.value)||0,plan=currentBiz?.plan||'basic',feeRate=PLANS[plan]?.fee||0.08,fee=Math.round(price*feeRate);document.getElementById('fpBase').textContent=price.toLocaleString()+' L';document.getElementById('fpFee').textContent=fee.toLocaleString()+' L ('+Math.round(feeRate*100)+'%)';document.getElementById('fpTotal').textContent=(price+fee).toLocaleString()+' L';};
+
+// ════════════════════════════════════
+//  UI HELPERS
+// ════════════════════════════════════
+
+function showApp(){document.getElementById('loginScreen').style.display='none';document.getElementById('app').style.display='flex';loadMyParts();loadMyOrders();applyTranslations();showPage('dashboard');}
+function showLogin(){document.getElementById('loginScreen').style.display='flex';document.getElementById('app').style.display='none';}
+window.showPage=function(page){currentPage=page;document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById('page-'+page)?.classList.add('active');document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));document.getElementById('nav-'+page)?.classList.add('active');document.getElementById('topbarTitle').textContent=T[lang].pages[page]||'';if(page==='earnings')renderEarnings();if(page==='settings')populateSettings();if(page==='dashboard')updateCharts();if(window.innerWidth<=768)document.getElementById('sidebar')?.classList.remove('open');};
+window.filterOrders=function(f,btn){document.querySelectorAll('.ot-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderOrders(f);};
+window.toggleSidebar=function(){document.getElementById('sidebar')?.classList.toggle('open');};
+window.showTab=function(tab,btn){document.querySelectorAll('.auth-tab').forEach(t=>t.classList.remove('active'));btn.classList.add('active');document.getElementById('loginForm').style.display=tab==='login'?'block':'none';document.getElementById('registerForm').style.display=tab==='register'?'block':'none';};
+function populateSettings(){if(!currentBiz)return;document.getElementById('setBizName').value=currentBiz.businessName||currentBiz.name||'';document.getElementById('setPhone').value=currentBiz.phone||'';document.getElementById('setEmail2').value=currentUser?.email||'';const ce=document.getElementById('setCity');if(ce&&currentBiz.city)ce.value=currentBiz.city;}
+function showToast(msg,isErr){const t=document.getElementById('toast');t.textContent=msg;t.style.background=isErr?'#e02020':'#22c55e';t.classList.add('show');setTimeout(()=>t.classList.remove('show'),4000);}
+window.closeModal=function(id){document.getElementById(id)?.classList.remove('open');};
+
+const T={sq:{pages:{dashboard:'PASQYRA',parts:'PJESËT E MIA',addpart:'SHTO PJESË',orders:'POROSITË',earnings:'FITIMET',settings:'CILËSIMET'},sidebarSub:'PANELI I BIZNESIT',navDash:'Pasqyra',navParts:'Pjesët e Mia',navAdd:'Shto Pjesë',navOrders:'Porositë',navEarn:'Fitimet',navSet:'Cilësimet',logout:'Dil nga Llogaria',navSell:'Shit Këtu'},en:{pages:{dashboard:'OVERVIEW',parts:'MY PARTS',addpart:'ADD PART',orders:'ORDERS',earnings:'EARNINGS',settings:'SETTINGS'},sidebarSub:'BUSINESS DASHBOARD',navDash:'Overview',navParts:'My Parts',navAdd:'Add Part',navOrders:'Orders',navEarn:'Earnings',navSet:'Settings',logout:'Sign Out',navSell:'Sell Here'}};
+window.setLang=function(l){lang=l;document.querySelectorAll('.lang-btn').forEach(b=>b.classList.remove('active'));document.querySelector(`.lang-btn[onclick="setLang('${l}')"]`)?.classList.add('active');applyTranslations();};
+window.setLoginLang=function(l){lang=l;document.querySelectorAll('.ll-btn').forEach(b=>b.classList.remove('active'));document.querySelector(`.ll-btn[onclick="setLoginLang('${l}')"]`)?.classList.add('active');applyTranslations();};
+function applyTranslations(){const tl=T[lang];document.querySelectorAll('[data-t]').forEach(el=>{const key=el.dataset.t;if(tl[key]!==undefined)el.textContent=tl[key];});document.getElementById('topbarTitle').textContent=tl.pages[currentPage]||'';document.getElementById('sidebarSub').textContent=tl.sidebarSub;}
+document.addEventListener('DOMContentLoaded',()=>{applyTranslations();document.querySelectorAll('.modal-overlay').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('open');}));document.addEventListener('keypress',e=>{if(e.key==='Enter'&&document.getElementById('loginScreen').style.display!=='none')doLogin();});});
+</script>
+<style>
+:root{--bg:#0a0c10;--panel:#111420;--card:#181d2a;--border:#232840;--red:#e02020;--red-dark:#b01515;--red-glow:rgba(224,32,32,0.12);--chrome:#8892a4;--white:#eef0f5;--yellow:#f5c518;--green:#22c55e;--green-dim:rgba(34,197,94,0.12);--blue:#3b82f6;--blue-dim:rgba(59,130,246,0.12);--orange:#f59e0b;--orange-dim:rgba(245,158,11,0.12);--radius:14px;--sw:240px;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--white);min-height:100vh;}
+::-webkit-scrollbar{width:5px;}::-webkit-scrollbar-track{background:var(--panel);}::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}::-webkit-scrollbar-thumb:hover{background:var(--red);}
+.login-screen{position:fixed;inset:0;background:var(--bg);z-index:1000;display:flex;align-items:center;justify-content:center;background-image:radial-gradient(ellipse at 20% 50%,rgba(224,32,32,0.06) 0%,transparent 60%);}
+.login-box{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:2.5rem;width:100%;max-width:440px;box-shadow:0 0 80px rgba(224,32,32,0.08);animation:fadeUp 0.4s ease;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.login-logo{font-family:'Bebas Neue',sans-serif;font-size:2rem;letter-spacing:3px;margin-bottom:1.5rem;text-align:center;}
+.login-logo span{color:var(--red);}.login-logo a{color:inherit;text-decoration:none;}
+.auth-tabs{display:flex;gap:0;margin-bottom:1.5rem;background:var(--panel);border-radius:10px;overflow:hidden;}
+.auth-tab{flex:1;padding:10px;text-align:center;cursor:pointer;font-weight:800;font-size:0.85rem;border:none;background:transparent;color:var(--chrome);font-family:'Nunito',sans-serif;transition:all 0.2s;}
+.auth-tab.active{background:var(--red);color:white;}
+.login-lang{display:flex;gap:0.5rem;justify-content:center;margin-bottom:1.5rem;}
+.ll-btn{background:var(--panel);border:1px solid var(--border);color:var(--chrome);padding:5px 14px;border-radius:6px;font-size:0.78rem;font-weight:800;cursor:pointer;font-family:'Nunito',sans-serif;transition:all 0.2s;}
+.ll-btn.active{background:var(--red);border-color:var(--red);color:white;}
+.inp-group{margin-bottom:1rem;}
+.inp-group label{display:block;font-size:0.75rem;font-weight:800;color:var(--chrome);margin-bottom:5px;text-transform:uppercase;letter-spacing:1px;}
+.inp-group input,.inp-group select{width:100%;background:var(--panel);border:1px solid var(--border);border-radius:8px;color:var(--white);padding:11px 14px;font-family:'Nunito',sans-serif;font-size:0.9rem;outline:none;transition:border-color 0.2s;}
+.inp-group input:focus,.inp-group select:focus{border-color:var(--red);}
+.inp-row{display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;}
+.auth-btn{width:100%;background:var(--red);color:white;border:none;border-radius:10px;padding:13px;font-family:'Bebas Neue',sans-serif;font-size:1.2rem;letter-spacing:3px;cursor:pointer;transition:background 0.2s;margin-top:0.5rem;}
+.auth-btn:hover{background:var(--red-dark);}.auth-btn:disabled{opacity:0.6;cursor:not-allowed;}
+.login-hint{text-align:center;font-size:0.75rem;color:var(--chrome);margin-top:0.75rem;}
+#app{display:none;min-height:100vh;}
+.sidebar{width:var(--sw);background:var(--panel);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100vh;z-index:50;transition:transform 0.3s;}
+.sidebar-logo{padding:1.25rem 1.5rem;border-bottom:1px solid var(--border);font-family:'Bebas Neue',sans-serif;font-size:1.4rem;letter-spacing:2px;}
+.sidebar-logo span{color:var(--red);}
+.sidebar-logo small{display:block;font-family:'Nunito',sans-serif;font-size:0.65rem;font-weight:800;color:var(--chrome);letter-spacing:1px;margin-top:2px;}
+.sidebar-nav{flex:1;padding:0.75rem 0;overflow-y:auto;}
+.nav-section{padding:0.5rem 1.5rem;font-size:0.65rem;font-weight:800;color:#444;text-transform:uppercase;letter-spacing:2px;margin-top:0.5rem;}
+.nav-item{display:flex;align-items:center;gap:0.75rem;padding:0.7rem 1.5rem;cursor:pointer;transition:all 0.2s;font-weight:700;font-size:0.85rem;color:var(--chrome);border-left:3px solid transparent;text-decoration:none;}
+.nav-item:hover{color:var(--white);background:rgba(255,255,255,0.04);}
+.nav-item.active{color:var(--red);border-left-color:var(--red);background:var(--red-glow);}
+.nav-item .ico{font-size:1rem;width:20px;text-align:center;}
+.sidebar-bottom{padding:1.25rem;border-top:1px solid var(--border);}
+.biz-badge{background:var(--red-glow);border:1px solid rgba(224,32,32,0.3);border-radius:10px;padding:0.75rem;margin-bottom:0.75rem;}
+.biz-badge .biz-name{font-weight:800;font-size:0.88rem;}
+.biz-badge .biz-plan{font-size:0.7rem;color:var(--red);font-weight:700;text-transform:uppercase;letter-spacing:1px;}
+.back-link{display:block;text-align:center;color:var(--chrome);font-size:0.75rem;font-weight:800;text-decoration:none;margin-bottom:0.5rem;padding:6px;border:1px solid var(--border);border-radius:8px;transition:all 0.2s;}
+.back-link:hover{border-color:var(--red);color:var(--red);}
+.logout-btn{width:100%;background:transparent;border:1px solid var(--border);color:var(--chrome);border-radius:8px;padding:8px;font-family:'Nunito',sans-serif;font-weight:700;font-size:0.8rem;cursor:pointer;transition:all 0.2s;}
+.logout-btn:hover{border-color:var(--red);color:var(--red);}
+.main{margin-left:var(--sw);flex:1;display:flex;flex-direction:column;min-height:100vh;}
+.topbar{background:var(--panel);border-bottom:1px solid var(--border);padding:0 2rem;height:58px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:40;}
+.topbar-title{font-family:'Bebas Neue',sans-serif;font-size:1.3rem;letter-spacing:2px;}
+.topbar-right{display:flex;align-items:center;gap:1rem;}
+.lang-toggle{display:flex;background:var(--bg);border:1px solid var(--border);border-radius:8px;overflow:hidden;}
+.lang-btn{padding:5px 12px;font-size:0.72rem;font-weight:800;cursor:pointer;border:none;background:transparent;color:var(--chrome);font-family:'Nunito',sans-serif;transition:all 0.2s;}
+.lang-btn.active{background:var(--red);color:white;}
+.sidebar-toggle{display:none;background:none;border:none;color:var(--white);font-size:1.3rem;cursor:pointer;}
+.page{padding:1.75rem;display:none;}.page.active{display:block;}
+.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:1.25rem;margin-bottom:1.75rem;}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:1.5rem;position:relative;overflow:hidden;transition:border-color 0.2s;}
+.stat-card:hover{border-color:var(--red);}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;}
+.green::before{background:var(--green);}.red::before{background:var(--red);}.blue::before{background:var(--blue);}.orange::before{background:var(--orange);}
+.stat-ico{font-size:1.6rem;margin-bottom:0.75rem;}
+.stat-val{font-family:'Bebas Neue',sans-serif;font-size:1.8rem;letter-spacing:2px;margin-bottom:0.25rem;}
+.stat-lbl{font-size:0.75rem;color:var(--chrome);text-transform:uppercase;letter-spacing:1px;}
+.stat-chg{font-size:0.75rem;font-weight:800;margin-top:0.5rem;color:var(--green);}
+.charts-row{display:grid;grid-template-columns:2fr 1fr;gap:1.25rem;margin-bottom:1.75rem;}
+.chart-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:1.5rem;}
+.chart-title{font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:2px;margin-bottom:1.25rem;}
+.donut-wrap{display:flex;flex-direction:column;align-items:center;gap:1rem;}
+.donut{width:110px;height:110px;position:relative;}
+.donut-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.donut-pct{font-family:'Bebas Neue',sans-serif;font-size:1.5rem;}
+.donut-sub{font-size:0.62rem;color:var(--chrome);}
+.table-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:1.5rem;}
+.table-header{padding:1.1rem 1.5rem;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);}
+.table-header h3{font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:2px;}
+.tbl-btn{background:var(--red);color:white;border:none;border-radius:8px;padding:7px 16px;font-family:'Nunito',sans-serif;font-weight:800;font-size:0.78rem;cursor:pointer;transition:background 0.2s;}
+.tbl-btn:hover{background:var(--red-dark);}
+.tbl-btn.outline{background:transparent;border:1px solid var(--border);color:var(--chrome);}
+.tbl-btn.outline:hover{border-color:var(--red);color:var(--white);}
+table{width:100%;border-collapse:collapse;}
+thead th{padding:0.7rem 1.25rem;text-align:left;font-size:0.7rem;font-weight:800;color:var(--chrome);text-transform:uppercase;letter-spacing:1px;background:rgba(255,255,255,0.02);}
+tbody tr{border-top:1px solid var(--border);transition:background 0.15s;}
+tbody tr:hover{background:rgba(255,255,255,0.03);}
+tbody td{padding:0.85rem 1.25rem;font-size:0.85rem;}
+.status-badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:0.7rem;font-weight:800;text-transform:uppercase;letter-spacing:1px;}
+.badge-active{background:var(--green-dim);color:var(--green);}
+.badge-used{background:var(--orange-dim);color:var(--orange);}
+.badge-pending{background:var(--orange-dim);color:var(--orange);}
+.badge-sold{background:var(--blue-dim);color:var(--blue);}
+.badge-inactive{background:rgba(255,255,255,0.06);color:var(--chrome);}
+.icon-btn{background:transparent;border:1px solid var(--border);color:var(--chrome);border-radius:6px;padding:4px 8px;cursor:pointer;font-size:0.78rem;transition:all 0.2s;}
+.icon-btn:hover{border-color:var(--red);color:var(--red);}
+.form-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:1.5rem;margin-bottom:1.5rem;}
+.form-card h3{font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:2px;margin-bottom:1.25rem;}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.1rem;}
+.form-full{grid-column:1/-1;}
+.field-group{margin-bottom:0;}
+.field-group label{display:block;font-size:0.75rem;font-weight:800;color:var(--chrome);margin-bottom:5px;text-transform:uppercase;letter-spacing:1px;}
+.field-group input,.field-group select,.field-group textarea{width:100%;background:var(--panel);border:1px solid var(--border);border-radius:8px;color:var(--white);padding:10px 13px;font-family:'Nunito',sans-serif;font-size:0.9rem;outline:none;transition:border-color 0.2s;}
+.field-group input:focus,.field-group select:focus,.field-group textarea:focus{border-color:var(--red);}
+.fee-preview{background:var(--red-glow);border:1px solid rgba(224,32,32,0.3);border-radius:10px;padding:1rem 1.25rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.75rem;}
+.fpi{text-align:center;}
+.fpi .fv{font-family:'Bebas Neue',sans-serif;font-size:1.3rem;}
+.fpi .fl{font-size:0.68rem;color:var(--chrome);text-transform:uppercase;letter-spacing:1px;}
+.fpi.hi .fv{color:var(--green);}
+.fee-divider{font-size:1.3rem;color:var(--chrome);}
+.image-upload-zone{background:var(--panel);border:2px dashed var(--border);border-radius:10px;padding:1.5rem;text-align:center;cursor:pointer;transition:all 0.2s;}
+.image-upload-zone:hover{border-color:var(--red);background:rgba(224,32,32,0.05);}
+.order-timeline{display:flex;gap:0.5rem;margin-bottom:1.5rem;flex-wrap:wrap;}
+.ot-btn{background:var(--card);border:1px solid var(--border);color:var(--chrome);padding:6px 16px;border-radius:20px;font-size:0.78rem;font-weight:800;cursor:pointer;transition:all 0.2s;font-family:'Nunito',sans-serif;}
+.ot-btn.active{background:var(--red);border-color:var(--red);color:white;}
+.settings-row{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:200;align-items:center;justify-content:center;padding:1rem;}
+.modal-overlay.open{display:flex;}
+.modal{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:2rem;max-width:440px;width:100%;position:relative;max-height:90vh;overflow-y:auto;}
+.modal-close{position:absolute;top:1rem;right:1rem;background:none;border:none;color:var(--chrome);font-size:1.3rem;cursor:pointer;}
+.modal h3{font-family:'Bebas Neue',sans-serif;font-size:1.3rem;letter-spacing:2px;margin-bottom:1rem;}
+.toast{position:fixed;bottom:2rem;right:2rem;color:white;padding:1rem 1.5rem;border-radius:10px;font-weight:800;font-size:0.85rem;display:none;z-index:300;box-shadow:0 8px 24px rgba(0,0,0,0.4);max-width:340px;}
+.toast.show{display:block;animation:sIn 0.3s ease;}
+@keyframes sIn{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
+@media(max-width:768px){.sidebar{transform:translateX(-100%);}.sidebar.open{transform:translateX(0);}.main{margin-left:0;}.sidebar-toggle{display:block;}.charts-row,.settings-row,.form-grid{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+
+<div class="login-screen" id="loginScreen">
+  <div class="login-box">
+    <div class="login-lang"><button class="ll-btn active" onclick="setLoginLang('sq')">🇦🇱 Shqip</button><button class="ll-btn" onclick="setLoginLang('en')">🇬🇧 English</button></div>
+    <div class="login-logo"><a href="index.html">Car<span>deals</span>.al</a></div>
+    <div class="auth-tabs"><button class="auth-tab active" onclick="showTab('login',this)">HYRJA NË LLOGARI</button><button class="auth-tab" onclick="showTab('register',this)">REGJISTRO BIZNESIN</button></div>
+    <div id="loginForm"><div class="inp-group"><label>EMAIL</label><input type="email" id="loginEmail" placeholder="biznesi@email.al" /></div><div class="inp-group"><label>FJALËKALIMI</label><input type="password" id="loginPass" placeholder="••••••••" /></div><button class="auth-btn" id="loginBtn" onclick="doLogin()">HYRJA →</button></div>
+    <div id="registerForm" style="display:none"><div class="inp-group"><label>EMRI I BIZNESIT *</label><input type="text" id="regBizName" placeholder="Auto Pjesë Tirana" /></div><div class="inp-row"><div class="inp-group"><label>EMAIL *</label><input type="email" id="regEmail" /></div><div class="inp-group"><label>TELEFON *</label><input type="text" id="regPhone" /></div></div><div class="inp-group"><label>QYTETI</label><select id="regCity"><option>Tiranë</option><option>Durrës</option><option>Shkodër</option><option>Vlorë</option><option>Korçë</option><option>Fier</option><option>Berat</option></select></div><div class="inp-row"><div class="inp-group"><label>FJALËKALIMI *</label><input type="password" id="regPass" /></div><div class="inp-group"><label>KONFIRMO *</label><input type="password" id="regPass2" /></div></div><button class="auth-btn" id="regBtn" onclick="doRegister()">KRIJO LLOGARINË →</button></div>
+  </div>
+</div>
+
+<div id="app" style="display:none;">
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">Car<span>deals</span>.al<small id="sidebarSub">PANELI I BIZNESIT</small></div>
+    <nav class="sidebar-nav">
+      <div class="nav-section">KRYEFAQJA</div>
+      <a class="nav-item active" onclick="showPage('dashboard')" id="nav-dashboard"><span class="ico">📊</span><span data-t="navDash">Pasqyra</span></a>
+      <div class="nav-section">KATALOG</div>
+      <a class="nav-item" onclick="showPage('parts')" id="nav-parts"><span class="ico">🔩</span><span data-t="navParts">Pjesët e Mia</span></a>
+      <a class="nav-item" onclick="showPage('addpart')" id="nav-addpart"><span class="ico">➕</span><span data-t="navAdd">Shto Pjesë</span></a>
+      <div class="nav-section">SHITJE</div>
+      <a class="nav-item" onclick="showPage('orders')" id="nav-orders"><span class="ico">📦</span><span data-t="navOrders">Porositë</span></a>
+      <a class="nav-item" onclick="showPage('earnings')" id="nav-earnings"><span class="ico">💰</span><span data-t="navEarn">Fitimet</span></a>
+      <div class="nav-section">LLOGARIA</div>
+      <a class="nav-item" onclick="showPage('settings')" id="nav-settings"><span class="ico">⚙️</span><span data-t="navSet">Cilësimet</span></a>
+    </nav>
+    <div class="sidebar-bottom">
+      <div class="biz-badge"><div class="biz-name" id="bizName">—</div><div class="biz-plan" id="bizPlan">PLAN STANDARD · 8%</div></div>
+      <a href="index.html" class="back-link" target="_blank">🌐 Cardeals.al ↗</a>
+      <button class="logout-btn" onclick="doLogout()" data-t="logout">Dil nga Llogaria</button>
+    </div>
+  </aside>
+
+  <div class="main">
+    <div class="topbar"><div style="display:flex;align-items:center;gap:1rem;"><button class="sidebar-toggle" onclick="toggleSidebar()">☰</button><div class="topbar-title" id="topbarTitle">PASQYRA</div></div><div class="topbar-right"><div class="lang-toggle"><button class="lang-btn active" onclick="setLang('sq')">🇦🇱 SQ</button><button class="lang-btn" onclick="setLang('en')">🇬🇧 EN</button></div></div></div>
+
+    <!-- Dashboard Page -->
+    <div class="page active" id="page-dashboard">
+      <div class="stats-row">
+        <div class="stat-card green"><div class="stat-ico">💰</div><div class="stat-val" id="statEarn">0 L</div><div class="stat-lbl">Fitimet Tuaja</div><div class="stat-chg">↑ Live</div></div>
+        <div class="stat-card red"><div class="stat-ico">📦</div><div class="stat-val" id="statSales">0</div><div class="stat-lbl">Shitje Totale</div><div class="stat-chg">↑ Live</div></div>
+        <div class="stat-card blue"><div class="stat-ico">👁️</div><div class="stat-val" id="statViews">0</div><div class="stat-lbl">Shikime</div><div class="stat-chg">↑ Live</div></div>
+        <div class="stat-card orange"><div class="stat-ico">🔩</div><div class="stat-val" id="statParts">0</div><div class="stat-lbl">Pjesë Aktive</div><div class="stat-chg">↑ Live</div></div>
+      </div>
+      <div class="charts-row">
+        <div class="chart-card"><div class="chart-title">SHITJET — 7 DITËT E FUNDIT</div><canvas id="salesChart"></canvas></div>
+        <div class="chart-card"><div class="chart-title">SIPAS KATEGORISË</div><div class="donut-wrap"><div class="donut"><div class="donut-center"><div class="donut-pct" id="donutTotal">0</div><div class="donut-sub">SHITJE</div></div></div><canvas id="categoryChart"></canvas></div></div>
+      </div>
+      <div class="table-card"><div class="table-header"><h3>POROSITË E FUNDIT</h3><button class="tbl-btn outline" onclick="showPage('orders')">Shiko Të Gjitha</button></div><table><thead><tr><th>#</th><th>Pjesa</th><th>Blerësi</th><th>Çmimi</th><th>Statusi</th><th>Pagesa</th><th>Veprime</th></tr></thead><tbody id="recentOrdersBody"></tbody></table></div>
+    </div>
+
+    <!-- Parts Page -->
+    <div class="page" id="page-parts">
+      <div class="table-card"><div class="table-header"><h3>PJESËT E MIA</h3><button class="tbl-btn" onclick="showPage('addpart')">+ Shto Pjesë</button></div><table><thead><tr><th>Pjesa</th><th>Kategoria</th><th>Gjendja</th><th>Çmimi Bazë</th><th>Çmimi Final</th><th>Stoku</th><th>Statusi</th><th>Veprime</th></tr></thead><tbody id="myPartsBody"></tbody></table></div>
+    </div>
+
+    <!-- Add Part Page -->
+    <div class="page" id="page-addpart">
+      <div class="form-card"><h3>SHTO PJESË TË RE</h3>
+        <div class="form-grid">
+          <div class="field-group"><label>Emri i Pjesës *</label><input type="text" id="fName" oninput="calcFee()" /></div>
+          <div class="field-group"><label>Kategoria *</label><select id="fCat"><option value="brakes">Frena</option><option value="engine">Motor</option><option value="electrical">Elektrik</option><option value="suspension">Amortizatorë</option><option value="body">Karroceri</option><option value="ac">Klimë</option></select></div>
+          <div class="field-group"><label>Gjendja *</label><select id="fCond"><option value="new">E Re</option><option value="used">E Përdorur</option></select></div>
+          <div class="field-group"><label>Përshtatet për *</label><input type="text" id="fFits" /></div>
+          <div class="field-group"><label>Çmimi Juaj (Lekë) *</label><input type="number" id="fPrice" oninput="calcFee()" /></div>
+          <div class="field-group"><label>Sasia në Stok</label><input type="number" id="fStock" value="1" /></div>
+          <div class="field-group form-full"><label>Përshkrimi</label><textarea id="fDesc" rows="3"></textarea></div>
+          <div class="field-group form-full"><label>Fotot e Pjesës</label>
+            <div class="image-upload-zone" onclick="triggerImageUpload()"><div style="font-size:2rem;margin-bottom:0.5rem;">📷</div><div style="font-weight:700;margin-bottom:0.25rem;">📷 Zgjidh Fotot (max 5)</div><div style="font-size:0.75rem;color:#8892a4;">Fotot kompresohen automatikisht · max 10MB origjinale</div></div>
+            <input type="file" id="imageInput" accept="image/*" multiple style="display:none;" onchange="handleImageSelect(event)" />
+            <div id="imagePreviews" style="margin-top:0.75rem;display:flex;flex-wrap:wrap;gap:0.5rem;"><div style="color:#8892a4;font-size:0.85rem;text-align:center;padding:1rem;">📷 Asnjë foto e zgjedhur</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="form-card"><h3>LLOGARITËSI I ÇMIMIT</h3><div class="fee-preview"><div class="fpi"><div class="fv" id="fpBase">0 L</div><div class="fl">Çmimi Juaj</div></div><div class="fee-divider">+</div><div class="fpi"><div class="fv" id="fpFee">0 L</div><div class="fl">Tarifa (8%)</div></div><div class="fee-divider">=</div><div class="fpi hi"><div class="fv" id="fpTotal">0 L</div><div class="fl">Çmimi Final</div></div></div></div>
+      <div style="display:flex;gap:1rem;"><button class="tbl-btn" style="padding:12px 2rem;" id="submitPartBtn" onclick="submitPart()">PUBLIKO PJESËN ✓</button><button class="tbl-btn outline" style="padding:12px 2rem;" onclick="showPage('parts')">Anulo</button></div>
+    </div>
+
+    <!-- Orders Page -->
+    <div class="page" id="page-orders">
+      <div class="order-timeline"><button class="ot-btn active" onclick="filterOrders('all',this)">Të Gjitha</button><button class="ot-btn" onclick="filterOrders('pending',this)">Në Pritje</button><button class="ot-btn" onclick="filterOrders('sold',this)">Shitur</button><button class="ot-btn" onclick="filterOrders('pickup',this)">Marrje</button></div>
+      <div class="table-card"><div class="table-header"><h3>TË GJITHA POROSITË</h3><span id="orderCount" style="color:#8892a4;font-size:0.82rem;"></span></div><table><thead><tr><th>#</th><th>Pjesa</th><th>Blerësi</th><th>Data</th><th>Çmimi</th><th>Statusi</th><th>Pagesa</th><th>Veprime</th></tr></thead><tbody id="allOrdersBody"></tbody></table></div>
+    </div>
+
+    <!-- Earnings Page -->
+    <div class="page" id="page-earnings">
+      <div class="stats-row">
+        <div class="stat-card green"><div class="stat-ico">💵</div><div class="stat-val" id="earnTotalVal">0 L</div><div class="stat-lbl">Fitim Neto Total</div></div>
+        <div class="stat-card red"><div class="stat-ico">📅</div><div class="stat-val" id="earnMonthVal">0 L</div><div class="stat-lbl">Ky Muaj (Neto)</div></div>
+        <div class="stat-card blue"><div class="stat-ico">📦</div><div class="stat-val" id="earnTotalOrders">0</div><div class="stat-lbl">Shitje të Konfirmuara</div></div>
+        <div class="stat-card orange"><div class="stat-ico">💸</div><div class="stat-val" id="earnFeeVal">0 L</div><div class="stat-lbl">Tarifa Cardeals (8%)</div></div>
+      </div>
+      <div style="display:flex;gap:0.75rem;margin-bottom:1.25rem;"><button class="ot-btn active" onclick="filterEarnings('all',this)">Të Gjitha</button><button class="ot-btn" onclick="filterEarnings('thismonth',this)">Ky Muaj</button><button class="ot-btn" onclick="filterEarnings('online',this)">💳 Online</button><button class="ot-btn" onclick="filterEarnings('pickup',this)">🤝 Marrje</button><span id="salesCount" style="color:#8892a4;font-size:0.82rem;font-weight:700;margin-left:auto;"></span></div>
+      <div class="table-card"><div class="table-header"><h3>📋 LISTA E SHITJEVE TË KONFIRMUARA</h3></div><table><thead><tr><th>#</th><th>Pjesa</th><th>Blerësi</th><th>Kontakti</th><th>Data</th><th>Çmimi</th><th>Tarifa</th><th>Fitimi</th></tr></thead><tbody id="salesListBody"></tbody></table></div>
+      <div class="table-card"><div class="table-header"><h3>📅 PËRMBLEDHJA MUJORE</h3></div><table><thead><tr><th>Muaji</th><th>Nr.</th><th>Vlera</th><th>Tarifa</th><th>Neto</th><th>Statusi</th></tr></thead><tbody id="earningsBody"></tbody></table></div>
+    </div>
+
+    <!-- Settings Page -->
+    <div class="page" id="page-settings">
+      <div class="settings-row">
+        <div class="form-card"><h3>PROFILI I BIZNESIT</h3><div class="field-group" style="margin-bottom:1rem;"><label>Emri i Biznesit</label><input type="text" id="setBizName" /></div><div class="field-group" style="margin-bottom:1rem;"><label>Telefon</label><input type="text" id="setPhone" /></div><div class="field-group" style="margin-bottom:1rem;"><label>Email</label><input type="email" id="setEmail2" disabled /></div><div class="field-group" style="margin-bottom:1rem;"><label>Qyteti</label><select id="setCity"><option>Tiranë</option><option>Durrës</option><option>Shkodër</option><option>Vlorë</option><option>Korçë</option><option>Fier</option><option>Berat</option></select></div><button class="tbl-btn" onclick="saveSettings()">RUAJ NDRYSHIMET</button></div>
+        <div class="form-card" style="grid-column:1/-1;"><h3>⭐ PLANI JUAJ & UPGRADET</h3><div id="currentPlanDisplay" style="margin-bottom:1.5rem;"></div><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;" id="planCards"></div><div style="margin-top:1.25rem;background:rgba(245,197,24,0.06);border:1px solid rgba(245,197,24,0.2);border-radius:10px;padding:1rem;font-size:0.82rem;color:#8892a4;">💡 Dërgoni kërkesën për upgrade dhe administratori do ta aprovojë pas konfirmimit të pagesës.</div></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Modals -->
+<div class="modal-overlay" id="orderDetailModal"><div class="modal"><button class="modal-close" onclick="closeModal('orderDetailModal')">✕</button><h3>📦 Detajet e Porosisë</h3><div id="orderDetailContent"></div></div></div>
+<div class="modal-overlay" id="deleteModal"><div class="modal"><button class="modal-close" onclick="closeModal('deleteModal')">✕</button><h3>FSHI PJESËN?</h3><p style="color:#8892a4;margin-bottom:1.5rem;">Kjo veprim nuk mund të zhbëhet.</p><div style="display:flex;gap:1rem;"><button class="tbl-btn" style="flex:1;padding:11px;background:var(--red);" onclick="confirmDelete()">PO, FSHI</button><button class="tbl-btn outline" style="flex:1;padding:11px;" onclick="closeModal('deleteModal')">Anulo</button></div></div></div>
+<div class="toast" id="toast"></div>
+</body>
+</html>
