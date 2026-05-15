@@ -199,6 +199,72 @@ nav{background:var(--panel);border-bottom:3px solid var(--red);display:flex;alig
 
 <div class="toast" id="toast"></div>
 
+<!-- Part Detail Modal -->
+<div class="modal-overlay" id="partDetailModal">
+  <div class="modal" style="max-width:520px;">
+    <button class="modal-x" onclick="closeModal('partDetailModal')">✕</button>
+    <div id="pdImage"></div>
+    <h2 id="pdName" style="margin:1rem 0 0.25rem;font-size:1.1rem;font-weight:800;"></h2>
+    <div id="pdFits" style="font-size:0.82rem;color:#8892a4;margin-bottom:0.2rem;"></div>
+    <div id="pdSeller" style="font-size:0.78rem;color:#666;margin-bottom:0.25rem;"></div>
+    <div id="pdCond" style="font-size:0.82rem;font-weight:700;margin-bottom:0.5rem;"></div>
+    <div id="pdDesc" style="font-size:0.85rem;color:#8892a4;margin-bottom:0.75rem;line-height:1.6;"></div>
+    <div id="pdStock" style="font-size:0.82rem;font-weight:700;margin-bottom:0.75rem;"></div>
+    <div class="price-box" style="margin-bottom:1rem;">
+      <div class="pr"><span class="pr-lbl">Çmimi shitësit</span><span id="pdPrice">—</span></div>
+      <div class="pr pr-fee"><span>+ Tarifa (8%)</span><span id="pdFee" style="color:#e02020;">—</span></div>
+      <div class="pr pr-total"><span>Totali</span><span id="pdTotal" class="pr-total-val">—</span></div>
+    </div>
+    <button class="buy-btn" id="pdBuyBtn">🛒 BLI TANI</button>
+  </div>
+</div>
+
+<!-- Order Modal -->
+<div class="modal-overlay" id="orderModal">
+  <div class="modal">
+    <button class="modal-x" onclick="closeModal('orderModal')">✕</button>
+    <h3 style="margin-bottom:0.5rem;font-family:'Bebas Neue',sans-serif;letter-spacing:2px;">📦 PËRFUNDO POROSINË</h3>
+    <p style="color:#8892a4;font-size:0.82rem;margin-bottom:1rem;">Pjesa: <strong id="omPartName" style="color:#eef0f5;"></strong></p>
+    <div class="field" style="margin-bottom:0.75rem;"><label style="display:block;font-size:0.72rem;font-weight:800;color:#8892a4;margin-bottom:4px;">EMRI I PLOTË *</label><input type="text" id="omName" style="width:100%;background:#111420;border:1px solid #232840;border-radius:8px;color:#eef0f5;padding:10px 13px;font-family:'Nunito',sans-serif;font-size:0.9rem;outline:none;" /></div>
+    <div class="field" style="margin-bottom:0.75rem;"><label style="display:block;font-size:0.72rem;font-weight:800;color:#8892a4;margin-bottom:4px;">NUMRI I TELEFONIT *</label><input type="tel" id="omPhone" style="width:100%;background:#111420;border:1px solid #232840;border-radius:8px;color:#eef0f5;padding:10px 13px;font-family:'Nunito',sans-serif;font-size:0.9rem;outline:none;" /></div>
+    <div class="field" style="margin-bottom:0.75rem;"><label style="display:block;font-size:0.72rem;font-weight:800;color:#8892a4;margin-bottom:4px;">EMAIL (opsionale)</label><input type="email" id="omEmail" style="width:100%;background:#111420;border:1px solid #232840;border-radius:8px;color:#eef0f5;padding:10px 13px;font-family:'Nunito',sans-serif;font-size:0.9rem;outline:none;" /></div>
+    <div class="field" style="margin-bottom:1rem;"><label style="display:block;font-size:0.72rem;font-weight:800;color:#8892a4;margin-bottom:4px;">MËNYRA E PAGESËS</label><select id="omPayMethod" style="width:100%;background:#111420;border:1px solid #232840;border-radius:8px;color:#eef0f5;padding:10px 13px;font-family:'Nunito',sans-serif;font-size:0.9rem;outline:none;"><option value="pickup">🤝 Marrje personale (paguaj kur merr)</option><option value="online">💳 Paguaj online</option></select></div>
+    <div style="background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.3);border-radius:8px;padding:0.75rem 1rem;margin-bottom:1rem;display:flex;justify-content:space-between;"><span style="font-size:0.85rem;color:#8892a4;">Totali</span><strong id="omTotal" style="color:#22c55e;"></strong></div>
+    <button class="buy-btn" id="omSubmitBtn">DËRGO POROSINË</button>
+  </div>
+</div>
+
+<!-- Buyer Orders Modal -->
+<div class="modal-overlay" id="buyerOrdersModal">
+  <div class="modal">
+    <button class="modal-x" onclick="closeModal('buyerOrdersModal')">✕</button>
+    <h3 style="margin-bottom:1rem;font-family:'Bebas Neue',sans-serif;letter-spacing:2px;">📦 POROSITË E MIA</h3>
+    <div id="bomBody"></div>
+  </div>
+</div>
+
+<!-- Saved Searches Modal -->
+<div class="modal-overlay" id="savedSearchesModal">
+  <div class="modal">
+    <button class="modal-x" onclick="closeModal('savedSearchesModal')">✕</button>
+    <h3 style="margin-bottom:1rem;font-family:'Bebas Neue',sans-serif;letter-spacing:2px;">🔍 KËRKIMET E RUAJTURA</h3>
+    <div id="ssmBody"></div>
+  </div>
+</div>
+
+<!-- Buyer Profile Modal -->
+<div class="modal-overlay" id="buyerProfileModal">
+  <div class="modal">
+    <button class="modal-x" onclick="closeModal('buyerProfileModal')">✕</button>
+    <h3 style="margin-bottom:1rem;font-family:'Bebas Neue',sans-serif;letter-spacing:2px;">⚙️ PROFILI IM</h3>
+    <div style="background:#111420;border:1px solid #232840;border-radius:10px;padding:1.25rem;">
+      <div style="font-size:0.75rem;color:#8892a4;font-weight:800;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">EMAIL</div>
+      <div id="bpmEmail" style="font-weight:700;margin-bottom:1rem;"></div>
+      <button class="buy-btn" style="background:transparent;border:1px solid #232840;color:#8892a4;" onclick="buyerLogout();closeModal('buyerProfileModal');">🚪 Dil nga Llogaria</button>
+    </div>
+  </div>
+</div>
+
 <script>
 // ════════════════════════════════════
 // FIREBASE INIT
@@ -312,6 +378,7 @@ function renderParts(){
   });
   if(sort==='price_asc')filtered.sort((a,b)=>(a.basePrice||0)-(b.basePrice||0));
   else if(sort==='price_desc')filtered.sort((a,b)=>(b.basePrice||0)-(a.basePrice||0));
+  else if(sort==='rating')filtered.sort((a,b)=>(b.rating||0)-(a.rating||0));
   const grid=g('partsGrid');
   if(!filtered.length){grid.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:4rem;color:#8892a4;"><div style="font-size:3rem;margin-bottom:1rem">🔍</div><p>Nuk u gjet asnjë pjesë.</p></div>';return;}
   grid.innerHTML=filtered.map(p=>{
@@ -335,6 +402,123 @@ function applyLang(){
 populateCarMakes();
 loadParts();
 applyLang();
+
+// ════════════════════════════════════
+// MISSING FUNCTIONS (Bug fixes)
+// ════════════════════════════════════
+
+function openModal(partId){
+  const p=allParts.find(x=>x.id===partId);
+  if(!p)return;
+  const name=typeof p.name==='object'?(p.name[currentLang]||p.name.sq):p.name;
+  const fee=Math.round((p.basePrice||0)*PLATFORM_FEE),fin=(p.basePrice||0)+fee;
+  const stock=getStockImage(p.category);
+  const stk=p.stock||0,isOut=stk===0;
+  const mainImage=p.images?.length?p.images[0]:null;
+  const modal=g('partDetailModal');
+  if(!modal)return;
+  modal.querySelector('#pdImage').innerHTML=mainImage?`<img src="${mainImage}" style="width:100%;height:220px;object-fit:cover;border-radius:10px;" />`:`<div style="font-size:5rem;text-align:center;padding:2rem;">${stock.emoji}</div>`;
+  modal.querySelector('#pdName').textContent=name||'—';
+  modal.querySelector('#pdFits').textContent='🚗 '+(p.fits||'—');
+  modal.querySelector('#pdSeller').textContent='🏪 '+(p.sellerName||'—')+' · '+(p.sellerCity||'—');
+  modal.querySelector('#pdCond').textContent=p.condition==='new'?'✅ E Re':'🔄 E Përdorur';
+  modal.querySelector('#pdDesc').textContent=p.description||'—';
+  modal.querySelector('#pdStock').textContent='📦 Stoku: '+(isOut?'Jashtë stokut':stk+' copë');
+  modal.querySelector('#pdPrice').textContent=(p.basePrice||0).toLocaleString()+' L';
+  modal.querySelector('#pdFee').textContent=fee.toLocaleString()+' L';
+  modal.querySelector('#pdTotal').textContent=fin.toLocaleString()+' L';
+  const buyBtn=modal.querySelector('#pdBuyBtn');
+  if(buyBtn){buyBtn.disabled=isOut;buyBtn.textContent=isOut?'Jashtë Stokut':'🛒 BLI TANI — '+fin.toLocaleString()+' L';buyBtn.onclick=()=>startPurchase(p,fin,fee);}
+  selectedPart=p;
+  modal.classList.add('open');
+}
+
+function startPurchase(p,totalPrice,fee){
+  const modal=g('orderModal');
+  if(!modal)return;
+  const name=typeof p.name==='object'?(p.name[currentLang]||p.name.sq):p.name;
+  modal.querySelector('#omPartName').textContent=name;
+  modal.querySelector('#omTotal').textContent=totalPrice.toLocaleString()+' L';
+  if(currentBuyer){modal.querySelector('#omName').value=currentBuyer.displayName||'';modal.querySelector('#omEmail').value=currentBuyer.email||'';}
+  modal.querySelector('#omSubmitBtn').onclick=()=>submitOrder(p,totalPrice,fee);
+  closeModal('partDetailModal');
+  modal.classList.add('open');
+}
+
+async function submitOrder(p,totalPrice,fee){
+  const name=g('omName')?.value.trim(),phone=g('omPhone')?.value.trim(),email=g('omEmail')?.value.trim(),payMethod=g('omPayMethod')?.value||'pickup';
+  if(!name||!phone){showToast('⚠️ Plotëso emrin dhe telefonin',true);return;}
+  const btn=g('omSubmitBtn');if(btn){btn.textContent='Duke dërguar...';btn.disabled=true;}
+  try{
+    const partName=typeof p.name==='object'?(p.name[currentLang]||p.name.sq):p.name;
+    await db.collection('orders').add({partId:p.id,partName,partEmoji:p.emoji||'🔩',sellerUid:p.uid,sellerName:p.sellerName||'',buyerName:name,buyerPhone:phone,buyerEmail:email||'',payMethod,totalPrice,platformFee:fee,quantity:1,status:'pending',createdAt:firebase.firestore.FieldValue.serverTimestamp()});
+    closeModal('orderModal');
+    showToast('✅ Porosia u dërgua! Shitësi do t\'ju kontaktojë.');
+    if(btn){btn.textContent='DËRGO POROSINË';btn.disabled=false;}
+  }catch(e){showToast('❌ Gabim: '+e.message,true);if(btn){btn.textContent='DËRGO POROSINË';btn.disabled=false;}}
+}
+
+function showBuyerOrders(){
+  g('userDropdown').classList.remove('open');
+  if(!currentBuyer){g('authModal').classList.add('open');showAuthTab('login');return;}
+  db.collection('orders').where('buyerEmail','==',currentBuyer.email).orderBy('createdAt','desc').get().then(snap=>{
+    const orders=snap.docs.map(d=>({id:d.id,...d.data()}));
+    const modal=g('buyerOrdersModal');if(!modal)return;
+    const body=modal.querySelector('#bomBody');if(!body)return;
+    if(!orders.length){body.innerHTML='<p style="color:#8892a4;text-align:center;padding:2rem;">Nuk keni porosi ende.</p>';modal.classList.add('open');return;}
+    body.innerHTML=orders.map(o=>{const sl=o.status==='sold'?'✅ Shitur':o.status==='pending'?'⏳ Në Pritje':'❌ Anuluar';const date=o.createdAt?.toDate?o.createdAt.toDate().toLocaleDateString('sq-AL'):'—';return `<div style="background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:1rem;margin-bottom:0.75rem;"><div style="font-weight:800;">${o.partEmoji||'🔩'} ${o.partName||'—'}</div><div style="font-size:0.8rem;color:#8892a4;">${date} · ${sl}</div><div style="font-weight:700;color:#22c55e;margin-top:0.25rem;">${(o.totalPrice||0).toLocaleString()} L</div></div>`;}).join('');
+    modal.classList.add('open');
+  }).catch(()=>showToast('❌ Gabim duke ngarkuar porositë',true));
+}
+
+function showSavedSearches(){
+  g('userDropdown').classList.remove('open');
+  if(!currentBuyer){g('authModal').classList.add('open');showAuthTab('login');return;}
+  const saved=JSON.parse(localStorage.getItem('savedSearches_'+currentBuyer.uid)||'[]');
+  const modal=g('savedSearchesModal');if(!modal)return;
+  const body=modal.querySelector('#ssmBody');if(!body)return;
+  if(!saved.length){body.innerHTML='<p style="color:#8892a4;text-align:center;padding:2rem;">Nuk keni kërkime të ruajtura.</p>';modal.classList.add('open');return;}
+  body.innerHTML=saved.map((s,i)=>`<div style="background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:0.85rem 1rem;margin-bottom:0.5rem;display:flex;justify-content:space-between;align-items:center;"><span style="font-weight:700;">${s.label}</span><div style="display:flex;gap:0.5rem;"><button onclick="loadSavedSearch(${i})" style="background:var(--red);color:white;border:none;border-radius:6px;padding:4px 10px;cursor:pointer;font-size:0.78rem;">Kërko</button><button onclick="deleteSavedSearch(${i})" style="background:transparent;border:1px solid var(--border);color:var(--chrome);border-radius:6px;padding:4px 8px;cursor:pointer;font-size:0.78rem;">✕</button></div></div>`).join('');
+  modal.classList.add('open');
+}
+
+function saveCurrentSearch(){
+  if(!currentBuyer){showToast('⚠️ Hyr në llogari për të ruajtur kërkimet',true);return;}
+  const search=g('searchInput').value.trim(),cat=currentFilter,city=g('filterCity').value;
+  const label=[search,cat!=='all'?cat:'',city].filter(Boolean).join(' · ')||'Të gjitha pjesët';
+  const key='savedSearches_'+currentBuyer.uid;
+  const saved=JSON.parse(localStorage.getItem(key)||'[]');
+  saved.push({label,search,cat,city,maxPrice:g('filterMaxPrice').value,sort:g('filterSort').value});
+  localStorage.setItem(key,JSON.stringify(saved.slice(-10)));
+  showToast('✅ Kërkimi u ruajt!');
+}
+
+function loadSavedSearch(i){
+  const saved=JSON.parse(localStorage.getItem('savedSearches_'+currentBuyer?.uid)||'[]');
+  const s=saved[i];if(!s)return;
+  g('searchInput').value=s.search||'';g('filterCity').value=s.city||'';g('filterMaxPrice').value=s.maxPrice||'';g('filterSort').value=s.sort||'newest';
+  if(s.cat){currentFilter=s.cat;}
+  renderParts();closeModal('savedSearchesModal');
+}
+
+function deleteSavedSearch(i){
+  const key='savedSearches_'+currentBuyer?.uid;
+  const saved=JSON.parse(localStorage.getItem(key)||'[]');saved.splice(i,1);localStorage.setItem(key,JSON.stringify(saved));showSavedSearches();
+}
+
+function openBuyerProfile(){
+  g('userDropdown').classList.remove('open');
+  if(!currentBuyer){g('authModal').classList.add('open');showAuthTab('login');return;}
+  const modal=g('buyerProfileModal');if(!modal)return;
+  modal.querySelector('#bpmEmail').textContent=currentBuyer.email||'—';
+  modal.classList.add('open');
+}
+
+function prefillBuyerFields(){
+  const nameEl=g('omName'),emailEl=g('omEmail');
+  if(nameEl&&currentBuyer?.displayName)nameEl.value=currentBuyer.displayName;
+  if(emailEl&&currentBuyer?.email)emailEl.value=currentBuyer.email;
+}
 </script>
 </body>
 </html>
