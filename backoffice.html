@@ -24,7 +24,7 @@ let selectedImages=[];
 function getCatEmoji(cat){const e={brakes:'🔘',engine:'⚙️',electrical:'⚡',suspension:'🔩',body:'🚗',ac:'🌡️'};return e[cat]||'🔧';}
 
 // ════════════════════════════════════
-//  IMAGE UPLOAD WITH AGGRESSIVE COMPRESSION
+//  IMAGE UPLOAD WITH COMPRESSION
 // ════════════════════════════════════
 
 function compressImage(file, maxWidth=600, maxHeight=600, quality=0.5) {
@@ -33,34 +33,17 @@ function compressImage(file, maxWidth=600, maxHeight=600, quality=0.5) {
     reader.onload = function(e) {
       const img = new Image();
       img.onload = function() {
-        let width = img.width;
-        let height = img.height;
-        
-        // Aggressive scale down
-        if (width > maxWidth) {
-          height = Math.round((height * maxWidth) / width);
-          width = maxWidth;
-        }
-        if (height > maxHeight) {
-          width = Math.round((width * maxHeight) / height);
-          height = maxHeight;
-        }
-        
+        let width = img.width, height = img.height;
+        if (width > maxWidth) { height = Math.round((height * maxWidth) / width); width = maxWidth; }
+        if (height > maxHeight) { width = Math.round((width * maxHeight) / height); height = maxHeight; }
         const canvas = document.createElement('canvas');
-        canvas.width = width;
-        canvas.height = height;
+        canvas.width = width; canvas.height = height;
         const ctx = canvas.getContext('2d');
-        
-        // Sharpen slightly for better appearance at low quality
         ctx.imageSmoothingEnabled = true;
         ctx.imageSmoothingQuality = 'high';
         ctx.drawImage(img, 0, 0, width, height);
-        
         canvas.toBlob((blob) => {
-          const compressedFile = new File([blob], file.name.replace(/\.[^/.]+$/, '.jpg'), {
-            type: 'image/jpeg',
-            lastModified: Date.now()
-          });
+          const compressedFile = new File([blob], file.name.replace(/\.[^/.]+$/, '.jpg'), { type: 'image/jpeg', lastModified: Date.now() });
           resolve(compressedFile);
         }, 'image/jpeg', quality);
       };
@@ -77,39 +60,23 @@ window.triggerImageUpload=function(){document.getElementById('imageInput').click
 window.handleImageSelect = function(event) {
   const files = event.target.files;
   if (!files.length) return;
-  
   for (let i = 0; i < files.length; i++) {
     const file = files[i];
-    
-    if (!file.type.match('image.*')) {
-      showToast('⚠️ Vetëm foto lejohen!', true);
-      continue;
-    }
-    
-    if (file.size > 10 * 1024 * 1024) {
-      showToast('⚠️ Maksimumi 10MB për foto!', true);
-      continue;
-    }
-    
-    if (selectedImages.length >= 5) {
-      showToast('⚠️ Maksimumi 5 foto!', true);
-      break;
-    }
-    
+    if (!file.type.match('image.*')) { showToast('⚠️ Vetëm foto lejohen!', true); continue; }
+    if (file.size > 10 * 1024 * 1024) { showToast('⚠️ Maksimumi 10MB për foto!', true); continue; }
+    if (selectedImages.length >= 5) { showToast('⚠️ Maksimumi 5 foto!', true); break; }
     compressImage(file, 600, 600, 0.5).then(compressedFile => {
       selectedImages.push(compressedFile);
       renderImagePreviews();
       const okb = (file.size / 1024).toFixed(0);
       const ckb = (compressedFile.size / 1024).toFixed(0);
-      showToast(`✅ Foto u kompresua! ${okb}KB → ${ckb}KB`, false);
+      showToast(`✅ ${okb}KB → ${ckb}KB`, false);
     }).catch(err => {
-      console.error('Compression failed:', err);
       selectedImages.push(file);
       renderImagePreviews();
       showToast('⚠️ Duke përdorur foton origjinale.', true);
     });
   }
-  
   event.target.value = '';
 };
 
@@ -142,7 +109,7 @@ async function uploadImages(partId){
 }
 
 // ════════════════════════════════════
-//  AUTH — LOGIN / REGISTER / LOGOUT
+//  AUTH
 // ════════════════════════════════════
 
 auth.onAuthStateChanged(async user=>{if(user){currentUser=user;await loadBusinessProfile(user.uid);showApp();}else{currentUser=null;currentBiz=null;showLogin();}});
@@ -153,7 +120,7 @@ function renderPlanCards(){const plan=currentBiz?.plan||'basic';const cpd=docume
   pc.innerHTML=Object.entries(PLANS).map(([key,p])=>{const isCurrent=key===plan;return `<div style="background:${isCurrent?'rgba(255,255,255,0.06)':'var(--panel)'};border:2px solid ${isCurrent?p.color:'var(--border)'};border-radius:12px;padding:1.25rem;position:relative;"><div style="text-align:center;margin-bottom:1rem;"><div style="font-size:2rem;">${p.icon}</div><div style="font-family:'Bebas Neue',sans-serif;font-size:1.3rem;letter-spacing:2px;color:${p.color}">${p.name.toUpperCase()}</div><div style="font-size:1.5rem;font-weight:800;">${p.monthly===0?'Falas':'€'+p.monthly+'<span style="font-size:0.75rem;">/muaj</span>'}</div></div><div style="border-top:1px solid var(--border);padding-top:1rem;"><div style="display:flex;justify-content:space-between;font-size:0.85rem;margin-bottom:0.5rem;"><span style="color:#8892a4">Komision</span><strong style="color:${p.color}">${Math.round(p.fee*100)}%</strong></div>${!isCurrent?`<button onclick="requestUpgrade('${key}')" style="width:100%;background:${p.color};color:${p.color==='#f5c518'||p.color==='#e2e8f0'?'#000':'#fff'};border:none;border-radius:8px;padding:9px;font-weight:800;cursor:pointer;">UPGRADE →</button>`:'<div style="text-align:center;color:#8892a4;">✓ Aktiv</div>'}</div></div>`;}).join('');}
 window.requestUpgrade=async function(planKey){
   if(!currentUser||!currentBiz)return;
-  try{await db.collection("plan_requests").add({businessId:currentUser.uid,businessName:currentBiz?.businessName||currentBiz?.name||'',email:currentUser?.email||'',fromPlan:currentBiz?.plan||'basic',toPlan:planKey,status:'pending',createdAt:firebase.firestore.FieldValue.serverTimestamp()});showToast('✅ Kërkesa u dërgua! Do të njoftoheni kur të aprovohet.');}catch(e){showToast('❌ Gabim',true);}
+  try{await db.collection("plan_requests").add({businessId:currentUser.uid,businessName:currentBiz?.businessName||currentBiz?.name||'',email:currentUser?.email||'',fromPlan:currentBiz?.plan||'basic',toPlan:planKey,status:'pending',createdAt:firebase.firestore.FieldValue.serverTimestamp()});showToast('✅ Kërkesa u dërgua!');}catch(e){showToast('❌ Gabim',true);}
 };
 
 window.doLogin=async function(){const e=document.getElementById('loginEmail').value.trim(),p=document.getElementById('loginPass').value,btn=document.getElementById('loginBtn');if(!e||!p){showToast('⚠️ Plotëso fushat',true);return;}btn.textContent='Duke hyrë...';btn.disabled=true;try{await auth.signInWithEmailAndPassword(e,p);}catch(err){showToast('❌ '+err.message,true);btn.textContent='HYRJA →';btn.disabled=false;}};
@@ -169,7 +136,7 @@ async function loadMyOrders(){if(!currentUser)return;db.collection("orders").whe
 
 window.submitPart=async function(){
   const name=document.getElementById('fName').value.trim(),price=parseFloat(document.getElementById('fPrice').value),fits=document.getElementById('fFits').value.trim(),cat=document.getElementById('fCat').value,cond=document.getElementById('fCond').value,stock=parseInt(document.getElementById('fStock').value)||1,desc=document.getElementById('fDesc').value.trim(),btn=document.getElementById('submitPartBtn');
-  if(!name||!price||!fits){showToast('⚠️ Plotëso fushat',true);return;}
+  if(!name||!price||!fits){showToast('⚠️ Plotëso fushat e detyrueshme!',true);return;}
   btn.textContent='Duke publikuar...';btn.disabled=true;
   try{
     const partRef=await db.collection("parts").add({
@@ -442,7 +409,7 @@ tbody td{padding:0.85rem 1.25rem;font-size:0.85rem;}
   <div class="main">
     <div class="topbar"><div style="display:flex;align-items:center;gap:1rem;"><button class="sidebar-toggle" onclick="toggleSidebar()">☰</button><div class="topbar-title" id="topbarTitle">PASQYRA</div></div><div class="topbar-right"><div class="lang-toggle"><button class="lang-btn active" onclick="setLang('sq')">🇦🇱 SQ</button><button class="lang-btn" onclick="setLang('en')">🇬🇧 EN</button></div></div></div>
 
-    <!-- Dashboard Page -->
+    <!-- Dashboard -->
     <div class="page active" id="page-dashboard">
       <div class="stats-row">
         <div class="stat-card green"><div class="stat-ico">💰</div><div class="stat-val" id="statEarn">0 L</div><div class="stat-lbl">Fitimet Tuaja</div><div class="stat-chg">↑ Live</div></div>
@@ -457,12 +424,12 @@ tbody td{padding:0.85rem 1.25rem;font-size:0.85rem;}
       <div class="table-card"><div class="table-header"><h3>POROSITË E FUNDIT</h3><button class="tbl-btn outline" onclick="showPage('orders')">Shiko Të Gjitha</button></div><table><thead><tr><th>#</th><th>Pjesa</th><th>Blerësi</th><th>Çmimi</th><th>Statusi</th><th>Pagesa</th><th>Veprime</th></tr></thead><tbody id="recentOrdersBody"></tbody></table></div>
     </div>
 
-    <!-- Parts Page -->
+    <!-- Parts -->
     <div class="page" id="page-parts">
       <div class="table-card"><div class="table-header"><h3>PJESËT E MIA</h3><button class="tbl-btn" onclick="showPage('addpart')">+ Shto Pjesë</button></div><table><thead><tr><th>Pjesa</th><th>Kategoria</th><th>Gjendja</th><th>Çmimi Bazë</th><th>Çmimi Final</th><th>Stoku</th><th>Statusi</th><th>Veprime</th></tr></thead><tbody id="myPartsBody"></tbody></table></div>
     </div>
 
-    <!-- Add Part Page -->
+    <!-- Add Part - WITH VISIBLE UPLOAD BUTTON -->
     <div class="page" id="page-addpart">
       <div class="form-card"><h3>SHTO PJESË TË RE</h3>
         <div class="form-grid">
@@ -473,8 +440,14 @@ tbody td{padding:0.85rem 1.25rem;font-size:0.85rem;}
           <div class="field-group"><label>Çmimi Juaj (Lekë) *</label><input type="number" id="fPrice" oninput="calcFee()" /></div>
           <div class="field-group"><label>Sasia në Stok</label><input type="number" id="fStock" value="1" /></div>
           <div class="field-group form-full"><label>Përshkrimi</label><textarea id="fDesc" rows="3"></textarea></div>
-          <div class="field-group form-full"><label>Fotot e Pjesës</label>
-            <div class="image-upload-zone" onclick="triggerImageUpload()"><div style="font-size:2rem;margin-bottom:0.5rem;">📷</div><div style="font-weight:700;margin-bottom:0.25rem;">📷 Zgjidh Fotot (max 5)</div><div style="font-size:0.75rem;color:#8892a4;">Fotot kompresohen automatikisht · max 10MB origjinale</div></div>
+          <!-- PHOTO UPLOAD SECTION WITH VISIBLE BUTTON -->
+          <div class="field-group form-full"><label>Fotot e Pjesës (opsionale)</label>
+            <div class="image-upload-zone" onclick="triggerImageUpload()">
+              <div style="font-size:2rem;margin-bottom:0.5rem;">📷</div>
+              <div style="font-weight:700;margin-bottom:0.25rem;">Kliko për të Zgjedhur Fotot</div>
+              <div style="font-size:0.75rem;color:#8892a4;">Max 5 foto · Kompresohen automatikisht</div>
+              <button type="button" class="tbl-btn" style="margin-top:0.75rem;pointer-events:none;">📸 ZGJIDH FOTOT</button>
+            </div>
             <input type="file" id="imageInput" accept="image/*" multiple style="display:none;" onchange="handleImageSelect(event)" />
             <div id="imagePreviews" style="margin-top:0.75rem;display:flex;flex-wrap:wrap;gap:0.5rem;"><div style="color:#8892a4;font-size:0.85rem;text-align:center;padding:1rem;">📷 Asnjë foto e zgjedhur</div></div>
           </div>
@@ -484,13 +457,13 @@ tbody td{padding:0.85rem 1.25rem;font-size:0.85rem;}
       <div style="display:flex;gap:1rem;"><button class="tbl-btn" style="padding:12px 2rem;" id="submitPartBtn" onclick="submitPart()">PUBLIKO PJESËN ✓</button><button class="tbl-btn outline" style="padding:12px 2rem;" onclick="showPage('parts')">Anulo</button></div>
     </div>
 
-    <!-- Orders Page -->
+    <!-- Orders -->
     <div class="page" id="page-orders">
       <div class="order-timeline"><button class="ot-btn active" onclick="filterOrders('all',this)">Të Gjitha</button><button class="ot-btn" onclick="filterOrders('pending',this)">Në Pritje</button><button class="ot-btn" onclick="filterOrders('sold',this)">Shitur</button><button class="ot-btn" onclick="filterOrders('pickup',this)">Marrje</button></div>
       <div class="table-card"><div class="table-header"><h3>TË GJITHA POROSITË</h3><span id="orderCount" style="color:#8892a4;font-size:0.82rem;"></span></div><table><thead><tr><th>#</th><th>Pjesa</th><th>Blerësi</th><th>Data</th><th>Çmimi</th><th>Statusi</th><th>Pagesa</th><th>Veprime</th></tr></thead><tbody id="allOrdersBody"></tbody></table></div>
     </div>
 
-    <!-- Earnings Page -->
+    <!-- Earnings -->
     <div class="page" id="page-earnings">
       <div class="stats-row">
         <div class="stat-card green"><div class="stat-ico">💵</div><div class="stat-val" id="earnTotalVal">0 L</div><div class="stat-lbl">Fitim Neto Total</div></div>
@@ -503,7 +476,7 @@ tbody td{padding:0.85rem 1.25rem;font-size:0.85rem;}
       <div class="table-card"><div class="table-header"><h3>📅 PËRMBLEDHJA MUJORE</h3></div><table><thead><tr><th>Muaji</th><th>Nr.</th><th>Vlera</th><th>Tarifa</th><th>Neto</th><th>Statusi</th></tr></thead><tbody id="earningsBody"></tbody></table></div>
     </div>
 
-    <!-- Settings Page -->
+    <!-- Settings -->
     <div class="page" id="page-settings">
       <div class="settings-row">
         <div class="form-card"><h3>PROFILI I BIZNESIT</h3><div class="field-group" style="margin-bottom:1rem;"><label>Emri i Biznesit</label><input type="text" id="setBizName" /></div><div class="field-group" style="margin-bottom:1rem;"><label>Telefon</label><input type="text" id="setPhone" /></div><div class="field-group" style="margin-bottom:1rem;"><label>Email</label><input type="email" id="setEmail2" disabled /></div><div class="field-group" style="margin-bottom:1rem;"><label>Qyteti</label><select id="setCity"><option>Tiranë</option><option>Durrës</option><option>Shkodër</option><option>Vlorë</option><option>Korçë</option><option>Fier</option><option>Berat</option></select></div><button class="tbl-btn" onclick="saveSettings()">RUAJ NDRYSHIMET</button></div>
