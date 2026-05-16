@@ -24,9 +24,6 @@ let selectedImages=[],bulkImportData=[],editPartId=null;
 function getCatEmoji(cat){const e={brakes:'🔘',engine:'⚙️',electrical:'⚡',suspension:'🔩',body:'🚗',ac:'🌡️'};return e[cat]||'🔧';}
 function getCatName(cat){const e={brakes:'Frena',engine:'Motor',electrical:'Elektrik',suspension:'Amortizatorë',body:'Karroceri',ac:'Klimë'};return e[cat]||cat;}
 
-// ════════════════════════════════════
-//  IMAGE COMPRESSION & UPLOAD
-// ════════════════════════════════════
 function compressImage(file, maxWidth=600, maxHeight=600, quality=0.5) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -52,17 +49,11 @@ function renderImagePreviews(){const c=document.getElementById('imagePreviews');
 window.removeImage=function(index){selectedImages.splice(index,1);renderImagePreviews();};
 async function uploadImages(partId){if(!selectedImages.length)return[];const ups=selectedImages.map(async(file,index)=>{const ref=storage.ref(`parts/${currentUser.uid}/${partId}_${index}_${Date.now()}.jpg`);await ref.put(file);return await ref.getDownloadURL();});return await Promise.all(ups);}
 
-// ════════════════════════════════════
-//  CAR MAKE / MODEL DATA
-// ════════════════════════════════════
 const carBrands=['Volkswagen','Audi','BMW','Mercedes-Benz','Opel','Ford','Toyota','Honda','Fiat','Renault','Peugeot','Citroën','Nissan','Hyundai','Kia','Mazda','Skoda','Seat','Dacia','Suzuki','Mitsubishi','Volvo','Land Rover','Jeep','Chevrolet','Alfa Romeo'];
 const carModels={Volkswagen:['Golf','Polo','Passat','Tiguan','Touran','Jetta'],Audi:['A3','A4','A6','Q5','Q7'],BMW:['3 Series','5 Series','X3','X5'],'Mercedes-Benz':['C-Class','E-Class','A-Class','GLC'],Opel:['Astra','Corsa','Insignia','Mokka'],Ford:['Focus','Fiesta','Mondeo','Kuga'],Toyota:['Corolla','Yaris','RAV4','Auris'],Fiat:['Punto','500','Tipo'],Renault:['Clio','Megane','Captur'],Peugeot:['208','308','3008'],Citroën:['C3','C4'],Nissan:['Qashqai','Juke','Micra'],Hyundai:['i20','i30','Tucson'],Kia:['Rio','Ceed','Sportage'],Mazda:['3','6','CX-5'],Skoda:['Octavia','Fabia'],Seat:['Ibiza','Leon'],Dacia:['Logan','Duster'],Suzuki:['Swift','Vitara'],Mitsubishi:['Lancer','Outlander'],Volvo:['V40','XC60','XC90'],'Land Rover':['Range Rover','Discovery'],Jeep:['Wrangler','Grand Cherokee'],Chevrolet:['Spark','Cruze'],'Alfa Romeo':['Giulietta','Giulia']};
 function populateCarMakes(){const sel=document.getElementById('partMake');if(!sel)return;sel.innerHTML='<option value="">Zgjidh Markën</option>';carBrands.forEach(b=>{const o=document.createElement('option');o.value=b;o.textContent=b;sel.appendChild(o);});}
 function onPartMakeChange(){const make=document.getElementById('partMake').value,ms=document.getElementById('partModel');ms.innerHTML='<option value="">Zgjidh Modelin</option>';if(make&&carModels[make]){carModels[make].forEach(m=>{const o=document.createElement('option');o.value=m;o.textContent=m;ms.appendChild(o);});ms.disabled=false;}else{ms.disabled=true;}}
 
-// ════════════════════════════════════
-//  AUTH — REAL-TIME BUSINESS PROFILE
-// ════════════════════════════════════
 function listenToBusinessProfile(uid){db.collection("businesses").doc(uid).onSnapshot(doc=>{if(doc.exists){currentBiz=doc.data();updateBizDisplay();renderMyParts();}},err=>{console.error(err);});}
 auth.onAuthStateChanged(async user=>{if(user){currentUser=user;listenToBusinessProfile(user.uid);showApp();}else{currentUser=null;currentBiz=null;showLogin();}});
 function updateBizDisplay(){const el=document.getElementById('bizName'),pl=document.getElementById('bizPlan');if(el)el.textContent=currentBiz?.businessName||currentBiz?.name||'Biznesi Im';const plan=currentBiz?.plan||'basic',planData=PLANS[plan];if(pl)pl.textContent=planData.icon+' '+planData.name.toUpperCase()+' · '+Math.round(planData.fee*100)+'%';renderPlanCards();}
@@ -76,9 +67,6 @@ window.doLogout=async()=>{await auth.signOut();};
 async function loadMyParts(){if(!currentUser)return;db.collection("parts").where("uid","==",currentUser.uid).onSnapshot(snap=>{myParts=snap.docs.map(d=>({id:d.id,...d.data()}));myParts.sort((a,b)=>(b.createdAt?.toMillis?.()||0)-(a.createdAt?.toMillis?.()||0));renderMyParts();updateDashboardStats();},e=>{console.error(e);});}
 async function loadMyOrders(){if(!currentUser)return;db.collection("orders").where("sellerUid","==",currentUser.uid).onSnapshot(snap=>{myOrders=snap.docs.map(d=>({id:d.id,...d.data()}));myOrders.sort((a,b)=>(b.createdAt?.toMillis?.()||0)-(a.createdAt?.toMillis?.()||0));renderOrders('all');renderRecentOrders();updateDashboardStats();updateCharts();},e=>{console.error(e);});}
 
-// ════════════════════════════════════
-//  ADD / EDIT PART WITH DISCOUNT & FEATURED
-// ════════════════════════════════════
 window.submitPart=async function(){
   const name=document.getElementById('fName').value.trim(),price=parseFloat(document.getElementById('fPrice').value);
   const make=document.getElementById('partMake').value,model=document.getElementById('partModel').value;
@@ -89,45 +77,19 @@ window.submitPart=async function(){
   const featured=document.getElementById('fFeatured').checked||false;
   const btn=document.getElementById('submitPartBtn');
   if(!name||!price||!fits){showToast('⚠️ Plotëso fushat e detyrueshme!',true);return;}
-  
-  // Check featured limit (max 3)
-  if(featured){
-    const featuredCount=myParts.filter(p=>p.featured&&p.id!==editPartId).length;
-    if(featuredCount>=3){showToast('⚠️ Maksimumi 3 pjesë të veçuara!',true);return;}
-  }
-  
+  if(featured){const fc=myParts.filter(p=>p.featured&&p.id!==editPartId).length;if(fc>=3){showToast('⚠️ Maksimumi 3 pjesë të veçuara!',true);return;}}
   btn.textContent=editPartId?'Duke përditësuar...':'Duke publikuar...';btn.disabled=true;
-  
-  const partData={
-    name:{sq:name,en:name},basePrice:price,fits,category:cat,condition:cond,stock,description:desc,
-    discount:discount,featured:featured,
-    emoji:getCatEmoji(cat),sellerName:currentBiz?.businessName||currentBiz?.name||'',sellerCity:currentBiz?.city||'',
-    uid:currentUser.uid,status:stock>0?'active':'inactive',views:0,sales:0,rating:5,images:[],
-    createdAt:firebase.firestore.FieldValue.serverTimestamp()
-  };
-  
+  const partData={name:{sq:name,en:name},basePrice:price,fits,category:cat,condition:cond,stock,description:desc,discount:discount,featured:featured,emoji:getCatEmoji(cat),sellerName:currentBiz?.businessName||currentBiz?.name||'',sellerCity:currentBiz?.city||'',uid:currentUser.uid,status:stock>0?'active':'inactive',views:0,sales:0,rating:5,images:[],createdAt:firebase.firestore.FieldValue.serverTimestamp()};
   try{
-    if(editPartId){
-      // Update existing part
-      await db.collection("parts").doc(editPartId).update(partData);
-      if(selectedImages.length>0){btn.textContent='Duke ngarkuar fotot...';const urls=await uploadImages(editPartId);await db.collection("parts").doc(editPartId).update({images:urls});}
-      showToast('✅ Pjesa u përditësua!');
-    }else{
-      // New part
-      const partRef=await db.collection("parts").add(partData);
-      if(selectedImages.length>0){btn.textContent='Duke ngarkuar fotot...';const urls=await uploadImages(partRef.id);await partRef.update({images:urls});}
-      showToast('✅ Pjesa u publikua!');
-    }
-    resetAddPartForm();
-    editPartId=null;
-    showPage('parts');
+    if(editPartId){await db.collection("parts").doc(editPartId).update(partData);if(selectedImages.length>0){btn.textContent='Duke ngarkuar fotot...';const urls=await uploadImages(editPartId);await db.collection("parts").doc(editPartId).update({images:urls});}showToast('✅ Pjesa u përditësua!');}
+    else{const partRef=await db.collection("parts").add(partData);if(selectedImages.length>0){btn.textContent='Duke ngarkuar fotot...';const urls=await uploadImages(partRef.id);await partRef.update({images:urls});}showToast('✅ Pjesa u publikua!');}
+    resetAddPartForm();editPartId=null;showPage('parts');
   }catch(e){showToast('❌ Gabim',true);btn.textContent=editPartId?'💾 RUAJ NDRYSHIMET':'📦 PUBLIKO PJESËN';btn.disabled=false;}
 };
 
 function resetAddPartForm(){
   ['fName','fFits','fPrice','fStock','fDesc','fDiscount'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
-  document.getElementById('fDiscount').value='0';
-  document.getElementById('fFeatured').checked=false;
+  document.getElementById('fDiscount').value='0';document.getElementById('fFeatured').checked=false;
   document.getElementById('partMake').value='';document.getElementById('partModel').value='';document.getElementById('partModel').disabled=true;
   selectedImages=[];renderImagePreviews();calcFee();
   document.getElementById('submitPartBtn').textContent='📦 PUBLIKO PJESËN';
@@ -135,44 +97,61 @@ function resetAddPartForm(){
   editPartId=null;
 }
 
-window.editPart=function(partId){
-  const part=myParts.find(p=>p.id===partId);
-  if(!part)return;
-  editPartId=partId;
-  document.getElementById('addPartTitle').textContent='NDRYSHO PJESËN';
-  const name=typeof part.name==='object'?(part.name.sq||part.name.en):part.name;
-  document.getElementById('fName').value=name||'';
-  document.getElementById('fPrice').value=part.basePrice||'';
-  document.getElementById('fCat').value=part.category||'brakes';
-  document.getElementById('fCond').value=part.condition||'new';
-  document.getElementById('fStock').value=part.stock||1;
-  document.getElementById('fDesc').value=part.description||'';
-  document.getElementById('fDiscount').value=part.discount||0;
-  document.getElementById('fFeatured').checked=part.featured||false;
+// ════════════════════════════════════
+//  EDIT PART — FIXED
+// ════════════════════════════════════
+window.editPart = function(partId) {
+  const part = myParts.find(p => p.id === partId);
+  if (!part) return;
   
-  // Set car make/model
-  const fits=part.fits||'';
-  const spaceIndex=fits.indexOf(' ');
-  if(spaceIndex>0){
-    const make=fits.substring(0,spaceIndex);
-    const model=fits.substring(spaceIndex+1);
-    document.getElementById('partMake').value=make;
+  editPartId = partId;
+  document.getElementById('addPartTitle').textContent = 'NDRYSHO PJESËN';
+  const name = typeof part.name === 'object' ? (part.name.sq || part.name.en) : part.name;
+  document.getElementById('fName').value = name || '';
+  document.getElementById('fPrice').value = part.basePrice || '';
+  document.getElementById('fCat').value = part.category || 'brakes';
+  document.getElementById('fCond').value = part.condition || 'new';
+  document.getElementById('fStock').value = part.stock || 1;
+  document.getElementById('fDesc').value = part.description || '';
+  document.getElementById('fDiscount').value = part.discount || 0;
+  document.getElementById('fFeatured').checked = part.featured || false;
+  
+  // Populate car makes first
+  populateCarMakes();
+  
+  const fits = part.fits || '';
+  const spaceIndex = fits.indexOf(' ');
+  if (spaceIndex > 0) {
+    const make = fits.substring(0, spaceIndex);
+    const model = fits.substring(spaceIndex + 1);
+    document.getElementById('partMake').value = make;
     onPartMakeChange();
-    setTimeout(()=>{document.getElementById('partModel').value=model;},200);
+    setTimeout(() => {
+      const modelSel = document.getElementById('partModel');
+      modelSel.value = model;
+      if (modelSel.value !== model) {
+        const opt = document.createElement('option');
+        opt.value = model; opt.textContent = model;
+        modelSel.appendChild(opt);
+        modelSel.value = model;
+      }
+    }, 300);
+  } else {
+    document.getElementById('partMake').value = '';
+    document.getElementById('partModel').innerHTML = '<option value="">Zgjidh Modelin</option>';
+    document.getElementById('partModel').disabled = true;
   }
   
+  selectedImages = [];
+  renderImagePreviews();
   calcFee();
   showPage('addpart');
 };
 
-// ════════════════════════════════════
-//  BULK IMPORT (unchanged)
-// ════════════════════════════════════
 window.parseBulkImport = function() {
   const raw = document.getElementById('bulkText').value.trim();
-  if (!raw) { showToast('⚠️ Fut të dhënat në formatin e duhur!', true); return; }
-  const lines = raw.split('\n').filter(line => line.trim());
-  bulkImportData = []; const errors = [];
+  if (!raw) { showToast('⚠️ Fut të dhënat!', true); return; }
+  const lines = raw.split('\n').filter(line => line.trim()); bulkImportData = []; const errors = [];
   lines.forEach((line, i) => {
     const parts = line.split('|').map(p => p.trim());
     if (parts.length < 7) { errors.push(`Rreshti ${i+1}: Mungojnë fusha`); return; }
@@ -188,7 +167,7 @@ window.parseBulkImport = function() {
   else { document.getElementById('bulkErrors').style.display = 'none'; }
   renderBulkPreview();
 };
-function renderBulkPreview(){const tbody=document.getElementById('bulkPreviewBody');if(!bulkImportData.length){tbody.innerHTML='<tr><td colspan="7" style="text-align:center;padding:2rem;color:#8892a4;">Asnjë pjesë për të importuar</td></tr>';document.getElementById('bulkCount').textContent='0 pjesë';return;}document.getElementById('bulkCount').textContent=bulkImportData.length+' pjesë';tbody.innerHTML=bulkImportData.map((p,i)=>`<tr><td>${p.emoji} ${p.name.sq}</td><td>${getCatName(p.category)}</td><td>${p.condition==='new'?'E Re':'E Përdorur'}</td><td>${p.basePrice.toLocaleString()} L</td><td>${p.stock}</td><td>${p.fits}</td><td>${p.description||'—'}</td></tr>`).join('');}
+function renderBulkPreview(){const tbody=document.getElementById('bulkPreviewBody');if(!bulkImportData.length){tbody.innerHTML='<tr><td colspan="7" style="text-align:center;padding:2rem;color:#8892a4;">Asnjë pjesë</td></tr>';document.getElementById('bulkCount').textContent='0 pjesë';return;}document.getElementById('bulkCount').textContent=bulkImportData.length+' pjesë';tbody.innerHTML=bulkImportData.map((p,i)=>`<tr><td>${p.emoji} ${p.name.sq}</td><td>${getCatName(p.category)}</td><td>${p.condition==='new'?'E Re':'E Përdorur'}</td><td>${p.basePrice.toLocaleString()} L</td><td>${p.stock}</td><td>${p.fits}</td><td>${p.description||'—'}</td></tr>`).join('');}
 window.importBulkParts=async function(){if(!bulkImportData.length){showToast('⚠️ Asnjë pjesë!',true);return;}const btn=document.getElementById('bulkImportBtn');btn.textContent='Duke importuar...';btn.disabled=true;let s=0,f=0;for(const p of bulkImportData){try{await db.collection("parts").add(p);s++;}catch(e){f++;}}btn.textContent='📦 IMPORTO TË GJITHA';btn.disabled=false;showToast(f===0?`✅ ${s} pjesë u importuan!`:`⚠️ ${s} u importuan, ${f} dështuan.`,f>0);bulkImportData=[];document.getElementById('bulkText').value='';document.getElementById('bulkPreviewBody').innerHTML='<tr><td colspan="7" style="text-align:center;padding:2rem;color:#8892a4;">Asnjë pjesë</td></tr>';document.getElementById('bulkCount').textContent='0 pjesë';document.getElementById('bulkErrors').style.display='none';};
 
 window.deletePart=function(id){deletePartId=id;document.getElementById('deleteModal').classList.add('open');};
@@ -199,7 +178,7 @@ window.confirmUpdateStock=async function(){const partId=document.getElementById(
 window.saveSettings=async function(){if(!currentUser)return;const n=document.getElementById('setBizName').value.trim(),p=document.getElementById('setPhone').value.trim(),c=document.getElementById('setCity').value;await db.collection("businesses").doc(currentUser.uid).update({businessName:n,phone:p,city:c});currentBiz={...currentBiz,businessName:n,phone:p,city:c};updateBizDisplay();showToast('✅ Ndryshimet u ruajtën!');};
 
 function updateDashboardStats(){const e=myOrders.filter(o=>o.status==='sold').reduce((s,o)=>s+(o.platformFee||0),0);document.getElementById('statEarn').textContent=e.toLocaleString()+' L';document.getElementById('statSales').textContent=myOrders.filter(o=>o.status==='sold').length;document.getElementById('statViews').textContent=myParts.reduce((s,p)=>s+(p.views||0),0).toLocaleString();document.getElementById('statParts').textContent=myParts.filter(p=>p.status==='active').length;}
-function renderMyParts(){const tbody=document.getElementById('myPartsBody');if(!tbody)return;if(!myParts.length){tbody.innerHTML='<tr><td colspan="9"><div style="text-align:center;padding:3rem;color:#8892a4;">📦 Nuk keni pjesë të listuara.</div></td></tr>';return;}tbody.innerHTML=myParts.map(p=>{const name=typeof p.name==='object'?p.name[lang]||p.name.sq:p.name;const thumb=p.images?.length?`<img src="${p.images[0]}" style="width:40px;height:40px;object-fit:cover;border-radius:6px;vertical-align:middle;margin-right:8px;" />`:'';const discount=p.discount||0;const hasDiscount=discount>0;const featured=p.featured||false;let badges='';if(featured)badges+='<span style="background:rgba(245,197,24,0.15);color:#f5c518;font-size:0.6rem;padding:2px 6px;border-radius:10px;margin-left:4px;">⭐ E veçuar</span>';if(hasDiscount)badges+='<span style="background:rgba(34,197,94,0.15);color:#22c55e;font-size:0.6rem;padding:2px 6px;border-radius:10px;margin-left:4px;">-'+discount+'%</span>';return `<tr><td>${thumb}${p.emoji||'🔩'} <strong>${name}</strong>${badges}<br><small style="color:#666">${p.fits||''}</small></td><td style="color:#8892a4">${p.category||''}</td><td><span class="status-badge ${p.condition==='new'?'badge-active':'badge-used'}">${p.condition==='new'?'E Re':'E Përdorur'}</span></td><td>${(p.basePrice||0).toLocaleString()} L</td><td style="font-weight:800;color:#f5c518">${((p.basePrice||0)+Math.round((p.basePrice||0)*PLATFORM_FEE)).toLocaleString()} L</td><td style="font-weight:700;">${p.stock||0}</td><td><span class="status-badge ${p.status==='active'?'badge-active':'badge-inactive'}">${p.status==='active'?'Aktiv':'Joaktiv'}</span></td><td><div style="display:flex;gap:0.5rem;"><button class="icon-btn" onclick="togglePartStatus('${p.id}','${p.status}')">${p.status==='active'?'⏸️':'▶️'}</button><button class="icon-btn" style="border-color:#3b82f6;color:#3b82f6" onclick="editPart('${p.id}')" title="Ndrysho">✏️</button><button class="icon-btn" style="border-color:#22c55e;color:#22c55e" onclick="openUpdateStock('${p.id}')" title="Shto stok">📦+</button><button class="icon-btn" style="border-color:#e02020;color:#e02020" onclick="deletePart('${p.id}')">🗑️</button></div></td></tr>`;}).join('');}
+function renderMyParts(){const tbody=document.getElementById('myPartsBody');if(!tbody)return;if(!myParts.length){tbody.innerHTML='<tr><td colspan="9"><div style="text-align:center;padding:3rem;color:#8892a4;">📦 Nuk keni pjesë të listuara.</div></td></tr>';return;}tbody.innerHTML=myParts.map(p=>{const name=typeof p.name==='object'?p.name[lang]||p.name.sq:p.name;const thumb=p.images?.length?`<img src="${p.images[0]}" style="width:40px;height:40px;object-fit:cover;border-radius:6px;vertical-align:middle;margin-right:8px;" />`:'';const discount=p.discount||0;const hasDiscount=discount>0;const featured=p.featured||false;let badges='';if(featured)badges+='<span style="background:rgba(245,197,24,0.15);color:#f5c518;font-size:0.6rem;padding:2px 6px;border-radius:10px;margin-left:4px;">⭐</span>';if(hasDiscount)badges+='<span style="background:rgba(34,197,94,0.15);color:#22c55e;font-size:0.6rem;padding:2px 6px;border-radius:10px;margin-left:4px;">-'+discount+'%</span>';return `<tr><td>${thumb}${p.emoji||'🔩'} <strong>${name}</strong>${badges}<br><small style="color:#666">${p.fits||''}</small></td><td style="color:#8892a4">${p.category||''}</td><td><span class="status-badge ${p.condition==='new'?'badge-active':'badge-used'}">${p.condition==='new'?'E Re':'E Përdorur'}</span></td><td>${(p.basePrice||0).toLocaleString()} L</td><td style="font-weight:800;color:#f5c518">${((p.basePrice||0)+Math.round((p.basePrice||0)*PLATFORM_FEE)).toLocaleString()} L</td><td style="font-weight:700;">${p.stock||0}</td><td><span class="status-badge ${p.status==='active'?'badge-active':'badge-inactive'}">${p.status==='active'?'Aktiv':'Joaktiv'}</span></td><td><div style="display:flex;gap:0.5rem;"><button class="icon-btn" onclick="togglePartStatus('${p.id}','${p.status}')">${p.status==='active'?'⏸️':'▶️'}</button><button class="icon-btn" style="border-color:#3b82f6;color:#3b82f6" onclick="editPart('${p.id}')" title="Ndrysho">✏️</button><button class="icon-btn" style="border-color:#22c55e;color:#22c55e" onclick="openUpdateStock('${p.id}')" title="Shto stok">📦+</button><button class="icon-btn" style="border-color:#e02020;color:#e02020" onclick="deletePart('${p.id}')">🗑️</button></div></td></tr>`;}).join('');}
 function renderRecentOrders(){const tbody=document.getElementById('recentOrdersBody');if(!tbody)return;const recent=myOrders.slice(0,5);tbody.innerHTML=recent.length?recent.map(o=>orderRow(o)).join(''):'<tr><td colspan="7" style="text-align:center;padding:2rem;color:#8892a4;">Ende nuk keni porosi.</td></tr>';}
 function renderOrders(filter){const tbody=document.getElementById('allOrdersBody');if(!tbody)return;let filtered=myOrders;if(filter==='pending')filtered=myOrders.filter(o=>o.status==='pending');if(filter==='sold')filtered=myOrders.filter(o=>o.status==='sold');if(filter==='pickup')filtered=myOrders.filter(o=>o.payMethod==='pickup');document.getElementById('orderCount').textContent=filtered.length+' porosi';tbody.innerHTML=filtered.length?filtered.map(o=>orderRow(o,true)).join(''):'<tr><td colspan="8" style="text-align:center;padding:2rem;color:#8892a4;">Ende nuk keni porosi.</td></tr>';}
 function orderRow(o,showDate=false){const sm={sold:'badge-sold',pending:'badge-pending',cancelled:'badge-inactive'},sl=o.status==='sold'?'Shitur':o.status==='pending'?'Në Pritje':'Anuluar',pl=o.payMethod==='online'?'💳 Online':'🤝 Marrje',ds=o.createdAt?.toDate?o.createdAt.toDate().toLocaleDateString('sq-AL'):'—',actions=o.status==='pending'?`<div style="display:flex;gap:0.4rem;"><button class="icon-btn" style="background:rgba(34,197,94,0.15);border-color:#22c55e;color:#22c55e;padding:5px 10px;font-size:0.75rem;font-weight:800;" onclick="markOrderSold('${o.id}')">✅ Konfirmo</button><button class="icon-btn" style="background:rgba(224,32,32,0.1);border-color:#e02020;color:#e02020;padding:5px 10px;font-size:0.75rem;" onclick="markOrderCancelled('${o.id}')">✕ Anulo</button></div>`:`<button class="icon-btn" style="padding:5px 10px;font-size:0.75rem;" onclick="viewOrderDetails('${o.id}')">👁️ Detaje</button>`;return `<tr><td style="font-weight:800;color:#e02020">#${o.id?.slice(-6)||'000000'}</td><td>${o.partEmoji||'🔩'} ${o.partName||'—'}</td><td><div style="font-weight:700">${o.buyerName||'—'}</div><div style="font-size:0.75rem;color:#8892a4">${o.buyerPhone||''}</div></td>${showDate?`<td style="color:#8892a4;font-size:0.8rem">${ds}</td>`:''}<td style="font-weight:800;color:#f5c518">${(o.totalPrice||0).toLocaleString()} L</td><td><span class="status-badge ${sm[o.status]||'badge-inactive'}">${sl}</span></td><td style="font-size:0.8rem;">${pl}</td><td>${actions}</td></tr>`;}
@@ -380,9 +359,7 @@ tbody td{padding:0.85rem 1.25rem;font-size:0.85rem;}
           <div class="field-group"><label>Sasia në Stok</label><input type="number" id="fStock" value="1" /></div>
           <div class="field-group"><label>Zbritje %</label><input type="number" id="fDiscount" value="0" min="0" max="99" oninput="calcFee()" /></div>
           <div class="field-group form-full"><label>Përshkrimi</label><textarea id="fDesc" rows="3" placeholder="Gjendja, marka, OEM apo aftermarket..."></textarea></div>
-          <div class="field-group form-full">
-            <div class="toggle-row"><input type="checkbox" id="fFeatured" /><label for="fFeatured">⭐ Shëno si të veçuar (maksimumi 3)</label></div>
-          </div>
+          <div class="field-group form-full"><div class="toggle-row"><input type="checkbox" id="fFeatured" /><label for="fFeatured">⭐ Shëno si të veçuar (maksimumi 3)</label></div></div>
           <input type="hidden" id="fFits" value="" />
           <div class="field-group form-full"><label>📸 Fotot e Pjesës (opsionale - max 5)</label><div class="image-upload-zone" onclick="triggerImageUpload()"><div style="font-size:2.5rem;margin-bottom:0.5rem;">📷</div><div style="font-weight:800;font-size:1rem;margin-bottom:0.25rem;">Kliko këtu për të zgjedhur fotot</div><button type="button" class="tbl-btn" style="margin-top:0.75rem;pointer-events:none;">📸 ZGJIDH FOTOT</button><div style="font-size:0.7rem;color:#666;margin-top:0.5rem;">PNG, JPG · Max 10MB · Kompresohen automatikisht</div></div><input type="file" id="imageInput" accept="image/*" multiple style="display:none;" onchange="handleImageSelect(event)" /><div id="imagePreviews" style="margin-top:0.75rem;display:flex;flex-wrap:wrap;gap:0.5rem;"><div style="color:#8892a4;font-size:0.85rem;text-align:center;padding:1rem;">📷 Asnjë foto e zgjedhur</div></div></div>
         </div>
