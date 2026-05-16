@@ -93,13 +93,37 @@ function onPartMakeChange(){
 }
 
 // ════════════════════════════════════
-//  AUTH
+//  AUTH — REAL‑TIME BUSINESS PROFILE LISTENER
 // ════════════════════════════════════
-auth.onAuthStateChanged(async user=>{if(user){currentUser=user;await loadBusinessProfile(user.uid);showApp();}else{currentUser=null;currentBiz=null;showLogin();}});
-async function loadBusinessProfile(uid){try{const bizDoc=await getDoc(doc(db,"businesses",uid));if(bizDoc.exists())currentBiz=bizDoc.data();else currentBiz={name:currentUser.email,plan:'basic',city:'Tiranë'};updateBizDisplay();}catch(e){currentBiz={name:currentUser?.email||'Biznesi',plan:'basic',city:''};updateBizDisplay();}}
+function listenToBusinessProfile(uid) {
+  db.collection("businesses").doc(uid).onSnapshot(doc => {
+    if (doc.exists) {
+      currentBiz = doc.data();
+      updateBizDisplay();
+      // Re-render parts list with new commission rate
+      renderMyParts();
+    }
+  }, err => {
+    console.error("Error listening to business profile:", err);
+  });
+}
+
+auth.onAuthStateChanged(async user => {
+  if(user){
+    currentUser = user;
+    listenToBusinessProfile(user.uid);  // Real-time listener
+    showApp();
+  } else {
+    currentUser = null;
+    currentBiz = null;
+    showLogin();
+  }
+});
+
 function updateBizDisplay(){const el=document.getElementById('bizName'),pl=document.getElementById('bizPlan');if(el)el.textContent=currentBiz?.businessName||currentBiz?.name||'Biznesi Im';const plan=currentBiz?.plan||'basic',planData=PLANS[plan];if(pl)pl.textContent=planData.icon+' '+planData.name.toUpperCase()+' · '+Math.round(planData.fee*100)+'%';renderPlanCards();}
 function renderPlanCards(){const plan=currentBiz?.plan||'basic';const cpd=document.getElementById('currentPlanDisplay');if(cpd){const p=PLANS[plan];cpd.innerHTML=`<div style="background:rgba(255,255,255,0.04);border:2px solid ${p.color};border-radius:12px;padding:1.25rem;display:flex;align-items:center;gap:1.25rem;"><div style="font-size:2.5rem">${p.icon}</div><div style="flex:1"><div style="font-family:'Bebas Neue',sans-serif;font-size:1.4rem;letter-spacing:2px;color:${p.color}">${p.name.toUpperCase()}</div><div style="font-size:0.85rem;color:#8892a4;">${p.monthly===0?'Falas':'€'+p.monthly+'/muaj'} · <strong>${Math.round(p.fee*100)}% komision</strong></div></div></div>`;}const pc=document.getElementById('planCards');if(!pc)return;pc.innerHTML=Object.entries(PLANS).map(([key,p])=>{const isCurrent=key===plan;return `<div style="background:${isCurrent?'rgba(255,255,255,0.06)':'var(--panel)'};border:2px solid ${isCurrent?p.color:'var(--border)'};border-radius:12px;padding:1.25rem;position:relative;"><div style="text-align:center;margin-bottom:1rem;"><div style="font-size:2rem;">${p.icon}</div><div style="font-family:'Bebas Neue',sans-serif;font-size:1.3rem;letter-spacing:2px;color:${p.color}">${p.name.toUpperCase()}</div><div style="font-size:1.5rem;font-weight:800;">${p.monthly===0?'Falas':'€'+p.monthly+'<span style="font-size:0.75rem;">/muaj</span>'}</div></div><div style="border-top:1px solid var(--border);padding-top:1rem;"><div style="display:flex;justify-content:space-between;font-size:0.85rem;margin-bottom:0.5rem;"><span style="color:#8892a4">Komision</span><strong style="color:${p.color}">${Math.round(p.fee*100)}%</strong></div>${!isCurrent?`<button onclick="requestUpgrade('${key}')" style="width:100%;background:${p.color};color:${p.color==='#f5c518'||p.color==='#e2e8f0'?'#000':'#fff'};border:none;border-radius:8px;padding:9px;font-weight:800;cursor:pointer;">UPGRADE →</button>`:'<div style="text-align:center;color:#8892a4;">✓ Aktiv</div>'}</div></div>`;}).join('');}
 window.requestUpgrade=async function(planKey){if(!currentUser||!currentBiz)return;try{await db.collection("plan_requests").add({businessId:currentUser.uid,businessName:currentBiz?.businessName||currentBiz?.name||'',email:currentUser?.email||'',fromPlan:currentBiz?.plan||'basic',toPlan:planKey,status:'pending',createdAt:firebase.firestore.FieldValue.serverTimestamp()});showToast('✅ Kërkesa u dërgua!');}catch(e){showToast('❌ Gabim',true);}};
+
 window.doLogin=async function(){const e=document.getElementById('loginEmail').value.trim(),p=document.getElementById('loginPass').value,btn=document.getElementById('loginBtn');if(!e||!p){showToast('⚠️ Plotëso fushat',true);return;}btn.textContent='Duke hyrë...';btn.disabled=true;try{await auth.signInWithEmailAndPassword(e,p);}catch(err){showToast('❌ '+err.message,true);btn.textContent='HYRJA →';btn.disabled=false;}};
 window.doRegister=async function(){const n=document.getElementById('regBizName').value.trim(),e=document.getElementById('regEmail').value.trim(),p=document.getElementById('regPass').value,p2=document.getElementById('regPass2').value,ph=document.getElementById('regPhone').value.trim(),c=document.getElementById('regCity').value,btn=document.getElementById('regBtn');if(!n||!e||!p||!ph){showToast('⚠️ Plotëso fushat',true);return;}if(p!==p2){showToast('⚠️ Fjalëkalimet nuk përputhen',true);return;}btn.textContent='Duke u regjistruar...';btn.disabled=true;try{const cred=await auth.createUserWithEmailAndPassword(e,p);await setDoc(doc(db,"businesses",cred.user.uid),{businessName:n,email:e,phone:ph,city:c,plan:'basic',commissionRate:8,createdAt:firebase.firestore.FieldValue.serverTimestamp(),uid:cred.user.uid});showToast('🎉 Llogaria u krijua!');}catch(err){showToast('❌ '+err.message,true);btn.textContent='KRIJO LLOGARINË →';btn.disabled=false;}};
 window.doLogout=async()=>{await auth.signOut();};
@@ -150,9 +174,7 @@ function orderRow(o,showDate=false){const sm={sold:'badge-sold',pending:'badge-p
 // ════════════════════════════════════
 window.markOrderSold=async function(id){
   const o=myOrders.find(x=>x.id===id);if(!o)return;
-  // Mark order as sold
   await db.collection("orders").doc(id).update({status:'sold',completedAt:firebase.firestore.FieldValue.serverTimestamp()});
-  // Reduce stock on the part
   if(o.partId){
     const pr=db.collection("parts").doc(o.partId),ps=await pr.get();
     if(ps.exists){
@@ -160,7 +182,6 @@ window.markOrderSold=async function(id){
       const qty=o.quantity||1;
       const newStock=Math.max(0,currentStock-qty);
       const updates={stock:newStock,sales:(ps.data().sales||0)+qty};
-      // Auto-deactivate if stock reaches 0
       if(newStock===0)updates.status='inactive';
       await updateDoc(pr,updates);
       showToast(newStock===0?'✅ Shitur! Stoku mbaroi — pjesa u çaktivizua.':`✅ Shitur! Stoku i mbetur: ${newStock}`);
@@ -376,6 +397,7 @@ tbody td{padding:0.85rem 1.25rem;font-size:0.85rem;}
   <div class="main">
     <div class="topbar"><div style="display:flex;align-items:center;gap:1rem;"><button class="sidebar-toggle" onclick="toggleSidebar()">☰</button><div class="topbar-title" id="topbarTitle">PASQYRA</div></div><div class="topbar-right"><div class="lang-toggle"><button class="lang-btn active" onclick="setLang('sq')">🇦🇱 SQ</button><button class="lang-btn" onclick="setLang('en')">🇬🇧 EN</button></div></div></div>
 
+    <!-- DASHBOARD -->
     <div class="page active" id="page-dashboard">
       <div class="stats-row">
         <div class="stat-card green"><div class="stat-ico">💰</div><div class="stat-val" id="statEarn">0 L</div><div class="stat-lbl">Fitimet Tuaja</div><div class="stat-chg">↑ Live</div></div>
@@ -390,10 +412,12 @@ tbody td{padding:0.85rem 1.25rem;font-size:0.85rem;}
       <div class="table-card"><div class="table-header"><h3>POROSITË E FUNDIT</h3><button class="tbl-btn outline" onclick="showPage('orders')">Shiko Të Gjitha</button></div><table><thead><tr><th>#</th><th>Pjesa</th><th>Blerësi</th><th>Çmimi</th><th>Statusi</th><th>Pagesa</th><th>Veprime</th></tr></thead><tbody id="recentOrdersBody"></tbody></table></div>
     </div>
 
+    <!-- PARTS LIST -->
     <div class="page" id="page-parts">
       <div class="table-card"><div class="table-header"><h3>PJESËT E MIA</h3><button class="tbl-btn" onclick="showPage('addpart')">+ Shto Pjesë</button></div><table><thead><tr><th>Pjesa</th><th>Kategoria</th><th>Gjendja</th><th>Çmimi Bazë</th><th>Çmimi Final</th><th>Stoku</th><th>Statusi</th><th>Veprime</th></tr></thead><tbody id="myPartsBody"></tbody></table></div>
     </div>
 
+    <!-- ADD PART (with car make/model selector) -->
     <div class="page" id="page-addpart">
       <div class="form-card"><h3>SHTO PJESË TË RE</h3>
         <div class="form-grid">
@@ -423,11 +447,13 @@ tbody td{padding:0.85rem 1.25rem;font-size:0.85rem;}
       <div style="display:flex;gap:1rem;"><button class="tbl-btn" style="padding:12px 2rem;" id="submitPartBtn" onclick="submitPart()">📦 PUBLIKO PJESËN</button><button class="tbl-btn outline" style="padding:12px 2rem;" onclick="showPage('parts')">Anulo</button></div>
     </div>
 
+    <!-- ORDERS -->
     <div class="page" id="page-orders">
       <div class="order-timeline"><button class="ot-btn active" onclick="filterOrders('all',this)">Të Gjitha</button><button class="ot-btn" onclick="filterOrders('pending',this)">Në Pritje</button><button class="ot-btn" onclick="filterOrders('sold',this)">Shitur</button><button class="ot-btn" onclick="filterOrders('pickup',this)">Marrje</button></div>
       <div class="table-card"><div class="table-header"><h3>TË GJITHA POROSITË</h3><span id="orderCount" style="color:#8892a4;"></span></div><table><thead><tr><th>#</th><th>Pjesa</th><th>Blerësi</th><th>Data</th><th>Çmimi</th><th>Statusi</th><th>Pagesa</th><th>Veprime</th></tr></thead><tbody id="allOrdersBody"></tbody></table></div>
     </div>
 
+    <!-- EARNINGS -->
     <div class="page" id="page-earnings">
       <div class="stats-row">
         <div class="stat-card green"><div class="stat-ico">💵</div><div class="stat-val" id="earnTotalVal">0 L</div><div class="stat-lbl">Fitim Neto Total</div></div>
@@ -440,6 +466,7 @@ tbody td{padding:0.85rem 1.25rem;font-size:0.85rem;}
       <div class="table-card"><div class="table-header"><h3>📅 PËRMBLEDHJA MUJORE</h3></div><table><thead><tr><th>Muaji</th><th>Nr.</th><th>Vlera</th><th>Tarifa</th><th>Neto</th><th></th></tr></thead><tbody id="earningsBody"></tbody></table></div>
     </div>
 
+    <!-- SETTINGS -->
     <div class="page" id="page-settings">
       <div class="settings-row">
         <div class="form-card"><h3>PROFILI I BIZNESIT</h3><div class="field-group" style="margin-bottom:1rem;"><label>Emri i Biznesit</label><input type="text" id="setBizName" /></div><div class="field-group" style="margin-bottom:1rem;"><label>Telefon</label><input type="text" id="setPhone" /></div><div class="field-group" style="margin-bottom:1rem;"><label>Email</label><input type="email" id="setEmail2" disabled /></div><div class="field-group" style="margin-bottom:1rem;"><label>Qyteti</label><select id="setCity"><option>Tiranë</option><option>Durrës</option><option>Shkodër</option><option>Vlorë</option><option>Korçë</option><option>Fier</option><option>Berat</option></select></div><button class="tbl-btn" onclick="saveSettings()">RUAJ NDRYSHIMET</button></div>
