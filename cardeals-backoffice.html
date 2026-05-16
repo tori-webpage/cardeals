@@ -20,11 +20,13 @@ const PLATFORM_FEE=0.08;
 let currentUser=null,currentBiz=null,myParts=[],myOrders=[],lang='sq',currentPage='dashboard',deletePartId=null;
 let salesChart=null,categoryChart=null;
 let selectedImages=[];
+let bulkImportData=[];
 
 function getCatEmoji(cat){const e={brakes:'🔘',engine:'⚙️',electrical:'⚡',suspension:'🔩',body:'🚗',ac:'🌡️'};return e[cat]||'🔧';}
+function getCatName(cat){const e={brakes:'Frena',engine:'Motor',electrical:'Elektrik',suspension:'Amortizatorë',body:'Karroceri',ac:'Klimë'};return e[cat]||cat;}
 
 // ════════════════════════════════════
-//  IMAGE COMPRESSION & UPLOAD
+//  IMAGE COMPRESSION & UPLOAD (unchanged)
 // ════════════════════════════════════
 function compressImage(file, maxWidth=600, maxHeight=600, quality=0.5) {
   return new Promise((resolve, reject) => {
@@ -35,24 +37,18 @@ function compressImage(file, maxWidth=600, maxHeight=600, quality=0.5) {
         let width = img.width, height = img.height;
         if (width > maxWidth) { height = Math.round((height * maxWidth) / width); width = maxWidth; }
         if (height > maxHeight) { width = Math.round((width * maxHeight) / height); height = maxHeight; }
-        const canvas = document.createElement('canvas');
-        canvas.width = width; canvas.height = height;
-        const ctx = canvas.getContext('2d');
-        ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high';
+        const canvas = document.createElement('canvas'); canvas.width = width; canvas.height = height;
+        const ctx = canvas.getContext('2d'); ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high';
         ctx.drawImage(img, 0, 0, width, height);
         canvas.toBlob((blob) => {
-          const compressedFile = new File([blob], file.name.replace(/\.[^/.]+$/, '.jpg'), { type: 'image/jpeg', lastModified: Date.now() });
-          resolve(compressedFile);
+          resolve(new File([blob], file.name.replace(/\.[^/.]+$/, '.jpg'), { type: 'image/jpeg', lastModified: Date.now() }));
         }, 'image/jpeg', quality);
       };
-      img.onerror = reject;
-      img.src = e.target.result;
+      img.onerror = reject; img.src = e.target.result;
     };
-    reader.onerror = reject;
-    reader.readAsDataURL(file);
+    reader.onerror = reject; reader.readAsDataURL(file);
   });
 }
-
 window.triggerImageUpload=function(){document.getElementById('imageInput').click();};
 window.handleImageSelect=function(event){
   const files=event.target.files;if(!files.length)return;
@@ -60,56 +56,39 @@ window.handleImageSelect=function(event){
     if(!file.type.match('image.*')){showToast('⚠️ Vetëm foto lejohen!',true);continue;}
     if(file.size>10*1024*1024){showToast('⚠️ Maksimumi 10MB për foto!',true);continue;}
     if(selectedImages.length>=5){showToast('⚠️ Maksimumi 5 foto!',true);break;}
-    compressImage(file,600,600,0.5).then(compressedFile=>{selectedImages.push(compressedFile);renderImagePreviews();}).catch(()=>{selectedImages.push(file);renderImagePreviews();});
+    compressImage(file,600,600,0.5).then(f=>{selectedImages.push(f);renderImagePreviews();}).catch(()=>{selectedImages.push(file);renderImagePreviews();});
   }
   event.target.value='';
 };
 function renderImagePreviews(){
-  const container=document.getElementById('imagePreviews');if(!container)return;
-  if(!selectedImages.length){container.innerHTML='<div style="color:#8892a4;font-size:0.85rem;text-align:center;padding:1rem;">📷 Asnjë foto e zgjedhur</div>';return;}
-  container.innerHTML=selectedImages.map((file,index)=>{const url=URL.createObjectURL(file);return `<div style="position:relative;display:inline-block;margin:0.25rem;"><img src="${url}" style="width:80px;height:80px;object-fit:cover;border-radius:8px;border:2px solid var(--border);" /><button onclick="removeImage(${index})" style="position:absolute;top:-8px;right:-8px;background:var(--red);color:white;border:none;border-radius:50%;width:22px;height:22px;font-size:0.7rem;cursor:pointer;font-weight:bold;">✕</button><div style="font-size:0.6rem;color:#22c55e;text-align:center;">${(file.size/1024).toFixed(0)}KB</div></div>`;}).join('');
+  const c=document.getElementById('imagePreviews');if(!c)return;
+  if(!selectedImages.length){c.innerHTML='<div style="color:#8892a4;font-size:0.85rem;text-align:center;padding:1rem;">📷 Asnjë foto e zgjedhur</div>';return;}
+  c.innerHTML=selectedImages.map((file,index)=>{const url=URL.createObjectURL(file);return `<div style="position:relative;display:inline-block;margin:0.25rem;"><img src="${url}" style="width:80px;height:80px;object-fit:cover;border-radius:8px;border:2px solid var(--border);" /><button onclick="removeImage(${index})" style="position:absolute;top:-8px;right:-8px;background:var(--red);color:white;border:none;border-radius:50%;width:22px;height:22px;font-size:0.7rem;cursor:pointer;font-weight:bold;">✕</button><div style="font-size:0.6rem;color:#22c55e;text-align:center;">${(file.size/1024).toFixed(0)}KB</div></div>`;}).join('');
 }
 window.removeImage=function(index){selectedImages.splice(index,1);renderImagePreviews();};
-async function uploadImages(partId){if(!selectedImages.length)return[];const uploadPromises=selectedImages.map(async(file,index)=>{const filename=`parts/${currentUser.uid}/${partId}_${index}_${Date.now()}.jpg`;const storageRef=storage.ref(filename);await storageRef.put(file);return await storageRef.getDownloadURL();});return await Promise.all(uploadPromises);}
+async function uploadImages(partId){if(!selectedImages.length)return[];const ups=selectedImages.map(async(file,index)=>{const ref=storage.ref(`parts/${currentUser.uid}/${partId}_${index}_${Date.now()}.jpg`);await ref.put(file);return await ref.getDownloadURL();});return await Promise.all(ups);}
 
 // ════════════════════════════════════
 //  CAR MAKE / MODEL DATA
 // ════════════════════════════════════
 const carBrands=['Volkswagen','Audi','BMW','Mercedes-Benz','Opel','Ford','Toyota','Honda','Fiat','Renault','Peugeot','Citroën','Nissan','Hyundai','Kia','Mazda','Skoda','Seat','Dacia','Suzuki','Mitsubishi','Volvo','Land Rover','Jeep','Chevrolet','Alfa Romeo'];
 const carModels={Volkswagen:['Golf','Polo','Passat','Tiguan','Touran','Jetta'],Audi:['A3','A4','A6','Q5','Q7'],BMW:['3 Series','5 Series','X3','X5'],'Mercedes-Benz':['C-Class','E-Class','A-Class','GLC'],Opel:['Astra','Corsa','Insignia','Mokka'],Ford:['Focus','Fiesta','Mondeo','Kuga'],Toyota:['Corolla','Yaris','RAV4','Auris'],Fiat:['Punto','500','Tipo'],Renault:['Clio','Megane','Captur'],Peugeot:['208','308','3008'],Citroën:['C3','C4'],Nissan:['Qashqai','Juke','Micra'],Hyundai:['i20','i30','Tucson'],Kia:['Rio','Ceed','Sportage'],Mazda:['3','6','CX-5'],Skoda:['Octavia','Fabia'],Seat:['Ibiza','Leon'],Dacia:['Logan','Duster'],Suzuki:['Swift','Vitara'],Mitsubishi:['Lancer','Outlander'],Volvo:['V40','XC60','XC90'],'Land Rover':['Range Rover','Discovery'],Jeep:['Wrangler','Grand Cherokee'],Chevrolet:['Spark','Cruze'],'Alfa Romeo':['Giulietta','Giulia']};
-
 function populateCarMakes(){
-  const sel=document.getElementById('partMake');
-  if(!sel)return;
+  const sel=document.getElementById('partMake');if(!sel)return;
   sel.innerHTML='<option value="">Zgjidh Markën</option>';
   carBrands.forEach(b=>{const o=document.createElement('option');o.value=b;o.textContent=b;sel.appendChild(o);});
 }
 function onPartMakeChange(){
-  const make=document.getElementById('partMake').value;
-  const modelSel=document.getElementById('partModel');
-  modelSel.innerHTML='<option value="">Zgjidh Modelin</option>';
-  if(make&&carModels[make]){carModels[make].forEach(m=>{const o=document.createElement('option');o.value=m;o.textContent=m;modelSel.appendChild(o);});modelSel.disabled=false;}
-  else{modelSel.disabled=true;}
+  const make=document.getElementById('partMake').value,ms=document.getElementById('partModel');
+  ms.innerHTML='<option value="">Zgjidh Modelin</option>';
+  if(make&&carModels[make]){carModels[make].forEach(m=>{const o=document.createElement('option');o.value=m;o.textContent=m;ms.appendChild(o);});ms.disabled=false;}else{ms.disabled=true;}
 }
 
 // ════════════════════════════════════
-//  AUTH — REAL‑TIME BUSINESS PROFILE LISTENER
+//  AUTH — REAL-TIME BUSINESS PROFILE
 // ════════════════════════════════════
-function listenToBusinessProfile(uid) {
-  db.collection("businesses").doc(uid).onSnapshot(doc => {
-    if (doc.exists) {
-      currentBiz = doc.data();
-      updateBizDisplay();
-      renderMyParts();
-    }
-  }, err => { console.error("Error listening to business profile:", err); });
-}
-
-auth.onAuthStateChanged(async user => {
-  if(user){ currentUser = user; listenToBusinessProfile(user.uid); showApp(); }
-  else { currentUser = null; currentBiz = null; showLogin(); }
-});
-
+function listenToBusinessProfile(uid){db.collection("businesses").doc(uid).onSnapshot(doc=>{if(doc.exists){currentBiz=doc.data();updateBizDisplay();renderMyParts();}},err=>{console.error(err);});}
+auth.onAuthStateChanged(async user=>{if(user){currentUser=user;listenToBusinessProfile(user.uid);showApp();}else{currentUser=null;currentBiz=null;showLogin();}});
 function updateBizDisplay(){const el=document.getElementById('bizName'),pl=document.getElementById('bizPlan');if(el)el.textContent=currentBiz?.businessName||currentBiz?.name||'Biznesi Im';const plan=currentBiz?.plan||'basic',planData=PLANS[plan];if(pl)pl.textContent=planData.icon+' '+planData.name.toUpperCase()+' · '+Math.round(planData.fee*100)+'%';renderPlanCards();}
 function renderPlanCards(){const plan=currentBiz?.plan||'basic';const cpd=document.getElementById('currentPlanDisplay');if(cpd){const p=PLANS[plan];cpd.innerHTML=`<div style="background:rgba(255,255,255,0.04);border:2px solid ${p.color};border-radius:12px;padding:1.25rem;display:flex;align-items:center;gap:1.25rem;"><div style="font-size:2.5rem">${p.icon}</div><div style="flex:1"><div style="font-family:'Bebas Neue',sans-serif;font-size:1.4rem;letter-spacing:2px;color:${p.color}">${p.name.toUpperCase()}</div><div style="font-size:0.85rem;color:#8892a4;">${p.monthly===0?'Falas':'€'+p.monthly+'/muaj'} · <strong>${Math.round(p.fee*100)}% komision</strong></div></div></div>`;}const pc=document.getElementById('planCards');if(!pc)return;pc.innerHTML=Object.entries(PLANS).map(([key,p])=>{const isCurrent=key===plan;return `<div style="background:${isCurrent?'rgba(255,255,255,0.06)':'var(--panel)'};border:2px solid ${isCurrent?p.color:'var(--border)'};border-radius:12px;padding:1.25rem;position:relative;"><div style="text-align:center;margin-bottom:1rem;"><div style="font-size:2rem;">${p.icon}</div><div style="font-family:'Bebas Neue',sans-serif;font-size:1.3rem;letter-spacing:2px;color:${p.color}">${p.name.toUpperCase()}</div><div style="font-size:1.5rem;font-weight:800;">${p.monthly===0?'Falas':'€'+p.monthly+'<span style="font-size:0.75rem;">/muaj</span>'}</div></div><div style="border-top:1px solid var(--border);padding-top:1rem;"><div style="display:flex;justify-content:space-between;font-size:0.85rem;margin-bottom:0.5rem;"><span style="color:#8892a4">Komision</span><strong style="color:${p.color}">${Math.round(p.fee*100)}%</strong></div>${!isCurrent?`<button onclick="requestUpgrade('${key}')" style="width:100%;background:${p.color};color:${p.color==='#f5c518'||p.color==='#e2e8f0'?'#000':'#fff'};border:none;border-radius:8px;padding:9px;font-weight:800;cursor:pointer;">UPGRADE →</button>`:'<div style="text-align:center;color:#8892a4;">✓ Aktiv</div>'}</div></div>`;}).join('');}
 window.requestUpgrade=async function(planKey){if(!currentUser||!currentBiz)return;try{await db.collection("plan_requests").add({businessId:currentUser.uid,businessName:currentBiz?.businessName||currentBiz?.name||'',email:currentUser?.email||'',fromPlan:currentBiz?.plan||'basic',toPlan:planKey,status:'pending',createdAt:firebase.firestore.FieldValue.serverTimestamp()});showToast('✅ Kërkesa u dërgua!');}catch(e){showToast('❌ Gabim',true);}};
@@ -122,25 +101,17 @@ async function loadMyParts(){if(!currentUser)return;db.collection("parts").where
 async function loadMyOrders(){if(!currentUser)return;db.collection("orders").where("sellerUid","==",currentUser.uid).onSnapshot(snap=>{myOrders=snap.docs.map(d=>({id:d.id,...d.data()}));myOrders.sort((a,b)=>(b.createdAt?.toMillis?.()||0)-(a.createdAt?.toMillis?.()||0));renderOrders('all');renderRecentOrders();updateDashboardStats();updateCharts();},e=>{console.error(e);});}
 
 window.submitPart=async function(){
-  const name=document.getElementById('fName').value.trim();
-  const price=parseFloat(document.getElementById('fPrice').value);
-  const make=document.getElementById('partMake').value;
-  const model=document.getElementById('partModel').value;
+  const name=document.getElementById('fName').value.trim(),price=parseFloat(document.getElementById('fPrice').value);
+  const make=document.getElementById('partMake').value,model=document.getElementById('partModel').value;
   const fits=(make&&model)?`${make} ${model}`:document.getElementById('fFits').value.trim();
   const cat=document.getElementById('fCat').value,cond=document.getElementById('fCond').value;
-  const stock=parseInt(document.getElementById('fStock').value)||1;
-  const desc=document.getElementById('fDesc').value.trim();
+  const stock=parseInt(document.getElementById('fStock').value)||1,desc=document.getElementById('fDesc').value.trim();
   const btn=document.getElementById('submitPartBtn');
   if(!name||!price||!fits){showToast('⚠️ Plotëso fushat e detyrueshme!',true);return;}
   btn.textContent='Duke publikuar...';btn.disabled=true;
   try{
-    const partRef=await db.collection("parts").add({
-      name:{sq:name,en:name},basePrice:price,fits,category:cat,condition:cond,stock,description:desc,
-      emoji:getCatEmoji(cat),sellerName:currentBiz?.businessName||currentBiz?.name||'',sellerCity:currentBiz?.city||'',
-      uid:currentUser.uid,status:stock>0?'active':'inactive',views:0,sales:0,rating:5,images:[],
-      createdAt:firebase.firestore.FieldValue.serverTimestamp()
-    });
-    if(selectedImages.length>0){btn.textContent='Duke ngarkuar fotot...';const imageUrls=await uploadImages(partRef.id);await partRef.update({images:imageUrls});}
+    const partRef=await db.collection("parts").add({name:{sq:name,en:name},basePrice:price,fits,category:cat,condition:cond,stock,description:desc,emoji:getCatEmoji(cat),sellerName:currentBiz?.businessName||currentBiz?.name||'',sellerCity:currentBiz?.city||'',uid:currentUser.uid,status:stock>0?'active':'inactive',views:0,sales:0,rating:5,images:[],createdAt:firebase.firestore.FieldValue.serverTimestamp()});
+    if(selectedImages.length>0){btn.textContent='Duke ngarkuar fotot...';const urls=await uploadImages(partRef.id);await partRef.update({images:urls});}
     showToast('✅ Pjesa u publikua!');
     ['fName','fFits','fPrice','fStock','fDesc'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
     document.getElementById('partMake').value='';document.getElementById('partModel').value='';document.getElementById('partModel').disabled=true;
@@ -148,51 +119,135 @@ window.submitPart=async function(){
   }catch(e){showToast('❌ Gabim',true);btn.textContent='📦 PUBLIKO PJESËN';btn.disabled=false;}
 };
 
+// ════════════════════════════════════
+//  BULK IMPORT
+// ════════════════════════════════════
+window.parseBulkImport = function() {
+  const raw = document.getElementById('bulkText').value.trim();
+  if (!raw) { showToast('⚠️ Fut të dhënat në formatin e duhur!', true); return; }
+  
+  const lines = raw.split('\n').filter(line => line.trim());
+  bulkImportData = [];
+  const errors = [];
+  
+  lines.forEach((line, i) => {
+    const parts = line.split('|').map(p => p.trim());
+    if (parts.length < 7) {
+      errors.push(`Rreshti ${i+1}: Mungojnë fusha (duhen 7: Emri | Kategoria | Gjendja | Çmimi | Stoku | Marka | Modeli | Përshkrimi)`);
+      return;
+    }
+    
+    const [name, cat, cond, priceStr, stockStr, make, model, ...descArr] = parts;
+    const desc = descArr.join(' ').trim();
+    const price = parseFloat(priceStr);
+    const stock = parseInt(stockStr) || 1;
+    
+    // Validate
+    if (!name) { errors.push(`Rreshti ${i+1}: Emri mungon`); return; }
+    if (!['brakes','engine','electrical','suspension','body','ac'].includes(cat)) { errors.push(`Rreshti ${i+1}: Kategoria duhet të jetë: brakes, engine, electrical, suspension, body, ac`); return; }
+    if (!['new','used'].includes(cond)) { errors.push(`Rreshti ${i+1}: Gjendja duhet të jetë: new ose used`); return; }
+    if (!price || price <= 0) { errors.push(`Rreshti ${i+1}: Çmimi duhet të jetë numër pozitiv`); return; }
+    if (!make) { errors.push(`Rreshti ${i+1}: Marka mungon`); return; }
+    if (!model) { errors.push(`Rreshti ${i+1}: Modeli mungon`); return; }
+    
+    bulkImportData.push({
+      name: { sq: name, en: name },
+      category: cat,
+      condition: cond,
+      basePrice: price,
+      stock: stock,
+      fits: `${make} ${model}`,
+      description: desc,
+      emoji: getCatEmoji(cat),
+      sellerName: currentBiz?.businessName || currentBiz?.name || '',
+      sellerCity: currentBiz?.city || '',
+      uid: currentUser.uid,
+      status: stock > 0 ? 'active' : 'inactive',
+      views: 0, sales: 0, rating: 5, images: [],
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+  });
+  
+  // Show errors if any
+  if (errors.length) {
+    document.getElementById('bulkErrors').innerHTML = errors.map(e => `<div style="color:#e02020;font-size:0.8rem;margin-bottom:0.25rem;">⚠️ ${e}</div>`).join('');
+    document.getElementById('bulkErrors').style.display = 'block';
+  } else {
+    document.getElementById('bulkErrors').style.display = 'none';
+  }
+  
+  // Render preview
+  renderBulkPreview();
+};
+
+function renderBulkPreview() {
+  const tbody = document.getElementById('bulkPreviewBody');
+  if (!bulkImportData.length) {
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:2rem;color:#8892a4;">Asnjë pjesë për të importuar</td></tr>';
+    document.getElementById('bulkCount').textContent = '0 pjesë';
+    return;
+  }
+  
+  document.getElementById('bulkCount').textContent = bulkImportData.length + ' pjesë';
+  tbody.innerHTML = bulkImportData.map((p, i) => `
+    <tr>
+      <td>${p.emoji} ${p.name.sq}</td>
+      <td>${getCatName(p.category)}</td>
+      <td>${p.condition==='new'?'E Re':'E Përdorur'}</td>
+      <td>${p.basePrice.toLocaleString()} L</td>
+      <td>${p.stock}</td>
+      <td>${p.fits}</td>
+      <td>${p.description||'—'}</td>
+    </tr>
+  `).join('');
+}
+
+window.importBulkParts = async function() {
+  if (!bulkImportData.length) { showToast('⚠️ Asnjë pjesë për të importuar!', true); return; }
+  
+  const btn = document.getElementById('bulkImportBtn');
+  btn.textContent = 'Duke importuar...';
+  btn.disabled = true;
+  
+  let successCount = 0;
+  let failCount = 0;
+  
+  for (const part of bulkImportData) {
+    try {
+      await db.collection("parts").add(part);
+      successCount++;
+    } catch (e) {
+      failCount++;
+      console.error('Failed to import part:', part.name.sq, e);
+    }
+  }
+  
+  btn.textContent = '📦 IMPORTO TË GJITHA';
+  btn.disabled = false;
+  
+  if (failCount === 0) {
+    showToast(`✅ ${successCount} pjesë u importuan me sukses!`);
+  } else {
+    showToast(`⚠️ ${successCount} u importuan, ${failCount} dështuan.`, true);
+  }
+  
+  // Clear and refresh
+  bulkImportData = [];
+  document.getElementById('bulkText').value = '';
+  document.getElementById('bulkPreviewBody').innerHTML = '<tr><td colspan="7" style="text-align:center;padding:2rem;color:#8892a4;">Asnjë pjesë për të importuar</td></tr>';
+  document.getElementById('bulkCount').textContent = '0 pjesë';
+  document.getElementById('bulkErrors').style.display = 'none';
+};
+
 window.deletePart=function(id){deletePartId=id;document.getElementById('deleteModal').classList.add('open');};
 window.confirmDelete=async function(){if(!deletePartId)return;try{const part=myParts.find(p=>p.id===deletePartId);if(part?.images?.length){for(const url of part.images){try{const ref=storage.refFromURL(url);await ref.delete();}catch(e){}}}await db.collection("parts").doc(deletePartId).delete();showToast('🗑️ Pjesa u fshi.');}catch(e){showToast('❌ Gabim',true);}closeModal('deleteModal');deletePartId=null;};
 window.togglePartStatus=async function(id,s){const ns=s==='active'?'inactive':'active';await db.collection("parts").doc(id).update({status:ns});showToast('✅ Statusi u ndryshua!');};
-
-// ════════════════════════════════════
-//  UPDATE STOCK
-// ════════════════════════════════════
-window.openUpdateStock = function(partId) {
-  const part = myParts.find(p => p.id === partId);
-  if (!part) return;
-  const name = typeof part.name === 'object' ? (part.name.sq || part.name.en) : part.name;
-  document.getElementById('updateStockPartName').textContent = 'Pjesa: ' + name;
-  document.getElementById('updateStockPartId').value = partId;
-  document.getElementById('currentStockDisplay').value = part.stock || 0;
-  document.getElementById('stockToAdd').value = 1;
-  document.getElementById('newStockDisplay').value = (part.stock || 0) + 1;
-  document.getElementById('stockToAdd').oninput = function() {
-    const add = parseInt(this.value) || 0;
-    document.getElementById('newStockDisplay').value = (part.stock || 0) + add;
-  };
-  document.getElementById('updateStockModal').classList.add('open');
-};
-
-window.confirmUpdateStock = async function() {
-  const partId = document.getElementById('updateStockPartId').value;
-  const add = parseInt(document.getElementById('stockToAdd').value) || 0;
-  const part = myParts.find(p => p.id === partId);
-  if (!part || add <= 0) return;
-  const newStock = (part.stock || 0) + add;
-  try {
-    await db.collection("parts").doc(partId).update({
-      stock: newStock,
-      status: newStock > 0 ? 'active' : 'inactive'
-    });
-    showToast('✅ Stoku u përditësua! ' + (part.stock||0) + ' → ' + newStock);
-    closeModal('updateStockModal');
-  } catch(e) {
-    showToast('❌ Gabim: ' + e.message, true);
-  }
-};
-
+window.openUpdateStock=function(partId){const part=myParts.find(p=>p.id===partId);if(!part)return;const name=typeof part.name==='object'?(part.name.sq||part.name.en):part.name;document.getElementById('updateStockPartName').textContent='Pjesa: '+name;document.getElementById('updateStockPartId').value=partId;document.getElementById('currentStockDisplay').value=part.stock||0;document.getElementById('stockToAdd').value=1;document.getElementById('newStockDisplay').value=(part.stock||0)+1;document.getElementById('stockToAdd').oninput=function(){document.getElementById('newStockDisplay').value=(part.stock||0)+(parseInt(this.value)||0);};document.getElementById('updateStockModal').classList.add('open');};
+window.confirmUpdateStock=async function(){const partId=document.getElementById('updateStockPartId').value,add=parseInt(document.getElementById('stockToAdd').value)||0;const part=myParts.find(p=>p.id===partId);if(!part||add<=0)return;const ns=(part.stock||0)+add;try{await db.collection("parts").doc(partId).update({stock:ns,status:ns>0?'active':'inactive'});showToast('✅ Stoku u përditësua!');closeModal('updateStockModal');}catch(e){showToast('❌ Gabim: '+e.message,true);}};
 window.saveSettings=async function(){if(!currentUser)return;const n=document.getElementById('setBizName').value.trim(),p=document.getElementById('setPhone').value.trim(),c=document.getElementById('setCity').value;await db.collection("businesses").doc(currentUser.uid).update({businessName:n,phone:p,city:c});currentBiz={...currentBiz,businessName:n,phone:p,city:c};updateBizDisplay();showToast('✅ Ndryshimet u ruajtën!');};
 
 function updateDashboardStats(){const e=myOrders.filter(o=>o.status==='sold').reduce((s,o)=>s+(o.platformFee||0),0);document.getElementById('statEarn').textContent=e.toLocaleString()+' L';document.getElementById('statSales').textContent=myOrders.filter(o=>o.status==='sold').length;document.getElementById('statViews').textContent=myParts.reduce((s,p)=>s+(p.views||0),0).toLocaleString();document.getElementById('statParts').textContent=myParts.filter(p=>p.status==='active').length;}
-function renderMyParts(){const tbody=document.getElementById('myPartsBody');if(!tbody)return;if(!myParts.length){tbody.innerHTML='<tr><td colspan="8"><div style="text-align:center;padding:3rem;color:#8892a4;">📦 Nuk keni pjesë të listuara.</div></td></tr>';return;}tbody.innerHTML=myParts.map(p=>{const name=typeof p.name==='object'?p.name[lang]||p.name.sq:p.name;const thumb=p.images?.length?`<img src="${p.images[0]}" style="width:40px;height:40px;object-fit:cover;border-radius:6px;vertical-align:middle;margin-right:8px;" />`:'';return `<tr><td>${thumb}${p.emoji||'🔩'} <strong>${name}</strong><br><small style="color:#666">${p.fits||''}</small></td><td style="color:#8892a4">${p.category||''}</td><td><span class="status-badge ${p.condition==='new'?'badge-active':'badge-used'}">${p.condition==='new'?'E Re':'E Përdorur'}</span></td><td>${(p.basePrice||0).toLocaleString()} L</td><td style="font-weight:800;color:#f5c518">${((p.basePrice||0)+Math.round((p.basePrice||0)*PLATFORM_FEE)).toLocaleString()} L</td><td style="font-weight:700;">${p.stock||0}</td><td><span class="status-badge ${p.status==='active'?'badge-active':'badge-inactive'}">${p.status==='active'?'Aktiv':'Joaktiv'}</span></td><td><div style="display:flex;gap:0.5rem;"><button class="icon-btn" onclick="togglePartStatus('${p.id}','${p.status}')">${p.status==='active'?'⏸️':'▶️'}</button><button class="icon-btn" style="border-color:#22c55e;color:#22c55e" onclick="openUpdateStock('${p.id}')" title="Shto stok">📦+</button><button class="icon-btn" style="border-color:#e02020;color:#e02020" onclick="deletePart('${p.id}')">🗑️</button></div></td></tr>`;}).join('');}
+function renderMyParts(){const tbody=document.getElementById('myPartsBody');if(!tbody)return;if(!myParts.length){tbody.innerHTML='<tr><td colspan="8"><div style="text-align:center;padding:3rem;color:#8892a4;">📦 Nuk keni pjesë të listuara.</div></td></tr>';return;}tbody.innerHTML=myParts.map(p=>{const name=typeof p.name==='object'?p.name[lang]||p.name.sq:p.name;const thumb=p.images?.length?`<img src="${p.images[0]}" style="width:40px;height:40px;object-fit:cover;border-radius:6px;vertical-align:middle;margin-right:8px;" />`:'';return `<tr><td>${thumb}${p.emoji||'🔩'} <strong>${name}</strong><br><small style="color:#666">${p.fits||''}</small></td><td style="color:#8892a4">${p.category||''}</td><td><span class="status-badge ${p.condition==='new'?'badge-active':'badge-used'}">${p.condition==='new'?'E Re':'E Përdorur'}</span></td><td>${(p.basePrice||0).toLocaleString()} L</td><td style="font-weight:800;color:#f5c518">${((p.basePrice||0)+Math.round((p.basePrice||0)*PLATFORM_FEE)).toLocaleString()} L</td><td style="font-weight:700;">${p.stock||0}</td><td><span class="status-badge ${p.status==='active'?'badge-active':'badge-inactive'}">${p.status==='active'?'Aktiv':'Joaktiv'}</span></td><td><div style="display:flex;gap:0.5rem;"><button class="icon-btn" onclick="togglePartStatus('${p.id}','${p.status}')">${p.status==='active'?'⏸️':'▶️'}</button><button class="icon-btn" style="border-color:#22c55e;color:#22c55e" onclick="openUpdateStock('${p.id}')">📦+</button><button class="icon-btn" style="border-color:#e02020;color:#e02020" onclick="deletePart('${p.id}')">🗑️</button></div></td></tr>`;}).join('');}
 function renderRecentOrders(){const tbody=document.getElementById('recentOrdersBody');if(!tbody)return;const recent=myOrders.slice(0,5);tbody.innerHTML=recent.length?recent.map(o=>orderRow(o)).join(''):'<tr><td colspan="7" style="text-align:center;padding:2rem;color:#8892a4;">Ende nuk keni porosi.</td></tr>';}
 function renderOrders(filter){const tbody=document.getElementById('allOrdersBody');if(!tbody)return;let filtered=myOrders;if(filter==='pending')filtered=myOrders.filter(o=>o.status==='pending');if(filter==='sold')filtered=myOrders.filter(o=>o.status==='sold');if(filter==='pickup')filtered=myOrders.filter(o=>o.payMethod==='pickup');document.getElementById('orderCount').textContent=filtered.length+' porosi';tbody.innerHTML=filtered.length?filtered.map(o=>orderRow(o,true)).join(''):'<tr><td colspan="8" style="text-align:center;padding:2rem;color:#8892a4;">Ende nuk keni porosi.</td></tr>';}
 function orderRow(o,showDate=false){const sm={sold:'badge-sold',pending:'badge-pending',cancelled:'badge-inactive'},sl=o.status==='sold'?'Shitur':o.status==='pending'?'Në Pritje':'Anuluar',pl=o.payMethod==='online'?'💳 Online':'🤝 Marrje',ds=o.createdAt?.toDate?o.createdAt.toDate().toLocaleDateString('sq-AL'):'—',actions=o.status==='pending'?`<div style="display:flex;gap:0.4rem;"><button class="icon-btn" style="background:rgba(34,197,94,0.15);border-color:#22c55e;color:#22c55e;padding:5px 10px;font-size:0.75rem;font-weight:800;" onclick="markOrderSold('${o.id}')">✅ Konfirmo</button><button class="icon-btn" style="background:rgba(224,32,32,0.1);border-color:#e02020;color:#e02020;padding:5px 10px;font-size:0.75rem;" onclick="markOrderCancelled('${o.id}')">✕ Anulo</button></div>`:`<button class="icon-btn" style="padding:5px 10px;font-size:0.75rem;" onclick="viewOrderDetails('${o.id}')">👁️ Detaje</button>`;return `<tr><td style="font-weight:800;color:#e02020">#${o.id?.slice(-6)||'000000'}</td><td>${o.partEmoji||'🔩'} ${o.partName||'—'}</td><td><div style="font-weight:700">${o.buyerName||'—'}</div><div style="font-size:0.75rem;color:#8892a4">${o.buyerPhone||''}</div></td>${showDate?`<td style="color:#8892a4;font-size:0.8rem">${ds}</td>`:''}<td style="font-weight:800;color:#f5c518">${(o.totalPrice||0).toLocaleString()} L</td><td><span class="status-badge ${sm[o.status]||'badge-inactive'}">${sl}</span></td><td style="font-size:0.8rem;">${pl}</td><td>${actions}</td></tr>`;}
@@ -200,32 +255,10 @@ window.markOrderSold=async function(id){const o=myOrders.find(x=>x.id===id);if(!
 window.markOrderCancelled=async function(id){if(!confirm('Anulo këtë porosi?'))return;await db.collection("orders").doc(id).update({status:'cancelled'});showToast('🚫 Porosia u anulua.');};
 window.viewOrderDetails=function(id){const o=myOrders.find(x=>x.id===id);if(!o)return;document.getElementById('orderDetailContent').innerHTML=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;margin-bottom:1.25rem;"><div class="dash-card"><div class="dash-num">${(o.totalPrice||0).toLocaleString()} L</div><div class="dash-label">Çmimi Total</div></div><div class="dash-card"><div class="dash-num" style="color:#e02020">+${(o.platformFee||0).toLocaleString()} L</div><div class="dash-label">Fitimi yt</div></div></div><div style="background:var(--bg);border-radius:10px;padding:1.25rem;font-size:0.88rem;line-height:2;"><div>📦 Pjesa: ${o.partEmoji||''} ${o.partName||'—'}</div><div>👤 Blerësi: ${o.buyerName||'—'}</div><div>📞 Telefon: <a href="tel:${o.buyerPhone||''}" style="color:#3b82f6">${o.buyerPhone||'—'}</a></div></div>`;document.getElementById('orderDetailModal').classList.add('open');};
 
-function updateCharts(){
-  const sold=myOrders.filter(o=>o.status==='sold');const now=new Date();const days=[];for(let i=6;i>=0;i--){const d=new Date(now);d.setDate(d.getDate()-i);days.push(d);}
-  const dailyData=days.map(day=>sold.filter(o=>{const od=o.createdAt?.toDate?o.createdAt.toDate():new Date();return od.toDateString()===day.toDateString();}).length);
-  const labels=days.map(d=>d.toLocaleDateString('sq-AL',{weekday:'short',day:'numeric'}));
-  const ctx1=document.getElementById('salesChart')?.getContext('2d');if(ctx1){if(salesChart)salesChart.destroy();salesChart=new Chart(ctx1,{type:'bar',data:{labels,datasets:[{label:'Shitje',data:dailyData,backgroundColor:'#e02020',borderRadius:6}]},options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,ticks:{stepSize:1}}}}});}
-  const catMap={};myParts.forEach(p=>{const c=p.category||'other';catMap[c]=(catMap[c]||0)+1;});
-  const ctx2=document.getElementById('categoryChart')?.getContext('2d');if(ctx2){if(categoryChart)categoryChart.destroy();categoryChart=new Chart(ctx2,{type:'doughnut',data:{labels:Object.keys(catMap),datasets:[{data:Object.values(catMap),backgroundColor:['#e02020','#f59e0b','#3b82f6','#22c55e','#a855f7','#06b6d4']}]},options:{responsive:true,plugins:{legend:{position:'bottom'}}}});}
-  document.getElementById('donutTotal').textContent=sold.length;
-}
-
+function updateCharts(){const sold=myOrders.filter(o=>o.status==='sold');const now=new Date();const days=[];for(let i=6;i>=0;i--){const d=new Date(now);d.setDate(d.getDate()-i);days.push(d);}const dailyData=days.map(day=>sold.filter(o=>{const od=o.createdAt?.toDate?o.createdAt.toDate():new Date();return od.toDateString()===day.toDateString();}).length);const labels=days.map(d=>d.toLocaleDateString('sq-AL',{weekday:'short',day:'numeric'}));const ctx1=document.getElementById('salesChart')?.getContext('2d');if(ctx1){if(salesChart)salesChart.destroy();salesChart=new Chart(ctx1,{type:'bar',data:{labels,datasets:[{label:'Shitje',data:dailyData,backgroundColor:'#e02020',borderRadius:6}]},options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,ticks:{stepSize:1}}}}});}const catMap={};myParts.forEach(p=>{const c=p.category||'other';catMap[c]=(catMap[c]||0)+1;});const ctx2=document.getElementById('categoryChart')?.getContext('2d');if(ctx2){if(categoryChart)categoryChart.destroy();categoryChart=new Chart(ctx2,{type:'doughnut',data:{labels:Object.keys(catMap),datasets:[{data:Object.values(catMap),backgroundColor:['#e02020','#f59e0b','#3b82f6','#22c55e','#a855f7','#06b6d4']}]},options:{responsive:true,plugins:{legend:{position:'bottom'}}}});}document.getElementById('donutTotal').textContent=sold.length;}
 let currentEarnFilter='all';
 window.filterEarnings=function(f,btn){currentEarnFilter=f;document.querySelectorAll('.ot-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderEarnings();};
-function renderEarnings(){
-  const sold=myOrders.filter(o=>o.status==='sold'),now=new Date(),thisMonthKey=now.getFullYear()+'-'+(now.getMonth()+1).toString().padStart(2,'0');let filtered=sold;
-  if(currentEarnFilter==='thismonth')filtered=sold.filter(o=>{const d=o.createdAt?.toDate?o.createdAt.toDate():new Date();return(d.getFullYear()+'-'+(d.getMonth()+1).toString().padStart(2,'0'))===thisMonthKey;});
-  else if(currentEarnFilter==='online')filtered=sold.filter(o=>o.payMethod==='online');else if(currentEarnFilter==='pickup')filtered=sold.filter(o=>o.payMethod==='pickup');
-  document.getElementById('salesCount').textContent=filtered.length+' shitje';
-  document.getElementById('earnTotalVal').textContent=sold.reduce((s,o)=>s+((o.totalPrice||0)-(o.platformFee||0)),0).toLocaleString()+' L';
-  document.getElementById('earnMonthVal').textContent=sold.filter(o=>{const d=o.createdAt?.toDate?o.createdAt.toDate():new Date();return(d.getFullYear()+'-'+(d.getMonth()+1).toString().padStart(2,'0'))===thisMonthKey;}).reduce((s,o)=>s+((o.totalPrice||0)-(o.platformFee||0)),0).toLocaleString()+' L';
-  document.getElementById('earnTotalOrders').textContent=sold.length;
-  document.getElementById('earnFeeVal').textContent=sold.reduce((s,o)=>s+(o.platformFee||0),0).toLocaleString()+' L';
-  const salesBody=document.getElementById('salesListBody');if(salesBody)salesBody.innerHTML=filtered.length?filtered.map(o=>{const d=o.createdAt?.toDate?o.createdAt.toDate():new Date(),gross=o.totalPrice||0,fee=o.platformFee||0,net=gross-fee;return `<tr><td style="font-weight:800;color:#e02020;font-size:0.8rem">#${o.id?.slice(-6)||'—'}</td><td>${o.partEmoji||'🔩'} ${o.partName||'—'}</td><td>${o.buyerName||'—'}</td><td>${o.buyerPhone||'—'}</td><td>${d.toLocaleDateString('sq-AL')}</td><td style="font-weight:800;color:#f5c518">${gross.toLocaleString()} L</td><td style="color:#e02020">-${fee.toLocaleString()} L</td><td style="color:#22c55e">+${net.toLocaleString()} L</td></tr>`;}).join(''):'<tr><td colspan="8" style="text-align:center;padding:2rem;">Ende nuk keni shitje.</td></tr>';
-  const byMonth={};sold.forEach(o=>{const d=o.createdAt?.toDate?o.createdAt.toDate():new Date(),key=d.getFullYear()+'-'+(d.getMonth()+1).toString().padStart(2,'0'),label=d.toLocaleDateString('sq-AL',{month:'long',year:'numeric'});if(!byMonth[key])byMonth[key]={label,orders:0,gross:0,fee:0,net:0};byMonth[key].orders++;byMonth[key].gross+=o.totalPrice||0;byMonth[key].fee+=o.platformFee||0;byMonth[key].net+=(o.totalPrice||0)-(o.platformFee||0);});
-  const tbody=document.getElementById('earningsBody');if(tbody)tbody.innerHTML=Object.values(byMonth).reverse().map(m=>`<tr><td>${m.label}</td><td>${m.orders}</td><td style="color:#f5c518">${m.gross.toLocaleString()} L</td><td style="color:#e02020">-${m.fee.toLocaleString()} L</td><td style="color:#22c55e">+${m.net.toLocaleString()} L</td><td><span class="status-badge badge-active">✓</span></td></tr>`).join('')||'<tr><td colspan="6" style="text-align:center;padding:2rem;">Ende nuk keni shitje.</td></tr>';
-}
-
+function renderEarnings(){const sold=myOrders.filter(o=>o.status==='sold'),now=new Date(),thisMonthKey=now.getFullYear()+'-'+(now.getMonth()+1).toString().padStart(2,'0');let filtered=sold;if(currentEarnFilter==='thismonth')filtered=sold.filter(o=>{const d=o.createdAt?.toDate?o.createdAt.toDate():new Date();return(d.getFullYear()+'-'+(d.getMonth()+1).toString().padStart(2,'0'))===thisMonthKey;});else if(currentEarnFilter==='online')filtered=sold.filter(o=>o.payMethod==='online');else if(currentEarnFilter==='pickup')filtered=sold.filter(o=>o.payMethod==='pickup');document.getElementById('salesCount').textContent=filtered.length+' shitje';document.getElementById('earnTotalVal').textContent=sold.reduce((s,o)=>s+((o.totalPrice||0)-(o.platformFee||0)),0).toLocaleString()+' L';document.getElementById('earnMonthVal').textContent=sold.filter(o=>{const d=o.createdAt?.toDate?o.createdAt.toDate():new Date();return(d.getFullYear()+'-'+(d.getMonth()+1).toString().padStart(2,'0'))===thisMonthKey;}).reduce((s,o)=>s+((o.totalPrice||0)-(o.platformFee||0)),0).toLocaleString()+' L';document.getElementById('earnTotalOrders').textContent=sold.length;document.getElementById('earnFeeVal').textContent=sold.reduce((s,o)=>s+(o.platformFee||0),0).toLocaleString()+' L';const salesBody=document.getElementById('salesListBody');if(salesBody)salesBody.innerHTML=filtered.length?filtered.map(o=>{const d=o.createdAt?.toDate?o.createdAt.toDate():new Date(),gross=o.totalPrice||0,fee=o.platformFee||0,net=gross-fee;return `<tr><td style="font-weight:800;color:#e02020;font-size:0.8rem">#${o.id?.slice(-6)||'—'}</td><td>${o.partEmoji||'🔩'} ${o.partName||'—'}</td><td>${o.buyerName||'—'}</td><td>${o.buyerPhone||'—'}</td><td>${d.toLocaleDateString('sq-AL')}</td><td style="font-weight:800;color:#f5c518">${gross.toLocaleString()} L</td><td style="color:#e02020">-${fee.toLocaleString()} L</td><td style="color:#22c55e">+${net.toLocaleString()} L</td></tr>`;}).join(''):'<tr><td colspan="8" style="text-align:center;padding:2rem;">Ende nuk keni shitje.</td></tr>';const byMonth={};sold.forEach(o=>{const d=o.createdAt?.toDate?o.createdAt.toDate():new Date(),key=d.getFullYear()+'-'+(d.getMonth()+1).toString().padStart(2,'0'),label=d.toLocaleDateString('sq-AL',{month:'long',year:'numeric'});if(!byMonth[key])byMonth[key]={label,orders:0,gross:0,fee:0,net:0};byMonth[key].orders++;byMonth[key].gross+=o.totalPrice||0;byMonth[key].fee+=o.platformFee||0;byMonth[key].net+=(o.totalPrice||0)-(o.platformFee||0);});const tbody=document.getElementById('earningsBody');if(tbody)tbody.innerHTML=Object.values(byMonth).reverse().map(m=>`<tr><td>${m.label}</td><td>${m.orders}</td><td style="color:#f5c518">${m.gross.toLocaleString()} L</td><td style="color:#e02020">-${m.fee.toLocaleString()} L</td><td style="color:#22c55e">+${m.net.toLocaleString()} L</td><td><span class="status-badge badge-active">✓</span></td></tr>`).join('')||'<tr><td colspan="6" style="text-align:center;padding:2rem;">Ende nuk keni shitje.</td></tr>';}
 window.calcFee=function(){const price=parseFloat(document.getElementById('fPrice')?.value)||0,plan=currentBiz?.plan||'basic',feeRate=PLANS[plan]?.fee||0.08,fee=Math.round(price*feeRate);document.getElementById('fpBase').textContent=price.toLocaleString()+' L';document.getElementById('fpFee').textContent=fee.toLocaleString()+' L ('+Math.round(feeRate*100)+'%)';document.getElementById('fpTotal').textContent=(price+fee).toLocaleString()+' L';};
 
 function showApp(){document.getElementById('loginScreen').style.display='none';document.getElementById('app').style.display='flex';loadMyParts();loadMyOrders();applyTranslations();showPage('dashboard');}
@@ -250,7 +283,7 @@ function populateSettings(){if(!currentBiz)return;document.getElementById('setBi
 function showToast(msg,isErr){const t=document.getElementById('toast');t.textContent=msg;t.style.background=isErr?'#e02020':'#22c55e';t.classList.add('show');setTimeout(()=>t.classList.remove('show'),4000);}
 window.closeModal=function(id){document.getElementById(id)?.classList.remove('open');};
 
-const T={sq:{pages:{dashboard:'PASQYRA',parts:'PJESËT E MIA',addpart:'SHTO PJESË',orders:'POROSITË',earnings:'FITIMET',settings:'CILËSIMET'},sidebarSub:'PANELI I BIZNESIT',navDash:'Pasqyra',navParts:'Pjesët e Mia',navAdd:'Shto Pjesë',navOrders:'Porositë',navEarn:'Fitimet',navSet:'Cilësimet',logout:'Dil nga Llogaria'},en:{pages:{dashboard:'OVERVIEW',parts:'MY PARTS',addpart:'ADD PART',orders:'ORDERS',earnings:'EARNINGS',settings:'SETTINGS'},sidebarSub:'BUSINESS DASHBOARD',navDash:'Overview',navParts:'My Parts',navAdd:'Add Part',navOrders:'Orders',navEarn:'Earnings',navSet:'Settings',logout:'Sign Out'}};
+const T={sq:{pages:{dashboard:'PASQYRA',parts:'PJESËT E MIA',addpart:'SHTO PJESË',bulkimport:'IMPORTO ME SHUMICË',orders:'POROSITË',earnings:'FITIMET',settings:'CILËSIMET'},sidebarSub:'PANELI I BIZNESIT',navDash:'Pasqyra',navParts:'Pjesët e Mia',navAdd:'Shto Pjesë',navBulk:'Importo me Shumicë',navOrders:'Porositë',navEarn:'Fitimet',navSet:'Cilësimet',logout:'Dil nga Llogaria'},en:{pages:{dashboard:'OVERVIEW',parts:'MY PARTS',addpart:'ADD PART',bulkimport:'BULK IMPORT',orders:'ORDERS',earnings:'EARNINGS',settings:'SETTINGS'},sidebarSub:'BUSINESS DASHBOARD',navDash:'Overview',navParts:'My Parts',navAdd:'Add Part',navBulk:'Bulk Import',navOrders:'Orders',navEarn:'Earnings',navSet:'Settings',logout:'Sign Out'}};
 window.setLang=function(l){lang=l;document.querySelectorAll('.lang-btn').forEach(b=>b.classList.remove('active'));document.querySelector(`.lang-btn[onclick="setLang('${l}')"]`)?.classList.add('active');applyTranslations();};
 window.setLoginLang=function(l){lang=l;document.querySelectorAll('.ll-btn').forEach(b=>b.classList.remove('active'));document.querySelector(`.ll-btn[onclick="setLoginLang('${l}')"]`)?.classList.add('active');applyTranslations();};
 function applyTranslations(){const tl=T[lang];document.querySelectorAll('[data-t]').forEach(el=>{const key=el.dataset.t;if(tl[key]!==undefined)el.textContent=tl[key];});document.getElementById('topbarTitle').textContent=tl.pages[currentPage]||'';document.getElementById('sidebarSub').textContent=tl.sidebarSub;}
@@ -391,6 +424,7 @@ tbody td{padding:0.85rem 1.25rem;font-size:0.85rem;}
       <div class="nav-section">KRYEFAQJA</div><a class="nav-item active" onclick="showPage('dashboard')" id="nav-dashboard"><span class="ico">📊</span><span data-t="navDash">Pasqyra</span></a>
       <div class="nav-section">KATALOG</div><a class="nav-item" onclick="showPage('parts')" id="nav-parts"><span class="ico">🔩</span><span data-t="navParts">Pjesët e Mia</span></a>
       <a class="nav-item" onclick="showPage('addpart')" id="nav-addpart"><span class="ico">➕</span><span data-t="navAdd">Shto Pjesë</span></a>
+      <a class="nav-item" onclick="showPage('bulkimport')" id="nav-bulkimport"><span class="ico">📦</span><span data-t="navBulk">Importo me Shumicë</span></a>
       <div class="nav-section">SHITJE</div><a class="nav-item" onclick="showPage('orders')" id="nav-orders"><span class="ico">📦</span><span data-t="navOrders">Porositë</span></a>
       <a class="nav-item" onclick="showPage('earnings')" id="nav-earnings"><span class="ico">💰</span><span data-t="navEarn">Fitimet</span></a>
       <div class="nav-section">LLOGARIA</div><a class="nav-item" onclick="showPage('settings')" id="nav-settings"><span class="ico">⚙️</span><span data-t="navSet">Cilësimet</span></a>
@@ -413,17 +447,12 @@ tbody td{padding:0.85rem 1.25rem;font-size:0.85rem;}
         <div class="stat-card blue"><div class="stat-ico">👁️</div><div class="stat-val" id="statViews">0</div><div class="stat-lbl">Shikime</div><div class="stat-chg">↑ Live</div></div>
         <div class="stat-card orange"><div class="stat-ico">🔩</div><div class="stat-val" id="statParts">0</div><div class="stat-lbl">Pjesë Aktive</div><div class="stat-chg">↑ Live</div></div>
       </div>
-      <div class="charts-row">
-        <div class="chart-card"><div class="chart-title">SHITJET — 7 DITËT E FUNDIT</div><canvas id="salesChart"></canvas></div>
-        <div class="chart-card"><div class="chart-title">SIPAS KATEGORISË</div><div class="donut-wrap"><div class="donut"><div class="donut-center"><div class="donut-pct" id="donutTotal">0</div><div class="donut-sub">SHITJE</div></div></div><canvas id="categoryChart"></canvas></div></div>
-      </div>
+      <div class="charts-row"><div class="chart-card"><div class="chart-title">SHITJET — 7 DITËT E FUNDIT</div><canvas id="salesChart"></canvas></div><div class="chart-card"><div class="chart-title">SIPAS KATEGORISË</div><div class="donut-wrap"><div class="donut"><div class="donut-center"><div class="donut-pct" id="donutTotal">0</div><div class="donut-sub">SHITJE</div></div></div><canvas id="categoryChart"></canvas></div></div></div>
       <div class="table-card"><div class="table-header"><h3>POROSITË E FUNDIT</h3><button class="tbl-btn outline" onclick="showPage('orders')">Shiko Të Gjitha</button></div><table><thead><tr><th>#</th><th>Pjesa</th><th>Blerësi</th><th>Çmimi</th><th>Statusi</th><th>Pagesa</th><th>Veprime</th></tr></thead><tbody id="recentOrdersBody"></tbody></table></div>
     </div>
 
     <!-- PARTS LIST -->
-    <div class="page" id="page-parts">
-      <div class="table-card"><div class="table-header"><h3>PJESËT E MIA</h3><button class="tbl-btn" onclick="showPage('addpart')">+ Shto Pjesë</button></div><table><thead><tr><th>Pjesa</th><th>Kategoria</th><th>Gjendja</th><th>Çmimi Bazë</th><th>Çmimi Final</th><th>Stoku</th><th>Statusi</th><th>Veprime</th></tr></thead><tbody id="myPartsBody"></tbody></table></div>
-    </div>
+    <div class="page" id="page-parts"><div class="table-card"><div class="table-header"><h3>PJESËT E MIA</h3><button class="tbl-btn" onclick="showPage('addpart')">+ Shto Pjesë</button></div><table><thead><tr><th>Pjesa</th><th>Kategoria</th><th>Gjendja</th><th>Çmimi Bazë</th><th>Çmimi Final</th><th>Stoku</th><th>Statusi</th><th>Veprime</th></tr></thead><tbody id="myPartsBody"></tbody></table></div></div>
 
     <!-- ADD PART -->
     <div class="page" id="page-addpart">
@@ -438,85 +467,54 @@ tbody td{padding:0.85rem 1.25rem;font-size:0.85rem;}
           <div class="field-group"><label>Sasia në Stok</label><input type="number" id="fStock" value="1" /></div>
           <div class="field-group form-full"><label>Përshkrimi</label><textarea id="fDesc" rows="3" placeholder="Gjendja, marka, OEM apo aftermarket..."></textarea></div>
           <input type="hidden" id="fFits" value="" />
-          <div class="field-group form-full">
-            <label>📸 Fotot e Pjesës (opsionale - max 5)</label>
-            <div class="image-upload-zone" onclick="triggerImageUpload()">
-              <div style="font-size:2.5rem;margin-bottom:0.5rem;">📷</div>
-              <div style="font-weight:800;font-size:1rem;margin-bottom:0.25rem;">Kliko këtu për të zgjedhur fotot</div>
-              <button type="button" class="tbl-btn" style="margin-top:0.75rem;pointer-events:none;">📸 ZGJIDH FOTOT</button>
-              <div style="font-size:0.7rem;color:#666;margin-top:0.5rem;">PNG, JPG · Max 10MB · Kompresohen automatikisht</div>
-            </div>
-            <input type="file" id="imageInput" accept="image/*" multiple style="display:none;" onchange="handleImageSelect(event)" />
-            <div id="imagePreviews" style="margin-top:0.75rem;display:flex;flex-wrap:wrap;gap:0.5rem;"><div style="color:#8892a4;font-size:0.85rem;text-align:center;padding:1rem;">📷 Asnjë foto e zgjedhur</div></div>
-          </div>
+          <div class="field-group form-full"><label>📸 Fotot e Pjesës (opsionale - max 5)</label><div class="image-upload-zone" onclick="triggerImageUpload()"><div style="font-size:2.5rem;margin-bottom:0.5rem;">📷</div><div style="font-weight:800;font-size:1rem;margin-bottom:0.25rem;">Kliko këtu për të zgjedhur fotot</div><button type="button" class="tbl-btn" style="margin-top:0.75rem;pointer-events:none;">📸 ZGJIDH FOTOT</button><div style="font-size:0.7rem;color:#666;margin-top:0.5rem;">PNG, JPG · Max 10MB · Kompresohen automatikisht</div></div><input type="file" id="imageInput" accept="image/*" multiple style="display:none;" onchange="handleImageSelect(event)" /><div id="imagePreviews" style="margin-top:0.75rem;display:flex;flex-wrap:wrap;gap:0.5rem;"><div style="color:#8892a4;font-size:0.85rem;text-align:center;padding:1rem;">📷 Asnjë foto e zgjedhur</div></div></div>
         </div>
       </div>
       <div class="form-card"><h3>LLOGARITËSI I ÇMIMIT</h3><div class="fee-preview"><div class="fpi"><div class="fv" id="fpBase">0 L</div><div class="fl">Çmimi Juaj</div></div><div class="fee-divider">+</div><div class="fpi"><div class="fv" id="fpFee">0 L</div><div class="fl">Tarifa (8%)</div></div><div class="fee-divider">=</div><div class="fpi hi"><div class="fv" id="fpTotal">0 L</div><div class="fl">Çmimi Final</div></div></div></div>
       <div style="display:flex;gap:1rem;"><button class="tbl-btn" style="padding:12px 2rem;" id="submitPartBtn" onclick="submitPart()">📦 PUBLIKO PJESËN</button><button class="tbl-btn outline" style="padding:12px 2rem;" onclick="showPage('parts')">Anulo</button></div>
     </div>
 
-    <!-- ORDERS -->
-    <div class="page" id="page-orders">
-      <div class="order-timeline"><button class="ot-btn active" onclick="filterOrders('all',this)">Të Gjitha</button><button class="ot-btn" onclick="filterOrders('pending',this)">Në Pritje</button><button class="ot-btn" onclick="filterOrders('sold',this)">Shitur</button><button class="ot-btn" onclick="filterOrders('pickup',this)">Marrje</button></div>
-      <div class="table-card"><div class="table-header"><h3>TË GJITHA POROSITË</h3><span id="orderCount" style="color:#8892a4;"></span></div><table><thead><tr><th>#</th><th>Pjesa</th><th>Blerësi</th><th>Data</th><th>Çmimi</th><th>Statusi</th><th>Pagesa</th><th>Veprime</th></tr></thead><tbody id="allOrdersBody"></tbody></table></div>
+    <!-- BULK IMPORT -->
+    <div class="page" id="page-bulkimport">
+      <div class="form-card">
+        <h3>📦 IMPORTO PJESË ME SHUMICË</h3>
+        <p style="color:var(--chrome);font-size:0.85rem;margin-bottom:1rem;">
+          Shkruaj një pjesë për rresht në formatin:<br>
+          <strong style="color:#22c55e;">Emri | Kategoria | Gjendja | Çmimi | Stoku | Marka | Modeli | Përshkrimi</strong>
+        </p>
+        <p style="color:#666;font-size:0.78rem;margin-bottom:1rem;">
+          Kategoritë: <strong>brakes, engine, electrical, suspension, body, ac</strong><br>
+          Gjendja: <strong>new</strong> ose <strong>used</strong><br>
+          Shembull: <code style="color:#f5c518;">Set Frenash Para | brakes | new | 5000 | 10 | Volkswagen | Golf | Frenat origjinale</code>
+        </p>
+        <div class="field-group form-full">
+          <textarea id="bulkText" rows="8" placeholder="Set Frenash Para | brakes | new | 5000 | 10 | Volkswagen | Golf | Frenat origjinale&#10;Alternator 150A | electrical | used | 8000 | 3 | BMW | 3 Series | I perdorur&#10;Filtër Vaji | engine | new | 1500 | 20 | Mercedes-Benz | C-Class | Aftermarket"></textarea>
+        </div>
+        <div id="bulkErrors" style="display:none;background:rgba(224,32,32,0.1);border:1px solid rgba(224,32,32,0.3);border-radius:8px;padding:0.75rem;margin-bottom:1rem;"></div>
+        <div style="display:flex;gap:1rem;margin-bottom:1rem;">
+          <button class="tbl-btn" onclick="parseBulkImport()">🔍 SHIKO PARAPAMJEN</button>
+          <button class="tbl-btn" id="bulkImportBtn" onclick="importBulkParts()" style="background:#22c55e;">📦 IMPORTO TË GJITHA</button>
+          <span id="bulkCount" style="color:var(--chrome);font-weight:700;display:flex;align-items:center;">0 pjesë</span>
+        </div>
+      </div>
+      <div class="table-card">
+        <div class="table-header"><h3>📋 PARAPAMJA</h3></div>
+        <table><thead><tr><th>Pjesa</th><th>Kategoria</th><th>Gjendja</th><th>Çmimi</th><th>Stoku</th><th>Makina</th><th>Përshkrimi</th></tr></thead><tbody id="bulkPreviewBody"><tr><td colspan="7" style="text-align:center;padding:2rem;color:#8892a4;">Asnjë pjesë për të importuar</td></tr></tbody></table>
+      </div>
     </div>
 
-    <!-- EARNINGS -->
-    <div class="page" id="page-earnings">
-      <div class="stats-row">
-        <div class="stat-card green"><div class="stat-ico">💵</div><div class="stat-val" id="earnTotalVal">0 L</div><div class="stat-lbl">Fitim Neto Total</div></div>
-        <div class="stat-card red"><div class="stat-ico">📅</div><div class="stat-val" id="earnMonthVal">0 L</div><div class="stat-lbl">Ky Muaj (Neto)</div></div>
-        <div class="stat-card blue"><div class="stat-ico">📦</div><div class="stat-val" id="earnTotalOrders">0</div><div class="stat-lbl">Shitje të Konfirmuara</div></div>
-        <div class="stat-card orange"><div class="stat-ico">💸</div><div class="stat-val" id="earnFeeVal">0 L</div><div class="stat-lbl">Tarifa Cardeals (8%)</div></div>
-      </div>
-      <div style="display:flex;gap:0.75rem;margin-bottom:1.25rem;"><button class="ot-btn active" onclick="filterEarnings('all',this)">Të Gjitha</button><button class="ot-btn" onclick="filterEarnings('thismonth',this)">Ky Muaj</button><button class="ot-btn" onclick="filterEarnings('online',this)">💳 Online</button><button class="ot-btn" onclick="filterEarnings('pickup',this)">🤝 Marrje</button><span id="salesCount" style="color:#8892a4;margin-left:auto;"></span></div>
-      <div class="table-card"><div class="table-header"><h3>📋 LISTA E SHITJEVE</h3></div><table><thead><tr><th>#</th><th>Pjesa</th><th>Blerësi</th><th>Tel</th><th>Data</th><th>Çmimi</th><th>Tarifa</th><th>Fitimi</th></tr></thead><tbody id="salesListBody"></tbody></table></div>
-      <div class="table-card"><div class="table-header"><h3>📅 PËRMBLEDHJA MUJORE</h3></div><table><thead><tr><th>Muaji</th><th>Nr.</th><th>Vlera</th><th>Tarifa</th><th>Neto</th><th></th></tr></thead><tbody id="earningsBody"></tbody></table></div>
-    </div>
-
-    <!-- SETTINGS -->
-    <div class="page" id="page-settings">
-      <div class="settings-row">
-        <div class="form-card"><h3>PROFILI I BIZNESIT</h3><div class="field-group" style="margin-bottom:1rem;"><label>Emri i Biznesit</label><input type="text" id="setBizName" /></div><div class="field-group" style="margin-bottom:1rem;"><label>Telefon</label><input type="text" id="setPhone" /></div><div class="field-group" style="margin-bottom:1rem;"><label>Email</label><input type="email" id="setEmail2" disabled /></div><div class="field-group" style="margin-bottom:1rem;"><label>Qyteti</label><select id="setCity"><option>Tiranë</option><option>Durrës</option><option>Shkodër</option><option>Vlorë</option><option>Korçë</option><option>Fier</option><option>Berat</option></select></div><button class="tbl-btn" onclick="saveSettings()">RUAJ NDRYSHIMET</button></div>
-        <div class="form-card" style="grid-column:1/-1;"><h3>⭐ PLANI JUAJ & UPGRADET</h3><div id="currentPlanDisplay" style="margin-bottom:1.5rem;"></div><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;" id="planCards"></div></div>
-      </div>
-    </div>
+    <!-- ORDERS, EARNINGS, SETTINGS (unchanged) -->
+    <div class="page" id="page-orders"><div class="order-timeline"><button class="ot-btn active" onclick="filterOrders('all',this)">Të Gjitha</button><button class="ot-btn" onclick="filterOrders('pending',this)">Në Pritje</button><button class="ot-btn" onclick="filterOrders('sold',this)">Shitur</button><button class="ot-btn" onclick="filterOrders('pickup',this)">Marrje</button></div><div class="table-card"><div class="table-header"><h3>TË GJITHA POROSITË</h3><span id="orderCount" style="color:#8892a4;"></span></div><table><thead><tr><th>#</th><th>Pjesa</th><th>Blerësi</th><th>Data</th><th>Çmimi</th><th>Statusi</th><th>Pagesa</th><th>Veprime</th></tr></thead><tbody id="allOrdersBody"></tbody></table></div></div>
+    <div class="page" id="page-earnings"><div class="stats-row"><div class="stat-card green"><div class="stat-ico">💵</div><div class="stat-val" id="earnTotalVal">0 L</div><div class="stat-lbl">Fitim Neto Total</div></div><div class="stat-card red"><div class="stat-ico">📅</div><div class="stat-val" id="earnMonthVal">0 L</div><div class="stat-lbl">Ky Muaj (Neto)</div></div><div class="stat-card blue"><div class="stat-ico">📦</div><div class="stat-val" id="earnTotalOrders">0</div><div class="stat-lbl">Shitje të Konfirmuara</div></div><div class="stat-card orange"><div class="stat-ico">💸</div><div class="stat-val" id="earnFeeVal">0 L</div><div class="stat-lbl">Tarifa Cardeals (8%)</div></div></div><div style="display:flex;gap:0.75rem;margin-bottom:1.25rem;"><button class="ot-btn active" onclick="filterEarnings('all',this)">Të Gjitha</button><button class="ot-btn" onclick="filterEarnings('thismonth',this)">Ky Muaj</button><button class="ot-btn" onclick="filterEarnings('online',this)">💳 Online</button><button class="ot-btn" onclick="filterEarnings('pickup',this)">🤝 Marrje</button><span id="salesCount" style="color:#8892a4;margin-left:auto;"></span></div><div class="table-card"><div class="table-header"><h3>📋 LISTA E SHITJEVE</h3></div><table><thead><tr><th>#</th><th>Pjesa</th><th>Blerësi</th><th>Tel</th><th>Data</th><th>Çmimi</th><th>Tarifa</th><th>Fitimi</th></tr></thead><tbody id="salesListBody"></tbody></table></div><div class="table-card"><div class="table-header"><h3>📅 PËRMBLEDHJA MUJORE</h3></div><table><thead><tr><th>Muaji</th><th>Nr.</th><th>Vlera</th><th>Tarifa</th><th>Neto</th><th></th></tr></thead><tbody id="earningsBody"></tbody></table></div></div>
+    <div class="page" id="page-settings"><div class="settings-row"><div class="form-card"><h3>PROFILI I BIZNESIT</h3><div class="field-group" style="margin-bottom:1rem;"><label>Emri i Biznesit</label><input type="text" id="setBizName" /></div><div class="field-group" style="margin-bottom:1rem;"><label>Telefon</label><input type="text" id="setPhone" /></div><div class="field-group" style="margin-bottom:1rem;"><label>Email</label><input type="email" id="setEmail2" disabled /></div><div class="field-group" style="margin-bottom:1rem;"><label>Qyteti</label><select id="setCity"><option>Tiranë</option><option>Durrës</option><option>Shkodër</option><option>Vlorë</option><option>Korçë</option><option>Fier</option><option>Berat</option></select></div><button class="tbl-btn" onclick="saveSettings()">RUAJ NDRYSHIMET</button></div><div class="form-card" style="grid-column:1/-1;"><h3>⭐ PLANI JUAJ & UPGRADET</h3><div id="currentPlanDisplay" style="margin-bottom:1.5rem;"></div><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;" id="planCards"></div></div></div></div>
 
   </div>
 </div>
 
-<!-- Order Detail Modal -->
+<!-- Modals -->
 <div class="modal-overlay" id="orderDetailModal"><div class="modal"><button class="modal-close" onclick="closeModal('orderDetailModal')">✕</button><h3>📦 Detajet e Porosisë</h3><div id="orderDetailContent"></div></div></div>
-
-<!-- Delete Modal -->
 <div class="modal-overlay" id="deleteModal"><div class="modal"><button class="modal-close" onclick="closeModal('deleteModal')">✕</button><h3>FSHI PJESËN?</h3><p style="color:#8892a4;margin-bottom:1.5rem;">Kjo veprim nuk mund të zhbëhet.</p><div style="display:flex;gap:1rem;"><button class="tbl-btn" style="flex:1;padding:11px;background:var(--red);" onclick="confirmDelete()">PO, FSHI</button><button class="tbl-btn outline" style="flex:1;padding:11px;" onclick="closeModal('deleteModal')">Anulo</button></div></div></div>
-
-<!-- Update Stock Modal -->
-<div class="modal-overlay" id="updateStockModal">
-  <div class="modal">
-    <button class="modal-close" onclick="closeModal('updateStockModal')">✕</button>
-    <h3>📦 Përditëso Stokun</h3>
-    <p id="updateStockPartName" style="color:var(--chrome);margin-bottom:1rem;"></p>
-    <input type="hidden" id="updateStockPartId" />
-    <div class="field-group" style="margin-bottom:1rem;">
-      <label>Stoku Aktual</label>
-      <input type="number" id="currentStockDisplay" disabled style="opacity:0.6;" />
-    </div>
-    <div class="field-group" style="margin-bottom:1rem;">
-      <label>Shto Copë (+)</label>
-      <input type="number" id="stockToAdd" value="1" min="1" max="999" />
-    </div>
-    <div class="field-group" style="margin-bottom:1.5rem;">
-      <label>Stoku i Ri</label>
-      <input type="number" id="newStockDisplay" disabled style="opacity:0.6;font-weight:800;color:#22c55e;" />
-    </div>
-    <div style="display:flex;gap:1rem;">
-      <button class="tbl-btn" style="flex:1;padding:11px;" onclick="confirmUpdateStock()">✅ PËRDITËSO STOKUN</button>
-      <button class="tbl-btn outline" style="flex:1;padding:11px;" onclick="closeModal('updateStockModal')">Anulo</button>
-    </div>
-  </div>
-</div>
-
+<div class="modal-overlay" id="updateStockModal"><div class="modal"><button class="modal-close" onclick="closeModal('updateStockModal')">✕</button><h3>📦 Përditëso Stokun</h3><p id="updateStockPartName" style="color:var(--chrome);margin-bottom:1rem;"></p><input type="hidden" id="updateStockPartId" /><div class="field-group" style="margin-bottom:1rem;"><label>Stoku Aktual</label><input type="number" id="currentStockDisplay" disabled style="opacity:0.6;" /></div><div class="field-group" style="margin-bottom:1rem;"><label>Shto Copë (+)</label><input type="number" id="stockToAdd" value="1" min="1" max="999" /></div><div class="field-group" style="margin-bottom:1.5rem;"><label>Stoku i Ri</label><input type="number" id="newStockDisplay" disabled style="opacity:0.6;font-weight:800;color:#22c55e;" /></div><div style="display:flex;gap:1rem;"><button class="tbl-btn" style="flex:1;padding:11px;" onclick="confirmUpdateStock()">✅ PËRDITËSO STOKUN</button><button class="tbl-btn outline" style="flex:1;padding:11px;" onclick="closeModal('updateStockModal')">Anulo</button></div></div></div>
 <div class="toast" id="toast"></div>
 </body>
 </html>
