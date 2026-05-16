@@ -1,0 +1,24 @@
+{
+  "name": "Cardeals.al — Pjesë Këmbimi",
+  "short_name": "Cardeals.al",
+  "description": "Platforma #1 e Pjesëve të Këmbimit në Shqipëri",
+  "start_url": "/index.html",
+  "display": "standalone",
+  "background_color": "#0a0c10",
+  "theme_color": "#e02020",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/10872/10872285.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/10872/10872285.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
