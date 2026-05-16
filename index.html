@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Cardeals.al — Gjej & Krahaso Pjesë Këmbimi</title>
-<!-- PWA -->
 <link rel="manifest" href="/manifest.json" />
 <meta name="theme-color" content="#e02020" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -73,9 +72,23 @@ nav{background:var(--panel);border-bottom:3px solid var(--red);display:flex;alig
 .section-title{font-family:'Bebas Neue',sans-serif;font-size:2rem;letter-spacing:3px;margin-bottom:0.4rem;}
 .section-title span{color:var(--red);}
 .section-sub{color:var(--chrome);font-size:0.88rem;margin-bottom:2rem;}
+/* Featured section */
+.featured-section{background:rgba(245,197,24,0.03);border:1px solid rgba(245,197,24,0.15);border-radius:var(--radius);padding:1.5rem;margin-bottom:2rem;}
+.featured-title{font-family:'Bebas Neue',sans-serif;font-size:1.3rem;letter-spacing:2px;color:#f5c518;margin-bottom:1rem;}
+.featured-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1.5rem;}
+/* Sale badge */
+.sale-badge{position:absolute;top:12px;right:12px;background:#22c55e;color:white;padding:4px 10px;border-radius:20px;font-size:0.7rem;font-weight:800;letter-spacing:1px;z-index:3;}
+.featured-badge{position:absolute;top:12px;right:12px;background:#f5c518;color:#000;padding:4px 10px;border-radius:20px;font-size:0.7rem;font-weight:800;letter-spacing:1px;z-index:3;}
+.both-badges{top:12px;right:12px;}
+.both-badges .featured-badge{position:absolute;top:0;right:0;}
+.both-badges .sale-badge{position:absolute;top:30px;right:0;}
+.price-original{text-decoration:line-through;color:#e02020;font-size:0.78rem;}
+.price-discounted{color:#22c55e;font-weight:800;font-size:0.9rem;}
 .parts-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1.5rem;}
 .part-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;transition:transform 0.2s,box-shadow 0.2s,border-color 0.2s;cursor:pointer;position:relative;}
 .part-card:hover{transform:translateY(-4px);box-shadow:0 12px 40px rgba(224,32,32,0.15);border-color:var(--red);}
+.part-card.featured-card{border-color:rgba(245,197,24,0.4);}
+.part-card.featured-card:hover{border-color:#f5c518;box-shadow:0 12px 40px rgba(245,197,24,0.2);}
 .part-img{width:100%;height:180px;display:flex;align-items:center;justify-content:center;font-size:5rem;position:relative;overflow:hidden;background:linear-gradient(135deg,#1a1a2e,#2d3748);}
 .part-img img{width:100%;height:100%;object-fit:cover;position:absolute;top:0;left:0;}
 .part-img-icon{position:relative;z-index:1;filter:drop-shadow(0 6px 12px rgba(0,0,0,0.5));}
@@ -160,22 +173,12 @@ footer p{color:var(--chrome);font-size:0.85rem;margin-bottom:1.5rem;}
 <nav>
   <a class="logo" href="#">Car<span>deals</span><small>.al</small></a>
   <div class="nav-right">
-    <div class="nav-links">
-      <a href="#parts" id="navBrowse">Shfleto</a>
-      <a href="#how" id="navHow">Si Funksionon</a>
-      <a href="#contact" id="navBiz">Kontakt</a>
-      <a href="cardeals-backoffice.html" class="nav-sell" target="_blank" id="navSell">Shit Këtu</a>
-    </div>
+    <div class="nav-links"><a href="#parts" id="navBrowse">Shfleto</a><a href="#how" id="navHow">Si Funksionon</a><a href="#contact" id="navBiz">Kontakt</a><a href="cardeals-backoffice.html" class="nav-sell" target="_blank" id="navSell">Shit Këtu</a></div>
     <div class="lang-toggle"><button class="lang-btn active" onclick="setLang('sq')">🇦🇱 SQ</button><button class="lang-btn" onclick="setLang('en')">🇬🇧 EN</button></div>
     <div class="user-menu">
       <button class="user-btn" onclick="toggleUserMenu()" id="userMenuBtn">👤 <span id="userDisplay">Llogaria</span></button>
       <button class="user-btn register-btn" onclick="openRegisterModal()" id="registerBtn">✨ Regjistrohu</button>
-      <div class="user-dropdown" id="userDropdown">
-        <a href="#" onclick="showBuyerOrders(); return false;">📦 Porositë e Mia</a>
-        <a href="#" onclick="showSavedSearches(); return false;">🔍 Kërkimet e Ruajtura</a>
-        <a href="#" onclick="openBuyerProfile(); return false;">⚙️ Profili</a>
-        <button onclick="buyerLogout()">🚪 Dil</button>
-      </div>
+      <div class="user-dropdown" id="userDropdown"><a href="#" onclick="showBuyerOrders(); return false;">📦 Porositë e Mia</a><a href="#" onclick="showSavedSearches(); return false;">🔍 Kërkimet e Ruajtura</a><a href="#" onclick="openBuyerProfile(); return false;">⚙️ Profili</a><button onclick="buyerLogout()">🚪 Dil</button></div>
     </div>
   </div>
 </nav>
@@ -186,72 +189,41 @@ footer p{color:var(--chrome);font-size:0.85rem;margin-bottom:1.5rem;}
   <p id="heroSub">Zgjidh makinën tënde dhe shiko të gjitha pjesët e përputhshme menjëherë.</p>
   <div class="car-selector">
     <select id="carMakeSelect" onchange="onCarMakeChange()"><option value="">Zgjidh Markën</option></select>
-    <input type="text" id="carModelInput" placeholder="Modeli (p.sh. Golf)" list="carModelList" disabled />
-    <datalist id="carModelList"></datalist>
+    <input type="text" id="carModelInput" placeholder="Modeli (p.sh. Golf)" list="carModelList" disabled /><datalist id="carModelList"></datalist>
     <button onclick="searchByCar()" class="buy-btn" style="width:auto;padding:0.75rem 2rem;">KËRKO PJESËT</button>
   </div>
   <div class="search-wrap">
-    <div class="search-bar">
-      <input type="text" id="searchInput" placeholder="Ose kërko me fjalë kyçe..."/>
-      <select id="condFilter" onchange="filterCond(this.value)"><option value="all">Të gjitha</option><option value="new">Vetëm të Reja</option><option value="used">Vetëm të Përdorura</option></select>
-      <button onclick="renderParts()" id="searchBtn">KËRKO</button>
-    </div>
+    <div class="search-bar"><input type="text" id="searchInput" placeholder="Ose kërko me fjalë kyçe..."/><select id="condFilter" onchange="filterCond(this.value)"><option value="all">Të gjitha</option><option value="new">Vetëm të Reja</option><option value="used">Vetëm të Përdorura</option></select><button onclick="renderParts()" id="searchBtn">KËRKO</button></div>
     <div style="text-align:center;"><button class="advanced-filters-toggle" onclick="toggleAdvancedFilters()" id="advFilterBtn">⚙️ Filtrat e Avancuar</button></div>
-    <div class="advanced-filters" id="advancedFilters">
-      <div class="filter-row">
-        <div class="filter-group"><label>Qyteti</label><select id="filterCity"><option value="">Të gjitha</option></select></div>
-        <div class="filter-group"><label>Çmimi max (Lekë)</label><input type="number" id="filterMaxPrice" placeholder="50000" /></div>
-        <div class="filter-group"><label>Rendit sipas</label><select id="filterSort"><option value="newest">Më të rejat</option><option value="price_asc">Çmimi: i ulët → i lartë</option><option value="price_desc">Çmimi: i lartë → i ulët</option></select></div>
-      </div>
-      <div style="display:flex;gap:0.5rem;"><button class="buy-btn" style="flex:1;" onclick="renderParts()">APLIKO FILTRAT</button><button class="buy-btn" style="flex:1;background:var(--panel);border:1px solid var(--border);" onclick="resetAdvancedFilters()">Rivendos</button><button class="buy-btn" id="saveSearchBtn" style="flex:1;background:var(--panel);border:1px solid var(--border);display:none;" onclick="saveCurrentSearch()">💾 Ruaj Kërkimin</button></div>
-    </div>
-    <div class="filter-tags">
-      <span class="tag active" onclick="filterCat(this,'all')">Të gjitha</span>
-      <span class="tag" onclick="filterCat(this,'engine')">Motor</span>
-      <span class="tag" onclick="filterCat(this,'brakes')">Frena</span>
-      <span class="tag" onclick="filterCat(this,'electrical')">Elektrik</span>
-      <span class="tag" onclick="filterCat(this,'suspension')">Amortizatorë</span>
-      <span class="tag" onclick="filterCat(this,'body')">Karroceri</span>
-      <span class="tag" onclick="filterCat(this,'ac')">Klimë</span>
-    </div>
+    <div class="advanced-filters" id="advancedFilters"><div class="filter-row"><div class="filter-group"><label>Qyteti</label><select id="filterCity"><option value="">Të gjitha</option></select></div><div class="filter-group"><label>Çmimi max (Lekë)</label><input type="number" id="filterMaxPrice" placeholder="50000" /></div><div class="filter-group"><label>Rendit sipas</label><select id="filterSort"><option value="newest">Më të rejat</option><option value="price_asc">Çmimi: i ulët → i lartë</option><option value="price_desc">Çmimi: i lartë → i ulët</option><option value="discount">Zbritja më e madhe</option></select></div></div><div style="display:flex;gap:0.5rem;"><button class="buy-btn" style="flex:1;" onclick="renderParts()">APLIKO FILTRAT</button><button class="buy-btn" style="flex:1;background:var(--panel);border:1px solid var(--border);" onclick="resetAdvancedFilters()">Rivendos</button><button class="buy-btn" id="saveSearchBtn" style="flex:1;background:var(--panel);border:1px solid var(--border);display:none;" onclick="saveCurrentSearch()">💾 Ruaj Kërkimin</button></div></div>
+    <div class="filter-tags"><span class="tag active" onclick="filterCat(this,'all')">Të gjitha</span><span class="tag" onclick="filterCat(this,'engine')">Motor</span><span class="tag" onclick="filterCat(this,'brakes')">Frena</span><span class="tag" onclick="filterCat(this,'electrical')">Elektrik</span><span class="tag" onclick="filterCat(this,'suspension')">Amortizatorë</span><span class="tag" onclick="filterCat(this,'body')">Karroceri</span><span class="tag" onclick="filterCat(this,'ac')">Klimë</span></div>
   </div>
 </div>
 
-<div class="stats-bar">
-  <div class="stat"><div class="stat-num" id="statParts">...</div><div class="stat-label">Pjesë Aktive</div></div>
-  <div class="stat"><div class="stat-num" id="statSellers">...</div><div class="stat-label">Shitës të Verifikuar</div></div>
-  <div class="stat"><div class="stat-num">0 L</div><div class="stat-label">Regjistrim Falas</div></div>
-  <div class="stat"><div class="stat-num">🇦🇱</div><div class="stat-label">Mbulim Kombëtar</div></div>
-</div>
+<div class="stats-bar"><div class="stat"><div class="stat-num" id="statParts">...</div><div class="stat-label">Pjesë Aktive</div></div><div class="stat"><div class="stat-num" id="statSellers">...</div><div class="stat-label">Shitës të Verifikuar</div></div><div class="stat"><div class="stat-num">0 L</div><div class="stat-label">Regjistrim Falas</div></div><div class="stat"><div class="stat-num">🇦🇱</div><div class="stat-label">Mbulim Kombëtar</div></div></div>
 
 <div class="section" id="parts">
   <div class="section-title">🔍 Pjesë <span>të Listuara</span></div>
   <div class="section-sub">Çmimet nga biznese të verifikuara — tarifa jonë 8% është e përfshirë</div>
+  <!-- FEATURED SECTION -->
+  <div class="featured-section" id="featuredSection" style="display:none;">
+    <div class="featured-title">⭐ TË VECUARA</div>
+    <div class="featured-grid" id="featuredGrid"></div>
+  </div>
   <div class="parts-grid" id="partsGrid"><div style="grid-column:1/-1;text-align:center;padding:4rem;color:#8892a4;"><div class="spinner"></div><p>Duke ngarkuar pjesët...</p></div></div>
 </div>
 
 <div class="how-section" id="how"><div class="how-inner"><div class="section-title">⚡ Si Funksionon <span>Cardeals.al</span></div><div class="steps"><div class="step"><div class="step-icon">🚗</div><h3>Zgjidh Makinën</h3><p>Zgjidh markën dhe modelin për të parë pjesët e përputhshme.</p></div><div class="step"><div class="step-icon">⚖️</div><h3>Krahaso</h3><p>Shiko çmimet dhe vlerësimet nga blerës të vërtetë.</p></div><div class="step"><div class="step-icon">💳</div><h3>Bli</h3><p>Paguaj online ose rezervo falas.</p></div><div class="step"><div class="step-icon">⭐</div><h3>Vlerëso</h3><p>Lër vlerësimin tënd pas blerjes.</p></div></div></div></div>
-
 <div style="padding:0 2rem;"><div class="biz-cta"><h2>Je një <span style="color:var(--red)">Biznes</span> Pjesësh?</h2><p>Listo inventarin tënd në Cardeals.al dhe arrij mijëra blerës.</p><div class="biz-features"><div class="biz-feat"><span>✓</span> Regjistrim falas</div><div class="biz-feat"><span>✓</span> Listo të reja & të përdorura</div><div class="biz-feat"><span>✓</span> Panel shitjesh live</div><div class="biz-feat"><span>✓</span> Komision vetëm kur shet</div></div><a href="cardeals-backoffice.html" class="cta-btn" target="_blank">REGJISTRO BIZNESIN TËND →</a></div></div>
-
 <div class="contact-section" id="contact"><div class="contact-inner"><div class="section-title" style="text-align:center;">📬 Na <span style="color:var(--red)">Kontaktoni</span></div><p style="text-align:center;color:var(--chrome);margin-bottom:2rem;">Pyetje? Probleme? Jemi këtu për ju.</p><div class="contact-form"><div class="field"><label>Emri Juaj</label><input type="text" id="contactName" /></div><div class="field"><label>Email</label><input type="email" id="contactEmail" /></div><div class="field"><label>Mesazhi</label><textarea id="contactMsg" rows="4"></textarea></div><button class="submit-btn" onclick="submitContact()">DËRGO MESAZHIN</button></div></div></div>
-
 <footer><div class="footer-logo">Car<span>deals</span>.al</div><p>Mënyra e zgjuar për të gjetur dhe blerë pjesë këmbimi në Shqipëri.</p><div class="footer-links"><a href="#">Rreth Nesh</a><a href="#how">Si Funksionon</a><a href="cardeals-backoffice.html" target="_blank">Shit Me Ne</a><a href="#contact">Kontakt</a></div><div class="footer-copy">© 2025 Cardeals.al</div></footer>
 
-<!-- Buy Modal -->
+<!-- Modals (buy, auth, etc.) — same as previous -->
 <div class="modal-overlay" id="buyModal"><div class="modal"><button class="modal-x" onclick="closeModal('buyModal')">✕</button><div class="modal-emoji" id="mEmoji"></div><h2 id="mName"></h2><div class="modal-seller-txt" id="mSeller"></div><div id="mStockInfo" style="margin-bottom:0.75rem;"></div><div style="display:flex;align-items:center;gap:1rem;background:rgba(0,0,0,0.2);border-radius:10px;padding:0.75rem 1rem;margin-bottom:1rem;"><span style="color:#8892a4;">Sasia:</span><div style="display:flex;align-items:center;gap:0.5rem;"><button onclick="changeQty(-1)" style="width:32px;height:32px;border-radius:8px;border:1px solid #444;background:var(--panel);color:white;font-size:1.2rem;cursor:pointer;font-weight:800;">−</button><input type="number" id="mQty" value="1" min="1" max="99" oninput="updateModalTotal()" style="width:56px;text-align:center;background:var(--panel);border:1px solid #444;border-radius:8px;color:white;padding:6px;font-family:'Nunito',sans-serif;font-weight:800;font-size:1rem;outline:none;" /><button onclick="changeQty(1)" style="width:32px;height:32px;border-radius:8px;border:1px solid #444;background:var(--panel);color:white;font-size:1.2rem;cursor:pointer;font-weight:800;">+</button></div></div><div class="price-summary"><div class="ps-r"><span>Çmimi shitësit</span><span id="mBase"></span></div><div class="ps-r ps-fee"><span>Tarifa Cardeals (8%)</span><span id="mFee"></span></div><div class="ps-r ps-total"><span>Totali</span><span id="mTotal" style="color:var(--green)"></span></div></div><div class="pay-toggle"><div class="pay-opt active" id="btnOnline" onclick="selectPay('online')">💳 Paguo Online</div><div class="pay-opt" id="btnPickup" onclick="selectPay('pickup')">🤝 Paguo në Marrje</div></div><div id="secOnline"><p style="color:#8892a4;font-size:0.82rem;margin-bottom:1rem;">Plotëso të dhënat për të vazhduar.</p><div class="field"><label>Emri i Plotë *</label><input type="text" id="onlineName" /></div><div class="field"><label>Telefon *</label><input type="text" id="onlinePhone" /></div><div class="field"><label>Email *</label><input type="email" id="onlineEmail" /></div><button class="buy-btn" id="btnOnlinePay" onclick="confirmOnline()">💳 VAZHDO ME PAGESËN</button></div><div id="secPickup" style="display:none"><p style="color:#8892a4;font-size:0.82rem;margin-bottom:1rem;">Rezervo falas — paguaj kur të marrësh pjesën.</p><div class="field"><label>Emri i Plotë *</label><input type="text" id="pickupName" /></div><div class="field"><label>Telefon *</label><input type="text" id="pickupPhone" /></div><div class="field"><label>Email (opsional)</label><input type="email" id="pickupEmail" /></div><button class="buy-btn" id="btnReserve" onclick="confirmPickup()">🤝 REZERVO FALAS</button><p class="pickup-note">✓ Pjesa mbahet 48 orë. Shitësi ju kontakton brenda 2 orësh.</p></div></div></div>
-
-<!-- Auth Modal -->
 <div class="modal-overlay" id="authModal"><div class="modal"><button class="modal-x" onclick="closeModal('authModal')">✕</button><div style="display:flex;margin-bottom:1.5rem;background:var(--panel);border-radius:10px;overflow:hidden;"><button onclick="showAuthTab('login')" id="tabLogin" style="flex:1;padding:12px;border:none;background:var(--red);color:white;font-weight:800;cursor:pointer;">🔑 Hyr</button><button onclick="showAuthTab('register')" id="tabRegister" style="flex:1;padding:12px;border:none;background:transparent;color:var(--chrome);font-weight:800;cursor:pointer;">✨ Regjistrohu</button></div><div id="authLoginForm"><div class="field"><label>Email</label><input type="email" id="authEmail" /></div><div class="field"><label>Fjalëkalimi</label><input type="password" id="authPass" /></div><button class="buy-btn" onclick="buyerLogin()">HYR</button></div><div id="authRegisterForm" style="display:none;"><p style="font-size:0.78rem;color:var(--chrome);margin-bottom:1rem;">✅ Ruaj kërkimet ✅ Ndjek porositë ✅ Blerje më e shpejtë</p><div class="field"><label>Emri i Plotë</label><input type="text" id="regName" /></div><div class="field"><label>Email</label><input type="email" id="regEmail" /></div><div class="field"><label>Fjalëkalimi</label><input type="password" id="regPass" /></div><button class="buy-btn" onclick="buyerRegister()">REGJISTROHU</button></div></div></div>
 
 <div class="toast" id="toast"></div>
-
-<!-- PWA Install Banner -->
-<div id="installBanner" style="display:none;position:fixed;bottom:0;left:0;right:0;background:var(--card);border-top:2px solid var(--red);padding:1rem;z-index:400;text-align:center;">
-  <p style="margin-bottom:0.75rem;font-weight:700;">📲 Instalo Cardeals.al në telefonin tënd!</p>
-  <button class="buy-btn" style="width:auto;padding:8px 24px;" onclick="installApp()">INSTALO</button>
-  <button style="background:none;border:none;color:var(--chrome);margin-left:1rem;cursor:pointer;" onclick="document.getElementById('installBanner').style.display='none'">Më vonë</button>
-</div>
+<div id="installBanner" style="display:none;position:fixed;bottom:0;left:0;right:0;background:var(--card);border-top:2px solid var(--red);padding:1rem;z-index:400;text-align:center;"><p style="margin-bottom:0.75rem;font-weight:700;">📲 Instalo Cardeals.al në telefonin tënd!</p><button class="buy-btn" style="width:auto;padding:8px 24px;" onclick="installApp()">INSTALO</button><button style="background:none;border:none;color:var(--chrome);margin-left:1rem;cursor:pointer;" onclick="document.getElementById('installBanner').style.display='none'">Më vonë</button></div>
 
 <script>
 firebase.initializeApp({apiKey:"AIzaSyAU8hVTqury1MbC0Sx-CXGY1YQrr5VJhyE",authDomain:"cardeals-al.firebaseapp.com",projectId:"cardeals-al",storageBucket:"cardeals-al.firebasestorage.app",messagingSenderId:"839953227675",appId:"1:839953227675:web:6fb6aa9350bd3bd507cb3e"});
@@ -262,20 +234,7 @@ let currentCarMake='',currentCarModel='';
 function g(id){return document.getElementById(id);}
 function showToast(msg,isErr){const t=g('toast');if(!t)return;t.textContent=msg;t.style.background=isErr?'#e02020':'#22c55e';t.classList.add('show');setTimeout(()=>t.classList.remove('show'),4000);}
 function closeModal(id){if(id)document.getElementById(id).classList.remove('open');else document.querySelectorAll('.modal-overlay.open').forEach(m=>m.classList.remove('open'));}
-
-async function reducePartStock(partId, quantity) {
-  try {
-    const partRef = db.collection("parts").doc(partId);
-    const partSnap = await partRef.get();
-    if (partSnap.exists) {
-      const currentStock = partSnap.data().stock || 0;
-      const newStock = Math.max(0, currentStock - quantity);
-      const updates = { stock: newStock, sales: (partSnap.data().sales||0) + quantity };
-      if (newStock === 0) updates.status = 'inactive';
-      await partRef.update(updates);
-    }
-  } catch (e) { console.error("Error reducing stock:", e); }
-}
+async function reducePartStock(partId,quantity){try{const pr=db.collection("parts").doc(partId);const ps=await pr.get();if(ps.exists){const cs=ps.data().stock||0,ns=Math.max(0,cs-quantity),updates={stock:ns,sales:(ps.data().sales||0)+quantity};if(ns===0)updates.status='inactive';await pr.update(updates);}}catch(e){console.error(e);}}
 
 function openRegisterModal(){g('authModal').classList.add('open');showAuthTab('register');}
 function toggleAdvancedFilters(){g('advancedFilters').classList.toggle('open');}
@@ -307,50 +266,81 @@ function filterCond(val){currentCondition=val;renderParts();}
 function renderParts(){
   const search=g('searchInput').value.toLowerCase(),brand=currentCarMake,model=currentCarModel.toLowerCase(),city=g('filterCity').value,maxPrice=parseFloat(g('filterMaxPrice').value)||Infinity,sort=g('filterSort').value;
   let filtered=allParts.filter(p=>{const name=typeof p.name==='object'?(p.name[currentLang]||p.name.sq||''):(p.name||''),fits=(p.fits||'').toLowerCase();if(currentFilter!=='all'&&p.category!==currentFilter)return false;if(currentCondition!=='all'&&p.condition!==currentCondition)return false;if(search&&!name.toLowerCase().includes(search)&&!fits.includes(search)&&!(p.sellerCity||'').toLowerCase().includes(search))return false;if(brand&&fits.indexOf(brand.toLowerCase())===-1)return false;if(model&&fits.indexOf(model)===-1)return false;if(city&&p.sellerCity!==city)return false;if((p.basePrice||0)>maxPrice)return false;return true;});
-  if(sort==='price_asc')filtered.sort((a,b)=>(a.basePrice||0)-(b.basePrice||0));else if(sort==='price_desc')filtered.sort((a,b)=>(b.basePrice||0)-(a.basePrice||0));
-  const grid=g('partsGrid');if(!filtered.length){grid.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:4rem;color:#8892a4;"><div style="font-size:3rem;margin-bottom:1rem">🔍</div><p>Nuk u gjet asnjë pjesë.</p></div>';return;}
-  grid.innerHTML=filtered.map(p=>{const name=typeof p.name==='object'?(p.name[currentLang]||p.name.sq):p.name,fee=Math.round((p.basePrice||0)*PLATFORM_FEE),fin=(p.basePrice||0)+fee;const stock=getStockImage(p.category),catLabel=currentLang==='sq'?stock.label_sq:stock.label_en,stk=p.stock||0,isOut=stk===0;const mainImage=p.images?.length?p.images[0]:null;return `<div class="part-card" onclick="openModal('${p.id}')"><div class="part-img">${mainImage?`<img src="${mainImage}" />`:`<span class="part-img-icon">${stock.emoji}</span>`}<span class="part-img-cat">${catLabel}</span></div><div class="cond-badge" style="background:${p.condition==='new'?'#22c55e':'#f59e0b'}">${p.condition==='new'?'E RE':'E PËRDORUR'}</div><div class="part-body"><div class="rating-row"><span class="stars">⭐</span><span class="review-count">(${p.reviewCount||0})</span></div><div class="part-name">${name}</div><div class="part-fits">🚗 ${p.fits||''}</div><div class="part-seller">🏪 ${p.sellerName||''} · ${p.sellerCity||''}</div><div class="part-stock">📦 Stoku: ${isOut?'<span style="color:#e02020;">Jashtë stokut</span>':stk<=3?`<span style="color:#f59e0b;">⚠️ ${stk} copë</span>`:`<span style="color:#22c55e;">✓ ${stk} copë</span>`}</div><div class="price-box"><div class="pr"><span class="pr-lbl">Çmimi shitësit</span><span>${(p.basePrice||0).toLocaleString()} L</span></div><div class="pr pr-fee"><span>+ Tarifa (8%)</span><span style="color:#e02020">+${fee.toLocaleString()} L</span></div><div class="pr pr-total"><span>Totali</span><span class="pr-total-val">${fin.toLocaleString()} L</span></div></div><button class="buy-btn" onclick="event.stopPropagation();openModal('${p.id}')" ${isOut?'disabled':''}>${isOut?'Jashtë stokut':'BLI TANI — '+fin.toLocaleString()+' L'}</button></div></div>`;}).join('');
+  if(sort==='price_asc')filtered.sort((a,b)=>(a.basePrice||0)-(b.basePrice||0));else if(sort==='price_desc')filtered.sort((a,b)=>(b.basePrice||0)-(a.basePrice||0));else if(sort==='discount')filtered.sort((a,b)=>(b.discount||0)-(a.discount||0));
+  
+  // Separate featured and regular
+  const featured=filtered.filter(p=>p.featured);
+  const regular=filtered.filter(p=>!p.featured);
+  
+  // Featured section
+  const featSec=g('featuredSection');
+  const featGrid=g('featuredGrid');
+  if(featured.length>0&&!brand&&!model&&!search){
+    featSec.style.display='block';
+    featGrid.innerHTML=featured.map(p=>renderPartCard(p,true)).join('');
+  }else{featSec.style.display='none';}
+  
+  // Regular parts
+  const grid=g('partsGrid');
+  if(!regular.length&&!featured.length){grid.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:4rem;color:#8892a4;"><div style="font-size:3rem;margin-bottom:1rem">🔍</div><p>Nuk u gjet asnjë pjesë.</p></div>';return;}
+  if(brand||model||search){grid.innerHTML=filtered.map(p=>renderPartCard(p,false)).join('');}else{grid.innerHTML=regular.map(p=>renderPartCard(p,false)).join('');}
+}
+
+function renderPartCard(p,isFeatured){
+  const name=typeof p.name==='object'?(p.name[currentLang]||p.name.sq):p.name;
+  const discount=p.discount||0;
+  const discountedPrice=discount>0?Math.round((p.basePrice||0)*(1-discount/100)):(p.basePrice||0);
+  const fee=Math.round(discountedPrice*PLATFORM_FEE);
+  const fin=discountedPrice+fee;
+  const stk=p.stock||0,isOut=stk===0;
+  const stock=getStockImage(p.category),catLabel=currentLang==='sq'?stock.label_sq:stock.label_en;
+  const mainImage=p.images?.length?p.images[0]:null;
+  
+  let badges='';
+  if(isFeatured||p.featured)badges+='<span class="featured-badge">⭐ E veçuar</span>';
+  if(discount>0)badges+=`<span class="sale-badge" style="${isFeatured||p.featured?'top:30px':''}">-${discount}% ZBRITJE</span>`;
+  if(badges)badges=`<div class="both-badges">${badges}</div>`;
+  
+  let priceHTML='';
+  if(discount>0){
+    priceHTML=`<div class="pr"><span class="pr-lbl">Çmimi</span><span><span class="price-original">${(p.basePrice||0).toLocaleString()} L</span> <span class="price-discounted">${discountedPrice.toLocaleString()} L</span></span></div>`;
+  }else{
+    priceHTML=`<div class="pr"><span class="pr-lbl">Çmimi shitësit</span><span>${(p.basePrice||0).toLocaleString()} L</span></div>`;
+  }
+  
+  return `<div class="part-card ${isFeatured||p.featured?'featured-card':''}" onclick="openModal('${p.id}')">
+    <div class="part-img">${mainImage?`<img src="${mainImage}" />`:`<span class="part-img-icon">${stock.emoji}</span>`}<span class="part-img-cat">${catLabel}</span></div>
+    <div class="cond-badge" style="background:${p.condition==='new'?'#22c55e':'#f59e0b'}">${p.condition==='new'?'E RE':'E PËRDORUR'}</div>
+    ${badges}
+    <div class="part-body">
+      <div class="rating-row"><span class="stars">⭐</span><span class="review-count">(${p.reviewCount||0})</span></div>
+      <div class="part-name">${name}</div>
+      <div class="part-fits">🚗 ${p.fits||''}</div>
+      <div class="part-seller">🏪 ${p.sellerName||''} · ${p.sellerCity||''}</div>
+      <div class="part-stock">📦 Stoku: ${isOut?'<span style="color:#e02020;">Jashtë stokut</span>':stk<=3?`<span style="color:#f59e0b;">⚠️ ${stk} copë</span>`:`<span style="color:#22c55e;">✓ ${stk} copë</span>`}</div>
+      <div class="price-box">
+        ${priceHTML}
+        <div class="pr pr-fee"><span>+ Tarifa (8%)</span><span style="color:#e02020">+${fee.toLocaleString()} L</span></div>
+        <div class="pr pr-total"><span>Totali</span><span class="pr-total-val">${fin.toLocaleString()} L</span></div>
+      </div>
+      <button class="buy-btn" onclick="event.stopPropagation();openModal('${p.id}')" ${isOut?'disabled':''}>${isOut?'Jashtë stokut':'BLI TANI — '+fin.toLocaleString()+' L'}</button>
+    </div></div>`;
 }
 
 function openModal(id){selectedPart=allParts.find(p=>p.id===id);if(!selectedPart)return;const name=typeof selectedPart.name==='object'?(selectedPart.name[currentLang]||selectedPart.name.sq):selectedPart.name,stock=selectedPart.stock||0;g('mQty').value=1;g('mQty').max=Math.max(1,stock);g('mStockInfo').innerHTML=stock===0?'<span style="color:#e02020;">⚠️ Jashtë stokut</span>':stock<=3?`<span style="color:#f59e0b;">⚠️ Mbeten vetëm ${stock} copë!</span>`:`<span style="color:#22c55e;">✓ ${stock} copë në stok</span>`;g('mEmoji').textContent=getStockImage(selectedPart.category).emoji;g('mName').textContent=name;g('mSeller').textContent='🏪 '+(selectedPart.sellerName||'')+' · '+(selectedPart.sellerCity||'');updateModalTotal();g('buyModal').classList.add('open');const oos=stock===0;g('btnOnlinePay').disabled=oos;g('btnReserve').disabled=oos;selectPay('online');}
-function updateModalTotal(){if(!selectedPart)return;const qty=parseInt(g('mQty')?.value)||1,fee=Math.round((selectedPart.basePrice||0)*PLATFORM_FEE);g('mBase').textContent=(selectedPart.basePrice||0).toLocaleString()+' L × '+qty;g('mFee').textContent='+'+(fee*qty).toLocaleString()+' L';g('mTotal').textContent=(((selectedPart.basePrice||0)+fee)*qty).toLocaleString()+' L';}
+function updateModalTotal(){if(!selectedPart)return;const qty=parseInt(g('mQty')?.value)||1;const discount=selectedPart.discount||0;const discountedPrice=discount>0?Math.round((selectedPart.basePrice||0)*(1-discount/100)):(selectedPart.basePrice||0);const fee=Math.round(discountedPrice*PLATFORM_FEE);g('mBase').textContent=discountedPrice.toLocaleString()+' L × '+qty;if(discount>0)g('mBase').innerHTML=`<span style="text-decoration:line-through;color:#e02020;">${(selectedPart.basePrice||0).toLocaleString()} L</span> <span style="color:#22c55e;">${discountedPrice.toLocaleString()} L (-${discount}%)</span> × ${qty}`;g('mFee').textContent='+'+(fee*qty).toLocaleString()+' L';g('mTotal').textContent=((discountedPrice+fee)*qty).toLocaleString()+' L';}
 function changeQty(d){const el=g('mQty');if(!el)return;const max=selectedPart?Math.max(1,selectedPart.stock||99):99;el.value=Math.min(max,Math.max(1,(parseInt(el.value)||1)+d));updateModalTotal();}
 function selectPay(m){g('btnOnline').classList.toggle('active',m==='online');g('btnPickup').classList.toggle('active',m==='pickup');g('secOnline').style.display=m==='online'?'block':'none';g('secPickup').style.display=m==='pickup'?'block':'none';}
-function confirmOnline(){const n=g('onlineName').value.trim(),p=g('onlinePhone').value.trim(),e=g('onlineEmail').value.trim(),qty=parseInt(g('mQty')?.value)||1;if(!n||!p||!e){showToast('⚠️ Plotëso fushat',true);return;}if(!selectedPart)return;if(qty>(selectedPart.stock||0)){showToast('⚠️ Stok i pamjaftueshëm',true);return;}const btn=g('btnOnlinePay');btn.textContent='Duke procesuar...';btn.disabled=true;const fee=Math.round((selectedPart.basePrice||0)*PLATFORM_FEE),total=((selectedPart.basePrice||0)+fee)*qty,partName=typeof selectedPart.name==='object'?selectedPart.name.sq||selectedPart.name.en:selectedPart.name;db.collection('orders').add({partId:selectedPart.id,partName,partEmoji:getStockImage(selectedPart.category).emoji,buyerName:n,buyerPhone:p,buyerEmail:e,buyerUid:currentBuyer?.uid||null,sellerUid:selectedPart.uid||'',sellerName:selectedPart.sellerName||'',sellerCity:selectedPart.sellerCity||'',basePrice:selectedPart.basePrice||0,quantity:qty,platformFee:fee*qty,totalPrice:total,payMethod:'online',status:'pending',createdAt:firebase.firestore.FieldValue.serverTimestamp()}).then(()=>{reducePartStock(selectedPart.id,qty);closeModal('buyModal');showToast('✅ Porosia u regjistrua!');btn.textContent='💳 VAZHDO ME PAGESËN';btn.disabled=false;g('onlineName').value='';g('onlinePhone').value='';g('onlineEmail').value='';});}
-function confirmPickup(){const n=g('pickupName').value.trim(),p=g('pickupPhone').value.trim(),e=g('pickupEmail').value.trim(),qty=parseInt(g('mQty')?.value)||1;if(!n||!p){showToast('⚠️ Plotëso emrin dhe telefonin',true);return;}if(!selectedPart)return;if(qty>(selectedPart.stock||0)){showToast('⚠️ Stok i pamjaftueshëm',true);return;}const btn=g('btnReserve');btn.textContent='Duke rezervuar...';btn.disabled=true;const fee=Math.round((selectedPart.basePrice||0)*PLATFORM_FEE),total=((selectedPart.basePrice||0)+fee)*qty,partName=typeof selectedPart.name==='object'?selectedPart.name.sq||selectedPart.name.en:selectedPart.name;db.collection('orders').add({partId:selectedPart.id,partName,partEmoji:getStockImage(selectedPart.category).emoji,buyerName:n,buyerPhone:p,buyerEmail:e,buyerUid:currentBuyer?.uid||null,sellerUid:selectedPart.uid||'',sellerName:selectedPart.sellerName||'',sellerCity:selectedPart.sellerCity||'',basePrice:selectedPart.basePrice||0,quantity:qty,platformFee:fee*qty,totalPrice:total,payMethod:'pickup',status:'pending',createdAt:firebase.firestore.FieldValue.serverTimestamp()}).then(()=>{reducePartStock(selectedPart.id,qty);closeModal('buyModal');showToast('✅ Rezervuar!');btn.textContent='🤝 REZERVO FALAS';btn.disabled=false;g('pickupName').value='';g('pickupPhone').value='';g('pickupEmail').value='';});}
+function confirmOnline(){const n=g('onlineName').value.trim(),p=g('onlinePhone').value.trim(),e=g('onlineEmail').value.trim(),qty=parseInt(g('mQty')?.value)||1;if(!n||!p||!e){showToast('⚠️ Plotëso fushat',true);return;}if(!selectedPart)return;if(qty>(selectedPart.stock||0)){showToast('⚠️ Stok i pamjaftueshëm',true);return;}const btn=g('btnOnlinePay');btn.textContent='Duke procesuar...';btn.disabled=true;const discount=selectedPart.discount||0;const discountedPrice=discount>0?Math.round((selectedPart.basePrice||0)*(1-discount/100)):(selectedPart.basePrice||0);const fee=Math.round(discountedPrice*PLATFORM_FEE),total=(discountedPrice+fee)*qty,partName=typeof selectedPart.name==='object'?selectedPart.name.sq||selectedPart.name.en:selectedPart.name;db.collection('orders').add({partId:selectedPart.id,partName,partEmoji:getStockImage(selectedPart.category).emoji,buyerName:n,buyerPhone:p,buyerEmail:e,buyerUid:currentBuyer?.uid||null,sellerUid:selectedPart.uid||'',sellerName:selectedPart.sellerName||'',sellerCity:selectedPart.sellerCity||'',basePrice:discountedPrice,quantity:qty,platformFee:fee*qty,totalPrice:total,payMethod:'online',status:'pending',createdAt:firebase.firestore.FieldValue.serverTimestamp()}).then(()=>{reducePartStock(selectedPart.id,qty);closeModal('buyModal');showToast('✅ Porosia u regjistrua!');btn.textContent='💳 VAZHDO ME PAGESËN';btn.disabled=false;g('onlineName').value='';g('onlinePhone').value='';g('onlineEmail').value='';});}
+function confirmPickup(){const n=g('pickupName').value.trim(),p=g('pickupPhone').value.trim(),e=g('pickupEmail').value.trim(),qty=parseInt(g('mQty')?.value)||1;if(!n||!p){showToast('⚠️ Plotëso emrin dhe telefonin',true);return;}if(!selectedPart)return;if(qty>(selectedPart.stock||0)){showToast('⚠️ Stok i pamjaftueshëm',true);return;}const btn=g('btnReserve');btn.textContent='Duke rezervuar...';btn.disabled=true;const discount=selectedPart.discount||0;const discountedPrice=discount>0?Math.round((selectedPart.basePrice||0)*(1-discount/100)):(selectedPart.basePrice||0);const fee=Math.round(discountedPrice*PLATFORM_FEE),total=(discountedPrice+fee)*qty,partName=typeof selectedPart.name==='object'?selectedPart.name.sq||selectedPart.name.en:selectedPart.name;db.collection('orders').add({partId:selectedPart.id,partName,partEmoji:getStockImage(selectedPart.category).emoji,buyerName:n,buyerPhone:p,buyerEmail:e,buyerUid:currentBuyer?.uid||null,sellerUid:selectedPart.uid||'',sellerName:selectedPart.sellerName||'',sellerCity:selectedPart.sellerCity||'',basePrice:discountedPrice,quantity:qty,platformFee:fee*qty,totalPrice:total,payMethod:'pickup',status:'pending',createdAt:firebase.firestore.FieldValue.serverTimestamp()}).then(()=>{reducePartStock(selectedPart.id,qty);closeModal('buyModal');showToast('✅ Rezervuar!');btn.textContent='🤝 REZERVO FALAS';btn.disabled=false;g('pickupName').value='';g('pickupPhone').value='';g('pickupEmail').value='';});}
 function submitContact(){const n=g('contactName').value.trim(),e=g('contactEmail').value.trim(),m=g('contactMsg').value.trim();if(!n||!e||!m){showToast('Plotëso fushat',true);return;}db.collection('contact_messages').add({name:n,email:e,message:m,status:'unread',createdAt:firebase.firestore.FieldValue.serverTimestamp()}).then(()=>{showToast('✅ Mesazhi u dërgua!');g('contactName').value='';g('contactEmail').value='';g('contactMsg').value='';}).catch(err=>showToast('❌ Gabim',true));}
 function setLang(l){currentLang=l;document.querySelectorAll('.lang-btn').forEach(b=>b.classList.toggle('active',(l==='sq'&&b.textContent.includes('SQ'))||(l==='en'&&b.textContent.includes('EN'))));applyLang();renderParts();}
 function applyLang(){if(currentLang==='sq'){g('heroBadge').textContent='🔧 Pjesë të Reja & të Përdorura · Çmimet më të Mira';g('searchInput').placeholder='Kërko: frenot, dritat, alternatori...';g('navSell').textContent='Shit Këtu';}else{g('heroBadge').textContent='🔧 New & Used Parts · Best Prices';g('searchInput').placeholder='Search: brakes, lights, alternator...';g('navSell').textContent='Sell Here';}}
 
-// ════════════════════════════════════
-//  PWA — SERVICE WORKER & INSTALL
-// ════════════════════════════════════
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js').then(reg => {
-      console.log('✅ Service Worker registered');
-    }).catch(err => {
-      console.log('❌ Service Worker failed:', err);
-    });
-  });
-}
-
-let deferredPrompt;
-window.addEventListener('beforeinstallprompt', (e) => {
-  e.preventDefault();
-  deferredPrompt = e;
-  document.getElementById('installBanner').style.display = 'block';
-});
-
-window.installApp = function() {
-  if (deferredPrompt) {
-    deferredPrompt.prompt();
-    deferredPrompt.userChoice.then(result => {
-      document.getElementById('installBanner').style.display = 'none';
-      deferredPrompt = null;
-    });
-  }
-};
+// PWA
+if('serviceWorker' in navigator){window.addEventListener('load',()=>{navigator.serviceWorker.register('/sw.js').then(r=>console.log('✅ SW registered')).catch(e=>console.log('❌ SW failed',e));});}
+let deferredPrompt;window.addEventListener('beforeinstallprompt',(e)=>{e.preventDefault();deferredPrompt=e;g('installBanner').style.display='block';});
+window.installApp=function(){if(deferredPrompt){deferredPrompt.prompt();deferredPrompt.userChoice.then(r=>{g('installBanner').style.display='none';deferredPrompt=null;});}};
 
 populateCarMakes();loadParts();applyLang();
 </script>
