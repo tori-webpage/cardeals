@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="sq">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cardeals.al — Politika e Privatësisë & Kushtet e Përdorimit</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a0c10;--panel:#111420;--card:#181d2a;--border:#232840;--red:#e02020;--chrome:#8892a4;--white:#eef0f5;--green:#22c55e;--radius:14px;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--white);min-height:100vh;}
+nav{background:var(--panel);border-bottom:3px solid var(--red);display:flex;align-items:center;justify-content:space-between;padding:0 2rem;height:64px;position:sticky;top:0;z-index:100;}
+.logo{font-family:'Bebas Neue',sans-serif;font-size:1.9rem;letter-spacing:2px;color:var(--white);text-decoration:none;}
+.logo span{color:var(--red);}
+.nav-right{display:flex;gap:1rem;align-items:center;}
+.back-btn{background:var(--red);color:white;text-decoration:none;padding:8px 18px;border-radius:8px;font-weight:800;font-size:0.85rem;}
+.lang-toggle{display:flex;background:var(--bg);border:1px solid var(--border);border-radius:8px;overflow:hidden;}
+.lang-btn{padding:5px 12px;font-size:0.75rem;font-weight:800;cursor:pointer;border:none;background:transparent;color:var(--chrome);font-family:'Nunito',sans-serif;}
+.lang-btn.active{background:var(--red);color:white;}
+.hero{background:linear-gradient(135deg,#0a0c10,#1e2430);padding:4rem 2rem 3rem;text-align:center;border-bottom:1px solid var(--border);}
+.hero h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(2rem,6vw,3.5rem);letter-spacing:4px;margin-bottom:0.5rem;}
+.hero h1 span{color:var(--red);}
+.hero p{color:var(--chrome);font-size:0.9rem;max-width:600px;margin:0 auto;}
+.last-updated{display:inline-block;background:rgba(34,197,94,0.1);border:1px solid var(--green);color:var(--green);font-size:0.75rem;font-weight:800;padding:4px 14px;border-radius:20px;margin-top:1rem;letter-spacing:1px;}
+.container{max-width:900px;margin:0 auto;padding:3rem 2rem;}
+.tab-bar{display:flex;gap:0;background:var(--panel);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:2.5rem;}
+.tab{flex:1;padding:12px;text-align:center;cursor:pointer;font-weight:800;font-size:0.88rem;border:none;background:transparent;color:var(--chrome);font-family:'Nunito',sans-serif;transition:all 0.2s;}
+.tab.active{background:var(--red);color:white;}
+.section{display:none;}
+.section.active{display:block;}
+.policy-section{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:2rem;margin-bottom:1.5rem;}
+.policy-section h2{font-family:'Bebas Neue',sans-serif;font-size:1.3rem;letter-spacing:2px;color:var(--red);margin-bottom:1rem;display:flex;align-items:center;gap:0.5rem;}
+.policy-section h3{font-weight:800;font-size:0.95rem;margin:1rem 0 0.5rem;color:var(--white);}
+.policy-section p{font-size:0.88rem;color:var(--chrome);line-height:1.8;margin-bottom:0.75rem;}
+.policy-section ul{padding-left:1.25rem;margin-bottom:0.75rem;}
+.policy-section ul li{font-size:0.88rem;color:var(--chrome);line-height:1.8;margin-bottom:0.25rem;}
+.policy-section ul li strong{color:var(--white);}
+.highlight-box{background:rgba(224,32,32,0.08);border:1px solid rgba(224,32,32,0.3);border-radius:10px;padding:1rem 1.25rem;margin:1rem 0;}
+.highlight-box p{color:var(--white)!important;font-weight:700;margin:0!important;}
+.cookie-table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:0.82rem;}
+.cookie-table th{background:var(--panel);padding:0.6rem 1rem;text-align:left;font-weight:800;color:var(--chrome);text-transform:uppercase;letter-spacing:1px;font-size:0.72rem;}
+.cookie-table td{padding:0.6rem 1rem;border-top:1px solid var(--border);color:var(--chrome);}
+.cookie-table td:first-child{color:var(--white);font-weight:700;}
+.contact-card{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:1.5rem;text-align:center;margin-top:1rem;}
+.contact-card p{font-size:0.88rem;color:var(--chrome);margin-bottom:0.5rem;}
+.contact-card a{color:var(--red);font-weight:800;text-decoration:none;}
+footer{background:var(--panel);border-top:1px solid var(--border);padding:2rem;text-align:center;margin-top:3rem;}
+.footer-logo{font-family:'Bebas Neue',sans-serif;font-size:1.5rem;letter-spacing:3px;margin-bottom:0.5rem;}
+.footer-logo span{color:var(--red);}
+footer p{color:var(--chrome);font-size:0.8rem;}
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="logo" href="index.html">Car<span>deals</span>.al</a>
+  <div class="nav-right">
+    <a href="index.html" class="back-btn">← Kthehu</a>
+    <div class="lang-toggle">
+      <button class="lang-btn active" onclick="setLang('sq')">🇦🇱 SQ</button>
+      <button class="lang-btn" onclick="setLang('en')">🇬🇧 EN</button>
+    </div>
+  </div>
+</nav>
+
+<div class="hero">
+  <h1 id="heroTitle">Politika e <span>Privatësisë</span></h1>
+  <p id="heroSub">Mbrojtja e të dhënave tuaja është prioriteti ynë. Lexoni si i përdorim dhe mbrojmë informacionet tuaja.</p>
+  <div class="last-updated" id="lastUpdated">✓ Përditësuar: Janar 2025 — Ligji Nr. 124/2024</div>
+</div>
+
+<div class="container">
+  <div class="tab-bar">
+    <button class="tab active" onclick="showSection('privacy',this)" id="tabPrivacy">🔒 Politika e Privatësisë</button>
+    <button class="tab" onclick="showSection('cookies',this)" id="tabCookies">🍪 Politika e Cookies</button>
+    <button class="tab" onclick="showSection('terms',this)" id="tabTerms">📋 Kushtet e Përdorimit</button>
+  </div>
+
+  <!-- ════ PRIVACY POLICY ════ -->
+  <div class="section active" id="section-privacy">
+
+    <div class="policy-section">
+      <h2>👤 1. <span id="p1title">Kush Jemi Ne</span></h2>
+      <p id="p1text">Cardeals.al është një platformë ndërmjetëse online për blerjen dhe shitjen e pjesëve të këmbimit të automjeteve në Shqipëri. Operojmë si ndërmjetës dixhital dhe nuk shesim produkte drejtpërdrejt.</p>
+      <div class="highlight-box"><p>📧 Email: support@cardeals.al &nbsp;|&nbsp; 🌐 Website: cardeals.al &nbsp;|&nbsp; 📍 Tiranë, Shqipëri</p></div>
+    </div>
+
+    <div class="policy-section">
+      <h2>📊 2. <span id="p2title">Çfarë të Dhënash Mbledhim</span></h2>
+      <h3 id="p2h1">Nga Blerësit:</h3>
+      <ul>
+        <li><strong>Emri dhe mbiemri</strong> — për të procesuar porosinë</li>
+        <li><strong>Numri i telefonit</strong> — për të kontaktuar me shitësin</li>
+        <li><strong>Adresa email</strong> — për konfirmimin e porosisë</li>
+        <li><strong>Historia e porosive</strong> — për menaxhimin e blerjes</li>
+      </ul>
+      <h3 id="p2h2">Nga Shitësit (Bizneset):</h3>
+      <ul>
+        <li><strong>Emri i biznesit dhe pronarit</strong> — për identifikim</li>
+        <li><strong>Email dhe telefon</strong> — për komunikim</li>
+        <li><strong>Qyteti dhe adresa</strong> — për vendndodhjen e listimeve</li>
+        <li><strong>Informacioni i listimeve</strong> — pjesët, çmimet, fotografitë</li>
+        <li><strong>Të dhënat bankare</strong> — vetëm për pagesën e komisioneve</li>
+      </ul>
+      <h3 id="p2h3">Automatikisht nga çdo vizitor:</h3>
+      <ul>
+        <li><strong>Adresa IP</strong> — për sigurinë e platformës</li>
+        <li><strong>Lloji i shfletuesit dhe pajisjes</strong> — për optimizim teknik</li>
+        <li><strong>Faqet e vizituara</strong> — për statistika anonime</li>
+      </ul>
+    </div>
+
+    <div class="policy-section">
+      <h2>🎯 3. <span id="p3title">Pse i Përdorim Këto të Dhëna</span></h2>
+      <ul>
+        <li>Për të procesuar porositë dhe lidhur blerësit me shitësit</li>
+        <li>Për të menaxhuar llogaritë e bizneseve</li>
+        <li>Për të dërguar konfirmime dhe njoftime të rëndësishme</li>
+        <li>Për të siguruar platformën nga abuzimi</li>
+        <li>Për të përmirësuar shërbimin tonë</li>
+        <li>Për të respektuar detyrimet ligjore</li>
+      </ul>
+      <div class="highlight-box"><p>⚠️ Nuk shesim kurrë të dhënat tuaja tek palë të treta. Nuk i përdorim për reklama të palëve të treta.</p></div>
+    </div>
+
+    <div class="policy-section">
+      <h2>🔒 4. <span id="p4title">Si i Mbrojmë të Dhënat Tuaja</span></h2>
+      <ul>
+        <li>Të dhënat ruhen në serverët e <strong>Google Firebase</strong> me enkriptim SSL</li>
+        <li>Akses i kufizuar — vetëm stafi i autorizuar mund të shohë të dhënat</li>
+        <li>Monitorim i vazhdueshëm për aktivitet të dyshimtë</li>
+        <li>Fjalëkalimet ruhen të enkriptuara — as ne nuk mund t'i lexojmë</li>
+      </ul>
+    </div>
+
+    <div class="policy-section">
+      <h2>⚖️ 5. <span id="p5title">Të Drejtat Tuaja (Ligji 124/2024)</span></h2>
+      <p>Sipas Ligjit Shqiptar Nr. 124/2024 dhe GDPR, keni këto të drejta:</p>
+      <ul>
+        <li><strong>E drejta e aksesit</strong> — të kërkoni kopjen e të dhënave tuaja</li>
+        <li><strong>E drejta e korrigjimit</strong> — të korrigjoni të dhëna të pasakta</li>
+        <li><strong>E drejta e fshirjes ("të harrohet")</strong> — të kërkoni fshirjen e llogarisë</li>
+        <li><strong>E drejta e kufizimit</strong> — të kufizoni mënyrën si i përdorim</li>
+        <li><strong>E drejta e portabilitetit</strong> — të merrni të dhënat tuaja</li>
+        <li><strong>E drejta e ankesës</strong> — te Komisioneri për Mbrojtjen e të Dhënave</li>
+      </ul>
+      <div class="contact-card">
+        <p>Për të ushtruar të drejtat tuaja, na kontaktoni:</p>
+        <a href="mailto:support@cardeals.al">📧 support@cardeals.al</a>
+        <p style="margin-top:0.5rem;font-size:0.78rem;">Komisioneri Shqiptar: <a href="https://www.idp.al" target="_blank">www.idp.al</a></p>
+      </div>
+    </div>
+
+    <div class="policy-section">
+      <h2>🔄 6. <span id="p6title">Ruajtja e të Dhënave</span></h2>
+      <ul>
+        <li><strong>Llogaritë e blerësve:</strong> deri sa llogaria është aktive + 2 vjet</li>
+        <li><strong>Llogaritë e bizneseve:</strong> deri sa llogaria është aktive + 3 vjet (detyrim ligjor)</li>
+        <li><strong>Historia e porosive:</strong> 5 vjet (detyrim tatimor)</li>
+        <li><strong>Logjet e serverit:</strong> 90 ditë</li>
+      </ul>
+    </div>
+
+    <div class="policy-section">
+      <h2>🌍 7. <span id="p7title">Transferimi Ndërkombëtar i të Dhënave</span></h2>
+      <p>Të dhënat tuaja ruhen në serverët e Google Firebase të vendosur në <strong>Europë (europe-west)</strong>. Google LLC është e certifikuar sipas standardeve të GDPR dhe ofron mbrojtje të plotë të të dhënave.</p>
+    </div>
+
+  </div>
+
+  <!-- ════ COOKIES POLICY ════ -->
+  <div class="section" id="section-cookies">
+
+    <div class="policy-section">
+      <h2>🍪 1. <span id="c1title">Çfarë janë Cookies</span></h2>
+      <p id="c1text">Cookies janë skedarë të vegjël teksti që ruhen në pajisjen tuaj kur vizitoni faqen tonë. Ato na ndihmojnë të ofrojmë një përvojë më të mirë dhe të analizojmë si përdoret faqja.</p>
+    </div>
+
+    <div class="policy-section">
+      <h2>📋 2. <span id="c2title">Llojet e Cookies që Përdorim</span></h2>
+      <table class="cookie-table">
+        <thead><tr><th>Cookie</th><th>Lloji</th><th>Qëllimi</th><th>Kohëzgjatja</th></tr></thead>
+        <tbody>
+          <tr><td>firebase-auth</td><td>🟢 Esenciale</td><td>Mban sesionin e hyrjes tuaj</td><td>Sesion</td></tr>
+          <tr><td>firebase-app-check</td><td>🟢 Esenciale</td><td>Siguria e platformës</td><td>1 orë</td></tr>
+          <tr><td>lang-preference</td><td>🟢 Esenciale</td><td>Ruan preferencën e gjuhës</td><td>1 vit</td></tr>
+          <tr><td>cookie-consent</td><td>🟢 Esenciale</td><td>Ruan zgjedhjen tuaj të cookies</td><td>1 vit</td></tr>
+          <tr><td>_ga (Google Analytics)</td><td>🟡 Analitike</td><td>Statistika anonime vizitash</td><td>2 vjet</td></tr>
+          <tr><td>_gid</td><td>🟡 Analitike</td><td>Dallimi i sesioneve</td><td>24 orë</td></tr>
+        </tbody>
+      </table>
+      <div class="highlight-box"><p>✅ Nuk përdorim cookies reklamuese ose cookies të palëve të treta për marketing.</p></div>
+    </div>
+
+    <div class="policy-section">
+      <h2>⚙️ 3. <span id="c3title">Si të Menaxhoni Cookies</span></h2>
+      <p>Keni të drejtë të pranoni ose refuzoni cookies jo-esenciale. Cookies esenciale nuk mund të çaktivizohen pasi ato janë të nevojshme për funksionimin e faqes.</p>
+      <h3>Nga shfletuesi juaj:</h3>
+      <ul>
+        <li><strong>Chrome:</strong> Cilësimet → Privatësia → Cookies</li>
+        <li><strong>Firefox:</strong> Opsionet → Privatësia → Cookies</li>
+        <li><strong>Safari:</strong> Preferencat → Privatësia → Cookies</li>
+        <li><strong>Edge:</strong> Cilësimet → Privatësia → Cookies</li>
+      </ul>
+      <p style="margin-top:0.75rem;">⚠️ Nëse çaktivizoni cookies esenciale, disa funksione të faqes mund të mos funksionojnë siç duhet.</p>
+    </div>
+
+    <div class="policy-section">
+      <h2>🔄 4. <span id="c4title">Ndryshimi i Zgjedhjes Suaj</span></h2>
+      <p>Mund të ndryshoni zgjedhjen tuaj për cookies në çdo kohë duke klikuar butonin më poshtë:</p>
+      <div style="text-align:center;margin-top:1rem;">
+        <button onclick="resetCookieConsent()" style="background:var(--red);color:white;border:none;border-radius:8px;padding:12px 2rem;font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:2px;cursor:pointer;">🍪 NDRYSHO ZGJEDHJEN E COOKIES</button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ════ TERMS & CONDITIONS ════ -->
+  <div class="section" id="section-terms">
+
+    <div class="policy-section">
+      <h2>📋 1. <span id="t1title">Pranimi i Kushteve</span></h2>
+      <p id="t1text">Duke përdorur Cardeals.al, pranoni plotësisht këto Kushte Përdorimi. Nëse nuk pajtoheni, ju lutemi mos përdorni platformën tonë. Cardeals.al rezervon të drejtën të ndryshojë këto kushte me njoftim paraprak.</p>
+    </div>
+
+    <div class="policy-section">
+      <h2>🏪 2. <span id="t2title">Roli i Cardeals.al</span></h2>
+      <div class="highlight-box"><p>⚠️ Cardeals.al është NDËRMJETËS DIXHITAL — ne nuk jemi shitës. Nuk zotërojmë asnjë produkt të listuar në platformë.</p></div>
+      <ul style="margin-top:1rem;">
+        <li>Ne ofrojmë platformën teknologjike për lidhjen e blerësve dhe shitësve</li>
+        <li>Mbledhim komision nga bizneset për çdo shitje të realizuar</li>
+        <li>Nuk garantojmë cilësinë e pjesëve — kjo është përgjegjësi e shitësit</li>
+        <li>Ndihmojmë në zgjidhjen e mosmarrëveshjeve por nuk jemi palë në kontratë</li>
+      </ul>
+    </div>
+
+    <div class="policy-section">
+      <h2>🛒 3. <span id="t3title">Kushtet për Blerësit</span></h2>
+      <ul>
+        <li>Duhet të jeni mbi 18 vjeç për të blerë</li>
+        <li>Informacioni i dhënë gjatë porosisë duhet të jetë i saktë</li>
+        <li>Porositë e rezervuara mbahen deri 48 orë — pas kësaj kohe anulohen</li>
+        <li>Blerësi është përgjegjës të verifikojë nëse pjesa është e duhura para blerjes</li>
+        <li>Kthimet dhe rimbursimet menaxhohen direkt me shitësin</li>
+        <li>Cardeals.al ndërhyn si ndërmjetës në rast mosmarrëveshjeje</li>
+      </ul>
+    </div>
+
+    <div class="policy-section">
+      <h2>🏢 4. <span id="t4title">Kushtet për Shitësit (Bizneset)</span></h2>
+      <ul>
+        <li>Duhet të keni NIPT të vlefshëm shqiptar</li>
+        <li>Të gjitha listimnet duhet të jenë produkte reale dhe të disponueshme</li>
+        <li>Çmimet duhet të jenë të sakta dhe përfshijnë TVSH nëse aplikohet</li>
+        <li>Ndalohet listimi i pjesëve të vjedhura ose ilegale — llogaria bllokohet menjëherë</li>
+        <li>Shitësi duhet të konfirmojë ose refuzojë porositë brenda 24 orësh</li>
+        <li>Komisioni i Cardeals.al zbritet automatikisht nga çdo shitje</li>
+        <li>Fotografitë e ngarkuara duhet të jenë origjinale dhe të mos shkelim të drejtat e autorit</li>
+      </ul>
+    </div>
+
+    <div class="policy-section">
+      <h2>💰 5. <span id="t5title">Komisionet dhe Pagesat</span></h2>
+      <table class="cookie-table">
+        <thead><tr><th>Plani</th><th>Tarifa Mujore</th><th>Komision / Shitje</th></tr></thead>
+        <tbody>
+          <tr><td>⚙️ Basic</td><td>Falas</td><td>8%</td></tr>
+          <tr><td>🥈 Silver</td><td>€15/muaj</td><td>5%</td></tr>
+          <tr><td>🥇 Gold</td><td>€40/muaj</td><td>3%</td></tr>
+          <tr><td>💎 Platinum</td><td>€80/muaj</td><td>1%</td></tr>
+        </tbody>
+      </table>
+      <p style="margin-top:0.75rem;">Pagesat e abonimit bëhen çdo muaj. Komisioni zbritet automatikisht nga çdo transaksion i realizuar.</p>
+    </div>
+
+    <div class="policy-section">
+      <h2>🚫 6. <span id="t6title">Sjellja e Ndaluar</span></h2>
+      <ul>
+        <li>Listimi i produkteve të rreme, të vjedhura ose të falsifikuara</li>
+        <li>Mashtrimi i blerësve me çmime ose përshkrime të rreme</li>
+        <li>Blerja dhe shitja jashtë platformës për të shmangur komisionin</li>
+        <li>Krijimi i llogarive të rreme ose recensioneve të rreme</li>
+        <li>Çdo veprimtari që shkel ligjet shqiptare</li>
+      </ul>
+      <div class="highlight-box"><p>⛔ Shkelja e këtyre rregullave rezulton në bllokimin e menjëhershëm të llogarisë pa rimbursim.</p></div>
+    </div>
+
+    <div class="policy-section">
+      <h2>⚖️ 7. <span id="t7title">Ligji i Aplikueshëm</span></h2>
+      <p>Këto Kushte Përdorimi rregullohen nga ligjet e Republikës së Shqipërisë. Çdo mosmarrëveshje do të zgjidhet nga gjykatat kompetente të Tiranës.</p>
+      <div class="contact-card">
+        <p>Pyetje apo ankesa? Na kontaktoni:</p>
+        <a href="mailto:support@cardeals.al">📧 support@cardeals.al</a>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<footer>
+  <div class="footer-logo">Car<span>deals</span>.al</div>
+  <p style="color:var(--chrome);font-size:0.8rem;margin-top:0.5rem;">© 2025 Cardeals.al · Të gjitha të drejtat e rezervuara · Ligji Nr. 124/2024 — GDPR</p>
+</footer>
+
+<script>
+var lang = 'sq';
+
+var LANG = {
+  sq:{
+    heroTitle:'Politika e <span>Privatësisë</span>',
+    heroSub:'Mbrojtja e të dhënave tuaja është prioriteti ynë.',
+    lastUpdated:'✓ Përditësuar: Janar 2025 — Ligji Nr. 124/2024',
+    tabPrivacy:'🔒 Politika e Privatësisë',
+    tabCookies:'🍪 Politika e Cookies',
+    tabTerms:'📋 Kushtet e Përdorimit',
+    back:'← Kthehu'
+  },
+  en:{
+    heroTitle:'<span>Privacy</span> Policy',
+    heroSub:'Protecting your data is our priority. Read how we use and protect your information.',
+    lastUpdated:'✓ Updated: January 2025 — Law No. 124/2024 (GDPR Aligned)',
+    tabPrivacy:'🔒 Privacy Policy',
+    tabCookies:'🍪 Cookie Policy',
+    tabTerms:'📋 Terms & Conditions',
+    back:'← Back'
+  }
+};
+
+function setLang(l){
+  lang=l;
+  document.querySelectorAll('.lang-btn').forEach(function(b){
+    b.classList.toggle('active',(l==='sq'&&b.textContent.includes('SQ'))||(l==='en'&&b.textContent.includes('EN')));
+  });
+  var L=LANG[l];
+  document.getElementById('heroTitle').innerHTML=L.heroTitle;
+  document.getElementById('heroSub').textContent=L.heroSub;
+  document.getElementById('lastUpdated').textContent=L.lastUpdated;
+  document.getElementById('tabPrivacy').textContent=L.tabPrivacy;
+  document.getElementById('tabCookies').textContent=L.tabCookies;
+  document.getElementById('tabTerms').textContent=L.tabTerms;
+  document.documentElement.lang=l==='sq'?'sq':'en';
+}
+
+function showSection(name, btn){
+  document.querySelectorAll('.section').forEach(function(s){s.classList.remove('active');});
+  document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active');});
+  document.getElementById('section-'+name).classList.add('active');
+  btn.classList.add('active');
+  if(name==='privacy') document.getElementById('heroTitle').innerHTML = lang==='sq'?'Politika e <span>Privatësisë</span>':'<span>Privacy</span> Policy';
+  if(name==='cookies') document.getElementById('heroTitle').innerHTML = lang==='sq'?'Politika e <span>Cookies</span>':'<span>Cookie</span> Policy';
+  if(name==='terms') document.getElementById('heroTitle').innerHTML = lang==='sq'?'Kushtet e <span>Përdorimit</span>':'<span>Terms</span> & Conditions';
+}
+
+function resetCookieConsent(){
+  localStorage.removeItem('cd_cookie_consent');
+  alert(lang==='sq'?'Zgjedhja juaj u fshi. Rifreskoni faqen për të zgjedhur përsëri.':'Your choice was reset. Refresh the page to choose again.');
+  window.location.href='index.html';
+}
+</script>
+</body>
+</html>
