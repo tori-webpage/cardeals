@@ -15,7 +15,7 @@ firebase.initializeApp(firebaseConfig);
 const auth=firebase.auth(),db=firebase.firestore();
 const PLANS={basic:{name:'Basic',fee:0.08,monthly:0,color:'#8892a4',icon:'⚙️'},silver:{name:'Silver',fee:0.05,monthly:15,color:'#94a3b8',icon:'🥈'},gold:{name:'Gold',fee:0.03,monthly:40,color:'#f5c518',icon:'🥇'},platinum:{name:'Platinum',fee:0.01,monthly:80,color:'#e2e8f0',icon:'💎'}};
 const PLATFORM_FEE=0.08;
-let allBusinesses=[],allParts=[],allOrders=[],allMessages=[],allPlanRequests=[];
+let allBusinesses=[],allParts=[],allOrders=[],allMessages=[],allPlanRequests=[],allWeeklyPromos=[];
 let lang='sq',currentPage='dashboard';
 
 function s(id,v){const el=document.getElementById(id);if(el)el.textContent=v;}
@@ -26,12 +26,13 @@ auth.onAuthStateChanged(async user=>{if(user){if(user.email.toLowerCase()!==ADMI
 window.doLogin=async function(){const e=document.getElementById('loginEmail').value.trim(),p=document.getElementById('loginPass').value,btn=document.getElementById('loginBtn');if(!e||!p){showError('⚠️ Fill all fields');return;}btn.textContent='Duke hyrë...';btn.disabled=true;try{await auth.signInWithEmailAndPassword(e,p);}catch(err){showError('❌ Wrong credentials');btn.textContent='HYRJA →';btn.disabled=false;}};
 window.doLogout=async()=>{await auth.signOut();};
 
-function loadAllData(){loadBusinesses();loadAllParts();loadAllOrders();loadMessages();loadPlanRequests();}
+function loadAllData(){loadBusinesses();loadAllParts();loadAllOrders();loadMessages();loadPlanRequests();loadWeeklyPromos();}
 function loadBusinesses(){db.collection("businesses").onSnapshot(snap=>{allBusinesses=snap.docs.map(d=>({id:d.id,...d.data()}));renderBusinesses();updateDashboard();});}
 function loadAllParts(){db.collection("parts").onSnapshot(snap=>{allParts=snap.docs.map(d=>({id:d.id,...d.data()}));renderAllParts();updateDashboard();});}
 function loadAllOrders(){db.collection("orders").onSnapshot(snap=>{allOrders=snap.docs.map(d=>({id:d.id,...d.data()}));renderAllOrders();renderEarnings();updateDashboard();});}
 function loadMessages(){db.collection("contact_messages").orderBy("createdAt","desc").onSnapshot(snap=>{allMessages=snap.docs.map(d=>({id:d.id,...d.data()}));renderMessages();updateMessageBadge();});}
 function loadPlanRequests(){db.collection("plan_requests").orderBy("createdAt","desc").onSnapshot(snap=>{allPlanRequests=snap.docs.map(d=>({id:d.id,...d.data()}));renderPlanRequests();});}
+function loadWeeklyPromos(){db.collection("weekly_promotions").orderBy("createdAt","desc").onSnapshot(snap=>{allWeeklyPromos=snap.docs.map(d=>({id:d.id,...d.data()}));renderWeeklyPromos();});}
 
 function updateDashboard(){
   const sold=allOrders.filter(o=>o.status==='sold');
@@ -55,15 +56,7 @@ function renderBusinesses(filter=''){
     const bizSales=allOrders.filter(o=>o.sellerUid===b.id&&o.status==='sold').length;
     const bizEarn=allOrders.filter(o=>o.sellerUid===b.id&&o.status==='sold').reduce((s,o)=>s+(o.platformFee||0),0);
     const plan=b.plan||'basic',planData=PLANS[plan];
-    const expDate=b.planExpiresAt?b.planExpiresAt.toDate?b.planExpiresAt.toDate():new Date(b.planExpiresAt):null;
-    const daysLeft=expDate?Math.ceil((expDate-new Date())/(1000*60*60*24)):null;
-    let expiryBadge='';
-    if(plan!=='basic'&&daysLeft!==null){
-      if(daysLeft<=0)expiryBadge='<br><small style="color:#e02020;">⚠️ Skaduar</small>';
-      else if(daysLeft<=5)expiryBadge=`<br><small style="color:#f59e0b;">⏳ ${daysLeft} ditë</small>`;
-      else expiryBadge=`<br><small style="color:#22c55e;">✓ ${daysLeft} ditë</small>`;
-    }
-    return `<tr><td><strong>${b.businessName||b.name||'—'}</strong><br><small style="color:#666">${b.email||''}</small></td><td style="color:#8892a4">${b.city||'—'}</td><td><span style="color:${planData.color};font-weight:800;">${planData.icon} ${planData.name}</span>${expiryBadge}</td><td>${bizParts}</td><td>${bizSales}</td><td style="color:#22c55e;font-weight:800">${bizEarn.toLocaleString()} L</td><td><span class="sbadge ${b.status!=='suspended'?'s-active':'s-suspended'}">${b.status!=='suspended'?'Aktiv':'Pezulluar'}</span></td><td><div style="display:flex;gap:0.5rem;"><button class="icon-btn" onclick="toggleBizStatus('${b.id}','${b.status||'active'}')">${b.status!=='suspended'?'⏸️':'▶️'}</button><button class="icon-btn" onclick="openChangePlan('${b.id}','${b.businessName||b.name||''}','${plan}')">⭐</button><button class="icon-btn" onclick="viewBizDetails('${b.id}')">👁️</button></div></td></tr>`;
+    return `<tr><td><strong>${b.businessName||b.name||'—'}</strong><br><small style="color:#666">${b.email||''}</small></td><td style="color:#8892a4">${b.city||'—'}</td><td><span style="color:${planData.color};font-weight:800;">${planData.icon} ${planData.name}</span></td><td>${bizParts}</td><td>${bizSales}</td><td style="color:#22c55e;font-weight:800">${bizEarn.toLocaleString()} L</td><td><span class="sbadge ${b.status!=='suspended'?'s-active':'s-suspended'}">${b.status!=='suspended'?'Aktiv':'Pezulluar'}</span></td><td><div style="display:flex;gap:0.5rem;"><button class="icon-btn" onclick="toggleBizStatus('${b.id}','${b.status||'active'}')">${b.status!=='suspended'?'⏸️':'▶️'}</button><button class="icon-btn" onclick="openChangePlan('${b.id}','${b.businessName||b.name||''}','${plan}')">⭐</button><button class="icon-btn" onclick="viewBizDetails('${b.id}')">👁️</button></div></td></tr>`;
   }).join('');
 }
 window.toggleBizStatus=async function(id,s){const ns=s==='suspended'?'active':'suspended';await db.collection("businesses").doc(id).update({status:ns});showToast('✅ Status updated!');};
@@ -93,80 +86,61 @@ window.toggleMessageStatus=async function(id,status){const ns=status==='unread'?
 
 function renderPlanRequests(){const tbody=document.getElementById('planRequestsBody');if(!tbody)return;if(!allPlanRequests.length){tbody.innerHTML='<tr><td colspan="7" style="text-align:center;padding:2rem;color:#8892a4;">Nuk ka kërkesa për plane.</td></tr>';return;}tbody.innerHTML=allPlanRequests.map(r=>{const date=r.createdAt?.toDate?r.createdAt.toDate().toLocaleDateString('sq-AL'):'—';const fromPlan=PLANS[r.fromPlan]||PLANS.basic,toPlan=PLANS[r.toPlan]||PLANS.basic;return `<tr><td><strong>${r.businessName||'—'}</strong><br><small style="color:#666">${r.email||''}</small></td><td><span style="color:${fromPlan.color};">${fromPlan.icon} ${fromPlan.name}</span></td><td><span style="color:${toPlan.color};font-weight:800;">${toPlan.icon} ${toPlan.name}</span></td><td>€${toPlan.monthly}/muaj</td><td style="color:#8892a4;font-size:0.8rem">${date}</td><td><span class="sbadge ${r.status==='approved'?'s-active':r.status==='rejected'?'s-suspended':'s-pending'}">${r.status==='approved'?'Aprovuar':r.status==='rejected'?'Refuzuar':'Në Pritje'}</span></td><td>${r.status==='pending'?`<div style="display:flex;gap:0.5rem;"><button class="icon-btn" style="background:rgba(34,197,94,0.15);border-color:#22c55e;color:#22c55e;" onclick="approvePlan('${r.id}')">✅ Aprovo</button><button class="icon-btn" style="background:rgba(224,32,32,0.1);border-color:#e02020;color:#e02020;" onclick="rejectPlan('${r.id}')">❌ Refuzo</button></div>`:'—'}</td></tr>`;}).join('');}
 
-// ════════════════════════════════════
-//  FIX BUSINESS-PARTS CONNECTION
-// ════════════════════════════════════
+// WEEKLY PROMOTIONS
+function renderWeeklyPromos(){
+  const tbody=document.getElementById('weeklyPromosBody');if(!tbody)return;
+  if(!allWeeklyPromos.length){tbody.innerHTML='<tr><td colspan="7" style="text-align:center;padding:2rem;color:#8892a4;">Nuk ka kërkesa për promocione javore.</td></tr>';return;}
+  tbody.innerHTML=allWeeklyPromos.map(r=>{
+    const date=r.createdAt?.toDate?r.createdAt.toDate().toLocaleDateString('sq-AL'):'—';
+    const expires=r.expiresAt?.toDate?r.expiresAt.toDate().toLocaleDateString('sq-AL'):'—';
+    return `<tr><td><strong>${r.businessName||'—'}</strong><br><small>${r.email||''}</small></td><td>${r.partName||'—'}</td><td style="font-weight:800;color:#f5c518;">€${r.cost||3}</td><td>${date}</td><td>${expires||'—'}</td><td><span class="sbadge ${r.status==='active'?'s-active':r.status==='expired'?'s-suspended':'s-pending'}">${r.status==='active'?'Aktiv':r.status==='expired'?'Skaduar':'Në Pritje'}</span></td><td>${r.status==='pending'?`<div style="display:flex;gap:0.5rem;"><button class="icon-btn" style="background:rgba(34,197,94,0.15);border-color:#22c55e;color:#22c55e;" onclick="approveWeeklyPromo('${r.id}')">✅ Aprovo</button><button class="icon-btn" style="background:rgba(224,32,32,0.1);border-color:#e02020;color:#e02020;" onclick="rejectWeeklyPromo('${r.id}')">❌ Refuzo</button></div>`:'—'}</td></tr>`;
+  }).join('');
+}
+window.approveWeeklyPromo = async function(id) {
+  const promo = allWeeklyPromos.find(p => p.id === id);
+  if (!promo) return;
+  const now = new Date();
+  const expiresAt = new Date(now);
+  expiresAt.setDate(expiresAt.getDate() + 7);
+  try {
+    await db.collection("weekly_promotions").doc(id).update({status:'active',activatedAt:now,expiresAt:expiresAt});
+    await db.collection("parts").doc(promo.partId).update({weeklyPromo:true,promoExpiresAt:expiresAt,promoActivatedAt:now});
+    showToast('✅ Promocioni u aktivua për 7 ditë!');
+  } catch(e) { showToast('❌ Error: ' + e.message, true); }
+};
+window.rejectWeeklyPromo = async function(id) {
+  await db.collection("weekly_promotions").doc(id).update({status:'rejected'});
+  showToast('❌ Kërkesa u refuzua.');
+};
+
 window.fixBusinessData = async function() {
   if (!confirm('Kjo do të rregullojë lidhjen midis bizneseve dhe pjesëve të tyre. Vazhdo?')) return;
   let fixed = 0;
-  for (const biz of allBusinesses) {
-    const bizName = (biz.businessName || biz.name || '').toLowerCase();
-    const bizEmail = (biz.email || '').toLowerCase();
-    for (const part of allParts) {
-      const sellerName = (part.sellerName || '').toLowerCase();
-      if ((sellerName === bizName || sellerName === bizEmail || part.uid === bizEmail) && part.uid !== biz.id) {
-        try { await db.collection("parts").doc(part.id).update({ uid: biz.id }); fixed++; } catch(e) { console.error(e); }
-      }
-    }
-  }
-  showToast(`✅ ${fixed} pjesë u rregulluan! Rifresko faqen.`);
+  for (const biz of allBusinesses) {const bn=(biz.businessName||biz.name||'').toLowerCase();const be=(biz.email||'').toLowerCase();for(const part of allParts){const sn=(part.sellerName||'').toLowerCase();if((sn===bn||sn===be||part.uid===be)&&part.uid!==biz.id){try{await db.collection("parts").doc(part.id).update({uid:biz.id});fixed++;}catch(e){}}}}
+  showToast(`✅ ${fixed} pjesë u rregulluan!`);
 };
 
-// ════════════════════════════════════
-//  APPROVE PLAN — 30-DAY EXPIRY
-// ════════════════════════════════════
 window.approvePlan = async function(id) {
   const req = allPlanRequests.find(x => x.id === id);
   if (!req) { showToast('❌ Kërkesa nuk u gjet.', true); return; }
-  const now = new Date();
-  const expiresAt = new Date(now);
-  expiresAt.setDate(expiresAt.getDate() + 30);
-  try {
-    await db.collection("businesses").doc(req.businessId).update({
-      plan: req.toPlan,
-      commissionRate: Math.round(PLANS[req.toPlan].fee * 100),
-      planActivatedAt: now,
-      planExpiresAt: expiresAt,
-      planUpdatedAt: now
-    });
-    await db.collection("plan_requests").doc(id).update({ status: 'approved' });
-    showToast('✅ Plani u aktivua për 30 ditë! Skadon më ' + expiresAt.toLocaleDateString('sq-AL'));
-  } catch(e) { showToast('❌ Gabim: ' + e.message, true); }
+  const now = new Date(); const expiresAt = new Date(now); expiresAt.setDate(expiresAt.getDate() + 30);
+  try { await db.collection("businesses").doc(req.businessId).update({plan:req.toPlan,commissionRate:Math.round(PLANS[req.toPlan].fee*100),planActivatedAt:now,planExpiresAt:expiresAt,planUpdatedAt:now}); await db.collection("plan_requests").doc(id).update({status:'approved'}); showToast('✅ Plani u aktivua për 30 ditë!'); } catch(e) { showToast('❌ Gabim: ' + e.message, true); }
 };
-
 window.rejectPlan=async function(id){await db.collection("plan_requests").doc(id).update({status:'rejected'});showToast('❌ Kërkesa u refuzua.');};
 
 window.openChangePlan=function(bizId,bizName,currentPlan){
   document.getElementById('changePlanBizName').textContent=bizName;document.getElementById('changePlanBizId').value=bizId;
   const container=document.getElementById('changePlanOptions');
-  container.innerHTML=Object.entries(PLANS).map(([key,p])=>{const isCurrent=key===currentPlan;return `<div onclick="selectPlanOption('${key}')" id="planOpt_${key}" style="background:${isCurrent?'rgba(255,255,255,0.08)':'var(--bg)'};border:2px solid ${isCurrent?p.color:'var(--border)'};border-radius:10px;padding:1rem;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;gap:1rem;"><div style="font-size:1.5rem">${p.icon}</div><div style="flex:1"><div style="font-weight:800;color:${p.color}">${p.name}</div><div style="font-size:0.75rem;color:#8892a4">${p.monthly===0?'Falas':'€'+p.monthly+'/muaj'} · ${Math.round(p.fee*100)}% komision</div></div>${isCurrent?'<span style="font-size:0.7rem;color:#22c55e;font-weight:800;">✓ AKTUAL</span>':''}</div>`;}).join('');
+  container.innerHTML=Object.entries(PLANS).map(([key,p])=>{const isCurrent=key===currentPlan;return `<div onclick="selectPlanOption('${key}')" id="planOpt_${key}" style="background:${isCurrent?'rgba(255,255,255,0.08)':'var(--bg)'};border:2px solid ${isCurrent?p.color:'var(--border)'};border-radius:10px;padding:1rem;cursor:pointer;display:flex;align-items:center;gap:1rem;"><div style="font-size:1.5rem">${p.icon}</div><div style="flex:1"><div style="font-weight:800;color:${p.color}">${p.name}</div><div style="font-size:0.75rem;color:#8892a4">${p.monthly===0?'Falas':'€'+p.monthly+'/muaj'} · ${Math.round(p.fee*100)}% komision</div></div>${isCurrent?'<span style="font-size:0.7rem;color:#22c55e;font-weight:800;">✓ AKTUAL</span>':''}</div>`;}).join('');
   document.getElementById('selectedPlanKey').value=currentPlan;document.getElementById('changePlanModal').classList.add('open');
 };
 window.selectPlanOption=function(key){document.getElementById('selectedPlanKey').value=key;Object.keys(PLANS).forEach(k=>{const el=document.getElementById('planOpt_'+k);if(el){el.style.border=k===key?'2px solid '+PLANS[k].color:'2px solid var(--border)';el.style.background=k===key?'rgba(255,255,255,0.08)':'var(--bg)';}});};
-
-// ════════════════════════════════════
-//  CHANGE PLAN — 30-DAY EXPIRY
-// ════════════════════════════════════
 window.confirmChangePlan = async function() {
-  const bizId = document.getElementById('changePlanBizId').value;
-  const newPlan = document.getElementById('selectedPlanKey').value;
-  const btn = document.getElementById('confirmPlanBtn');
-  btn.textContent = 'Duke ndryshuar...'; btn.disabled = true;
-  const now = new Date();
-  const expiresAt = new Date(now);
-  expiresAt.setDate(expiresAt.getDate() + 30);
-  try {
-    await db.collection("businesses").doc(bizId).update({
-      plan: newPlan,
-      commissionRate: Math.round(PLANS[newPlan].fee * 100),
-      planActivatedAt: now,
-      planExpiresAt: expiresAt,
-      planUpdatedAt: now
-    });
-    closeModal('changePlanModal');
-    showToast('✅ Plani u ndryshua! Skadon më ' + expiresAt.toLocaleDateString('sq-AL'));
-  } catch(e) { showToast('❌ Error', true); }
-  btn.textContent = 'KONFIRMO'; btn.disabled = false;
+  const bizId=document.getElementById('changePlanBizId').value,newPlan=document.getElementById('selectedPlanKey').value,btn=document.getElementById('confirmPlanBtn');
+  btn.textContent='Duke ndryshuar...';btn.disabled=true;
+  const now=new Date();const expiresAt=new Date(now);expiresAt.setDate(expiresAt.getDate()+30);
+  try{await db.collection("businesses").doc(bizId).update({plan:newPlan,commissionRate:Math.round(PLANS[newPlan].fee*100),planActivatedAt:now,planExpiresAt:expiresAt,planUpdatedAt:now});closeModal('changePlanModal');showToast('✅ Plani u ndryshua!');}catch(e){showToast('❌ Error',true);}
+  btn.textContent='KONFIRMO';btn.disabled=false;
 };
 
 function renderEarnings(){
@@ -190,7 +164,7 @@ window.showPage=function(page){
   document.getElementById('page-'+page)?.classList.add('active');
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
   document.getElementById('nav-'+page)?.classList.add('active');
-  const titles={dashboard:'PASQYRA KRYESORE',businesses:'TË GJITHA BIZNESET',parts:'TË GJITHA PJESËT',orders:'TË GJITHA POROSITË',earnings:'FITIMET E PLATFORMËS',messages:'MESAZHET',plans:'KËRKESAT PËR PLANE'};
+  const titles={dashboard:'PASQYRA KRYESORE',businesses:'TË GJITHA BIZNESET',parts:'TË GJITHA PJESËT',orders:'TË GJITHA POROSITË',earnings:'FITIMET E PLATFORMËS',messages:'MESAZHET',plans:'KËRKESAT PËR PLANE',weeklyPromos:'PROMOCIONE JAVORE'};
   document.getElementById('topbarTitle').textContent=titles[page]||'';
   if(page==='earnings')renderEarnings();
   if(window.innerWidth<=768)document.getElementById('sidebar')?.classList.remove('open');
@@ -316,6 +290,8 @@ tbody td{padding:0.8rem 1.25rem;font-size:0.83rem;}
       <a class="nav-item" onclick="showPage('parts')" id="nav-parts"><span>🔩</span> Të Gjitha Pjesët</a>
       <a class="nav-item" onclick="showPage('orders')" id="nav-orders"><span>📦</span> Të Gjitha Porositë</a>
       <a class="nav-item" onclick="showPage('messages')" id="nav-messages"><span>📬</span> Mesazhet <span class="nav-badge" id="msgBadge">0</span></a>
+      <div class="nav-section">PROMOCIONE</div>
+      <a class="nav-item" onclick="showPage('weeklyPromos')" id="nav-weeklyPromos"><span>🚀</span> Promocione Javore</a>
       <div class="nav-section">FINANCAT</div>
       <a class="nav-item" onclick="showPage('earnings')" id="nav-earnings"><span>💰</span> Fitimet e Platformës</a>
       <a class="nav-item" onclick="showPage('plans')" id="nav-plans"><span>⭐</span> Kërkesat për Plane</a>
@@ -344,14 +320,7 @@ tbody td{padding:0.8rem 1.25rem;font-size:0.83rem;}
     </div>
 
     <div class="page" id="page-businesses">
-      <div class="table-card">
-        <div class="table-header">
-          <h3>🏪 TË GJITHA BIZNESET</h3>
-          <div style="display:flex;gap:0.5rem;">
-            <button class="icon-btn" onclick="fixBusinessData()" title="Rregullo lidhjen biznes-pjesë" style="background:rgba(245,197,24,0.1);border-color:#f5c518;color:#f5c518;">🔧 Rregullo të Dhënat</button>
-            <input class="search-inp" placeholder="🔍 Kërko biznes..." oninput="searchBiz(this.value)" />
-          </div>
-        </div>
+      <div class="table-card"><div class="table-header"><h3>🏪 TË GJITHA BIZNESET</h3><div style="display:flex;gap:0.5rem;"><button class="icon-btn" onclick="fixBusinessData()" style="background:rgba(245,197,24,0.1);border-color:#f5c518;color:#f5c518;">🔧 Rregullo të Dhënat</button><input class="search-inp" placeholder="🔍 Kërko biznes..." oninput="searchBiz(this.value)" /></div></div>
         <table><thead><tr><th>Biznesi</th><th>Qyteti</th><th>Plani</th><th>Pjesë</th><th>Shitje</th><th>Fitim</th><th>Statusi</th><th>Veprime</th></tr></thead><tbody id="bizBody"></tbody></table>
       </div>
     </div>
@@ -359,6 +328,15 @@ tbody td{padding:0.8rem 1.25rem;font-size:0.83rem;}
     <div class="page" id="page-parts"><div class="table-card"><div class="table-header"><h3>🔩 TË GJITHA PJESËT</h3><input class="search-inp" placeholder="🔍 Kërko pjesë..." oninput="searchParts(this.value)" /></div><table><thead><tr><th>Pjesa</th><th>Shitësi</th><th>Gjendja</th><th>Stoku</th><th>Çmimi Bazë</th><th>Final</th><th>Statusi</th><th>Veprime</th></tr></thead><tbody id="allPartsBody"></tbody></table></div></div>
     <div class="page" id="page-orders"><div style="display:flex;gap:0.5rem;margin-bottom:1.25rem;"><button class="ot-btn active" onclick="filterOrders('all',this)">Të Gjitha</button><button class="ot-btn" onclick="filterOrders('pending',this)">Në Pritje</button><button class="ot-btn" onclick="filterOrders('sold',this)">Shitur</button></div><div class="table-card"><div class="table-header"><h3>📦 TË GJITHA POROSITË</h3><span id="ordersCount" style="color:#8892a4;font-size:0.82rem;"></span></div><table><thead><tr><th>#</th><th>Pjesa</th><th>Blerësi</th><th>Shitësi</th><th>Data</th><th>Çmimi</th><th>Fitimi</th><th>Statusi</th></tr></thead><tbody id="allOrdersBody"></tbody></table></div></div>
     <div class="page" id="page-messages"><div class="table-card"><div class="table-header"><h3>📬 MESAZHET NGA KONTAKTI</h3></div><table><thead><tr><th>Status</th><th>Emri</th><th>Email</th><th>Data</th><th>Mesazhi</th><th>Veprim</th></tr></thead><tbody id="messagesBody"></tbody></table></div></div>
+
+    <!-- WEEKLY PROMOTIONS PAGE -->
+    <div class="page" id="page-weeklyPromos">
+      <div class="table-card">
+        <div class="table-header"><h3>🚀 PROMOCIONE JAVORE (€3/javë)</h3></div>
+        <table><thead><tr><th>Biznesi</th><th>Pjesa</th><th>Çmimi</th><th>Data</th><th>Skadon</th><th>Statusi</th><th>Veprim</th></tr></thead><tbody id="weeklyPromosBody"></tbody></table>
+      </div>
+    </div>
+
     <div class="page" id="page-plans"><div class="table-card"><div class="table-header"><h3>⭐ KËRKESAT PËR UPGRADE PLANI</h3></div><table><thead><tr><th>Biznesi</th><th>Nga</th><th>Në</th><th>Çmimi</th><th>Data</th><th>Statusi</th><th>Veprim</th></tr></thead><tbody id="planRequestsBody"></tbody></table></div></div>
     <div class="page" id="page-earnings"><div class="stats-row"><div class="stat-card sc-green"><div class="stat-ico">💰</div><div class="stat-val" id="earnTotalFees">0 L</div><div class="stat-lbl">Fitimi Platformës (8%)</div></div><div class="stat-card sc-yellow"><div class="stat-ico">📈</div><div class="stat-val" id="earnTotalGMV">0 L</div><div class="stat-lbl">GMV Total</div></div><div class="stat-card sc-blue"><div class="stat-ico">📦</div><div class="stat-val" id="earnTotalOrders">0</div><div class="stat-lbl">Shitje të Konfirmuara</div></div></div><div class="table-card"><div class="table-header"><h3>📅 PËRMBLEDHJA MUJORE</h3></div><table><thead><tr><th>Muaji</th><th>Shitje</th><th>GMV</th><th>Fitimi</th><th>Statusi</th></tr></thead><tbody id="earningsBody"></tbody></table></div></div>
 
@@ -366,7 +344,7 @@ tbody td{padding:0.8rem 1.25rem;font-size:0.83rem;}
 </div>
 
 <div class="modal-overlay" id="detailModal"><div class="modal"><button class="modal-close" onclick="closeModal('detailModal')">✕</button><h3 id="detailTitle">—</h3><div id="detailContent"></div></div></div>
-<div class="modal-overlay" id="changePlanModal"><div class="modal" style="max-width:520px;"><button class="modal-close" onclick="closeModal('changePlanModal')">✕</button><h3 style="margin-bottom:0.25rem;">⭐ NDRYSHO PLANIN</h3><p style="color:#8892a4;font-size:0.82rem;margin-bottom:1.25rem;">Biznesi: <strong id="changePlanBizName" style="color:#eef0f5;"></strong></p><input type="hidden" id="changePlanBizId" /><input type="hidden" id="selectedPlanKey" /><div id="changePlanOptions" style="display:flex;flex-direction:column;gap:0.75rem;margin-bottom:1.5rem;"></div><div style="display:flex;gap:0.75rem;"><button class="icon-btn" id="confirmPlanBtn" style="flex:1;padding:11px;background:var(--red);color:white;border:none;border-radius:8px;font-weight:800;cursor:pointer;" onclick="confirmChangePlan()">KONFIRMO</button><button class="icon-btn" style="flex:1;padding:11px;background:transparent;border:1px solid var(--border);color:var(--chrome);border-radius:8px;font-weight:800;cursor:pointer;" onclick="closeModal('changePlanModal')">Anulo</button></div></div></div>
+<div class="modal-overlay" id="changePlanModal"><div class="modal" style="max-width:520px;"><button class="modal-close" onclick="closeModal('changePlanModal')">✕</button><h3>⭐ NDRYSHO PLANIN</h3><p style="color:#8892a4;">Biznesi: <strong id="changePlanBizName"></strong></p><input type="hidden" id="changePlanBizId" /><input type="hidden" id="selectedPlanKey" /><div id="changePlanOptions" style="display:flex;flex-direction:column;gap:0.75rem;margin-bottom:1.5rem;"></div><div style="display:flex;gap:0.75rem;"><button class="icon-btn" id="confirmPlanBtn" style="flex:1;padding:11px;background:var(--red);color:white;border:none;border-radius:8px;font-weight:800;cursor:pointer;" onclick="confirmChangePlan()">KONFIRMO</button><button class="icon-btn" style="flex:1;padding:11px;background:transparent;border:1px solid var(--border);color:var(--chrome);border-radius:8px;font-weight:800;cursor:pointer;" onclick="closeModal('changePlanModal')">Anulo</button></div></div></div>
 <div class="modal-overlay" id="msgDetailModal"><div class="modal"><button class="modal-close" onclick="closeModal('msgDetailModal')">✕</button><h3>📬 Detajet e Mesazhit</h3><div id="msgDetailContent"></div></div></div>
 <div class="toast" id="toast"></div>
 </body>
