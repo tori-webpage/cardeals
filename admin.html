@@ -65,10 +65,7 @@ function renderAllParts(filter=''){
   const tbody=document.getElementById('allPartsBody');if(!tbody)return;
   let list=allParts;if(filter)list=list.filter(p=>{const name=typeof p.name==='object'?p.name.sq:p.name;return(name||'').toLowerCase().includes(filter.toLowerCase());});
   if(!list.length){tbody.innerHTML='<tr><td colspan="8" style="text-align:center;padding:2rem;color:#8892a4;">No parts.</td></tr>';return;}
-  tbody.innerHTML=list.map(p=>{
-    const name=typeof p.name==='object'?p.name.sq||p.name.en:p.name,stk=p.stock||0;
-    return `<tr><td>${p.emoji||'🔩'} <strong>${name||'—'}</strong></td><td style="color:#8892a4;font-size:0.82rem">${p.sellerName||'—'}</td><td style="color:#8892a4">${p.condition==='new'?'E Re':'E Përdorur'}</td><td style="font-weight:700;color:${stk<=3?'#f59e0b':'#22c55e'}">${stk===0?'0 🔴':stk}</td><td>${(p.basePrice||0).toLocaleString()} L</td><td style="font-weight:800;color:#f5c518">${((p.basePrice||0)+Math.round((p.basePrice||0)*PLATFORM_FEE)).toLocaleString()} L</td><td><span class="sbadge ${p.status==='active'?'s-active':'s-suspended'}">${p.status==='active'?'Aktiv':'Joaktiv'}</span></td><td><button class="icon-btn" onclick="adminTogglePart('${p.id}','${p.status}')">${p.status==='active'?'⏸️':'▶️'}</button></td></tr>`;
-  }).join('');
+  tbody.innerHTML=list.map(p=>{const name=typeof p.name==='object'?p.name.sq||p.name.en:p.name,stk=p.stock||0;return `<tr><td>${p.emoji||'🔩'} <strong>${name||'—'}</strong></td><td style="color:#8892a4;font-size:0.82rem">${p.sellerName||'—'}</td><td style="color:#8892a4">${p.condition==='new'?'E Re':'E Përdorur'}</td><td style="font-weight:700;color:${stk<=3?'#f59e0b':'#22c55e'}">${stk===0?'0 🔴':stk}</td><td>${(p.basePrice||0).toLocaleString()} L</td><td style="font-weight:800;color:#f5c518">${((p.basePrice||0)+Math.round((p.basePrice||0)*PLATFORM_FEE)).toLocaleString()} L</td><td><span class="sbadge ${p.status==='active'?'s-active':'s-suspended'}">${p.status==='active'?'Aktiv':'Joaktiv'}</span></td><td><button class="icon-btn" onclick="adminTogglePart('${p.id}','${p.status}')">${p.status==='active'?'⏸️':'▶️'}</button></td></tr>`;}).join('');
 }
 window.adminTogglePart=async function(id,status){const ns=status==='active'?'inactive':'active';await db.collection("parts").doc(id).update({status:ns});showToast('✅ Status updated!');};
 
@@ -77,48 +74,42 @@ function renderAllOrders(filter='all'){
   let list=allOrders;if(filter==='pending')list=allOrders.filter(o=>o.status==='pending');if(filter==='sold')list=allOrders.filter(o=>o.status==='sold');
   document.getElementById('ordersCount').textContent=list.length+' porosi';
   if(!list.length){tbody.innerHTML='<tr><td colspan="8" style="text-align:center;padding:2rem;color:#8892a4;">No orders.</td></tr>';return;}
-  tbody.innerHTML=list.map(o=>{
-    const fee=o.platformFee||Math.round((o.totalPrice||0)*PLATFORM_FEE/1.08),sc=o.status==='sold'?'s-sold':o.status==='pending'?'s-pending':'s-suspended',sl=o.status==='sold'?'Shitur':o.status==='pending'?'Në Pritje':'Anuluar';
-    return `<tr><td style="font-weight:800;color:#e02020">#${o.id?.slice(-6)||'—'}</td><td><strong>${o.partName||'—'}</strong></td><td style="color:#8892a4">${o.buyerName||'—'}</td><td style="color:#8892a4">${o.sellerName||'—'}</td><td style="color:#8892a4;font-size:0.8rem">${o.createdAt?.toDate?o.createdAt.toDate().toLocaleDateString('sq-AL'):'—'}</td><td style="font-weight:800;color:#f5c518">${(o.totalPrice||0).toLocaleString()} L</td><td style="font-weight:800;color:#22c55e">+${fee.toLocaleString()} L</td><td><span class="sbadge ${sc}">${sl}</span></td></tr>`;
-  }).join('');
+  tbody.innerHTML=list.map(o=>{const fee=o.platformFee||Math.round((o.totalPrice||0)*PLATFORM_FEE/1.08),sc=o.status==='sold'?'s-sold':o.status==='pending'?'s-pending':'s-suspended',sl=o.status==='sold'?'Shitur':o.status==='pending'?'Në Pritje':'Anuluar';return `<tr><td style="font-weight:800;color:#e02020">#${o.id?.slice(-6)||'—'}</td><td><strong>${o.partName||'—'}</strong></td><td style="color:#8892a4">${o.buyerName||'—'}</td><td style="color:#8892a4">${o.sellerName||'—'}</td><td style="color:#8892a4;font-size:0.8rem">${o.createdAt?.toDate?o.createdAt.toDate().toLocaleDateString('sq-AL'):'—'}</td><td style="font-weight:800;color:#f5c518">${(o.totalPrice||0).toLocaleString()} L</td><td style="font-weight:800;color:#22c55e">+${fee.toLocaleString()} L</td><td><span class="sbadge ${sc}">${sl}</span></td></tr>`;}).join('');
 }
 window.filterOrders=function(f,btn){document.querySelectorAll('.ot-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderAllOrders(f);};
 
-// ── MESSAGES ──
-function renderMessages(){
-  const tbody=document.getElementById('messagesBody');if(!tbody)return;
-  if(!allMessages.length){tbody.innerHTML='<tr><td colspan="6" style="text-align:center;padding:2rem;color:#8892a4;">📭 Nuk ka mesazhe.</td></tr>';return;}
-  tbody.innerHTML=allMessages.map(m=>{
-    const date=m.createdAt?.toDate?m.createdAt.toDate().toLocaleDateString('sq-AL'):'—';
-    return `<tr onclick="viewMessage('${m.id}')" style="cursor:pointer;"><td>${m.status==='unread'?'🔴':'✅'}</td><td><strong>${m.name||'—'}</strong></td><td style="color:#8892a4">${m.email||'—'}</td><td style="color:#8892a4;font-size:0.8rem">${date}</td><td style="max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${m.message||'—'}</td><td><button class="icon-btn" onclick="event.stopPropagation();toggleMessageStatus('${m.id}','${m.status}')">${m.status==='unread'?'✅ Lexo':'🔴 Pashënuar'}</button></td></tr>`;
-  }).join('');
-}
-function updateMessageBadge(){
-  const unread=allMessages.filter(m=>m.status==='unread').length;
-  const badge=document.getElementById('msgBadge');
-  if(badge){badge.textContent=unread;badge.style.display=unread>0?'inline-block':'none';}
-}
-window.viewMessage=function(id){
-  const m=allMessages.find(x=>x.id===id);if(!m)return;
-  document.getElementById('msgDetailContent').innerHTML=`<div style="background:var(--bg);border-radius:10px;padding:1.25rem;font-size:0.88rem;line-height:2;"><div><strong>Nga:</strong> ${m.name||'—'}</div><div><strong>Email:</strong> <a href="mailto:${m.email}" style="color:#3b82f6">${m.email||'—'}</a></div><div><strong>Data:</strong> ${m.createdAt?.toDate?m.createdAt.toDate().toLocaleString('sq-AL'):'—'}</div><div style="margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border);"><strong>Mesazhi:</strong><br>${m.message||'—'}</div></div>`;
-  if(m.status==='unread'){db.collection("contact_messages").doc(id).update({status:'read'});}
-  document.getElementById('msgDetailModal').classList.add('open');
-};
+function renderMessages(){const tbody=document.getElementById('messagesBody');if(!tbody)return;if(!allMessages.length){tbody.innerHTML='<tr><td colspan="6" style="text-align:center;padding:2rem;color:#8892a4;">📭 Nuk ka mesazhe.</td></tr>';return;}tbody.innerHTML=allMessages.map(m=>{const date=m.createdAt?.toDate?m.createdAt.toDate().toLocaleDateString('sq-AL'):'—';return `<tr onclick="viewMessage('${m.id}')" style="cursor:pointer;"><td>${m.status==='unread'?'🔴':'✅'}</td><td><strong>${m.name||'—'}</strong></td><td style="color:#8892a4">${m.email||'—'}</td><td style="color:#8892a4;font-size:0.8rem">${date}</td><td style="max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${m.message||'—'}</td><td><button class="icon-btn" onclick="event.stopPropagation();toggleMessageStatus('${m.id}','${m.status}')">${m.status==='unread'?'✅ Lexo':'🔴 Pashënuar'}</button></td></tr>`;}).join('');}
+function updateMessageBadge(){const unread=allMessages.filter(m=>m.status==='unread').length;const badge=document.getElementById('msgBadge');if(badge){badge.textContent=unread;badge.style.display=unread>0?'inline-block':'none';}}
+window.viewMessage=function(id){const m=allMessages.find(x=>x.id===id);if(!m)return;document.getElementById('msgDetailContent').innerHTML=`<div style="background:var(--bg);border-radius:10px;padding:1.25rem;font-size:0.88rem;line-height:2;"><div><strong>Nga:</strong> ${m.name||'—'}</div><div><strong>Email:</strong> <a href="mailto:${m.email}" style="color:#3b82f6">${m.email||'—'}</a></div><div><strong>Data:</strong> ${m.createdAt?.toDate?m.createdAt.toDate().toLocaleString('sq-AL'):'—'}</div><div style="margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border);"><strong>Mesazhi:</strong><br>${m.message||'—'}</div></div>`;if(m.status==='unread'){db.collection("contact_messages").doc(id).update({status:'read'});}document.getElementById('msgDetailModal').classList.add('open');};
 window.toggleMessageStatus=async function(id,status){const ns=status==='unread'?'read':'unread';await db.collection("contact_messages").doc(id).update({status:ns});showToast('✅ Status updated!');};
 
-// ── PLAN REQUESTS ──
-function renderPlanRequests(){
-  const tbody=document.getElementById('planRequestsBody');if(!tbody)return;
-  if(!allPlanRequests.length){tbody.innerHTML='<tr><td colspan="7" style="text-align:center;padding:2rem;color:#8892a4;">Nuk ka kërkesa për plane.</td></tr>';return;}
-  tbody.innerHTML=allPlanRequests.map(r=>{
-    const date=r.createdAt?.toDate?r.createdAt.toDate().toLocaleDateString('sq-AL'):'—';
-    const fromPlan=PLANS[r.fromPlan]||PLANS.basic,toPlan=PLANS[r.toPlan]||PLANS.basic;
-    return `<tr><td><strong>${r.businessName||'—'}</strong><br><small style="color:#666">${r.email||''}</small></td><td><span style="color:${fromPlan.color};">${fromPlan.icon} ${fromPlan.name}</span></td><td><span style="color:${toPlan.color};font-weight:800;">${toPlan.icon} ${toPlan.name}</span></td><td>€${toPlan.monthly}/muaj</td><td style="color:#8892a4;font-size:0.8rem">${date}</td><td><span class="sbadge ${r.status==='approved'?'s-active':r.status==='rejected'?'s-suspended':'s-pending'}">${r.status==='approved'?'Aprovuar':r.status==='rejected'?'Refuzuar':'Në Pritje'}</span></td><td>${r.status==='pending'?`<div style="display:flex;gap:0.5rem;"><button class="icon-btn" style="background:rgba(34,197,94,0.15);border-color:#22c55e;color:#22c55e;" onclick="approvePlan('${r.id}')">✅ Aprovo</button><button class="icon-btn" style="background:rgba(224,32,32,0.1);border-color:#e02020;color:#e02020;" onclick="rejectPlan('${r.id}')">❌ Refuzo</button></div>`:'—'}</td></tr>`;
-  }).join('');
-}
+function renderPlanRequests(){const tbody=document.getElementById('planRequestsBody');if(!tbody)return;if(!allPlanRequests.length){tbody.innerHTML='<tr><td colspan="7" style="text-align:center;padding:2rem;color:#8892a4;">Nuk ka kërkesa për plane.</td></tr>';return;}tbody.innerHTML=allPlanRequests.map(r=>{const date=r.createdAt?.toDate?r.createdAt.toDate().toLocaleDateString('sq-AL'):'—';const fromPlan=PLANS[r.fromPlan]||PLANS.basic,toPlan=PLANS[r.toPlan]||PLANS.basic;return `<tr><td><strong>${r.businessName||'—'}</strong><br><small style="color:#666">${r.email||''}</small></td><td><span style="color:${fromPlan.color};">${fromPlan.icon} ${fromPlan.name}</span></td><td><span style="color:${toPlan.color};font-weight:800;">${toPlan.icon} ${toPlan.name}</span></td><td>€${toPlan.monthly}/muaj</td><td style="color:#8892a4;font-size:0.8rem">${date}</td><td><span class="sbadge ${r.status==='approved'?'s-active':r.status==='rejected'?'s-suspended':'s-pending'}">${r.status==='approved'?'Aprovuar':r.status==='rejected'?'Refuzuar':'Në Pritje'}</span></td><td>${r.status==='pending'?`<div style="display:flex;gap:0.5rem;"><button class="icon-btn" style="background:rgba(34,197,94,0.15);border-color:#22c55e;color:#22c55e;" onclick="approvePlan('${r.id}')">✅ Aprovo</button><button class="icon-btn" style="background:rgba(224,32,32,0.1);border-color:#e02020;color:#e02020;" onclick="rejectPlan('${r.id}')">❌ Refuzo</button></div>`:'—'}</td></tr>`;}).join('');}
+
+// ════════════════════════════════════
+//  FIX BUSINESS-PARTS CONNECTION
+// ════════════════════════════════════
+window.fixBusinessData = async function() {
+  if (!confirm('Kjo do të rregullojë lidhjen midis bizneseve dhe pjesëve të tyre. Vazhdo?')) return;
+  let fixed = 0;
+  for (const biz of allBusinesses) {
+    const bizName = (biz.businessName || biz.name || '').toLowerCase();
+    const bizEmail = (biz.email || '').toLowerCase();
+    for (const part of allParts) {
+      const sellerName = (part.sellerName || '').toLowerCase();
+      if ((sellerName === bizName || sellerName === bizEmail || part.uid === bizEmail) && part.uid !== biz.id) {
+        try {
+          await db.collection("parts").doc(part.id).update({ uid: biz.id });
+          fixed++;
+        } catch(e) { console.error('Error fixing part:', part.id, e); }
+      }
+    }
+  }
+  showToast(`✅ ${fixed} pjesë u rregulluan! Rifresko faqen.`);
+};
+
 window.approvePlan=async function(id){
-  const req=allPlanRequests.find(x=>x.id===id);if(!req)return;
-  try{await db.collection("businesses").doc(req.businessId).update({plan:req.toPlan,commissionRate:Math.round(PLANS[req.toPlan].fee*100),planUpdatedAt:new Date()});await db.collection("plan_requests").doc(id).update({status:'approved'});showToast('✅ Plani u aktivua!');}catch(e){showToast('❌ Error',true);}
+  const req=allPlanRequests.find(x=>x.id===id);if(!req){showToast('❌ Kërkesa nuk u gjet.',true);return;}
+  try{await db.collection("businesses").doc(req.businessId).update({plan:req.toPlan,commissionRate:Math.round(PLANS[req.toPlan].fee*100),planUpdatedAt:new Date()});await db.collection("plan_requests").doc(id).update({status:'approved'});showToast('✅ Plani u aktivua!');}catch(e){showToast('❌ Gabim: '+e.message,true);}
 };
 window.rejectPlan=async function(id){await db.collection("plan_requests").doc(id).update({status:'rejected'});showToast('❌ Kërkesa u refuzua.');};
 
@@ -129,12 +120,7 @@ window.openChangePlan=function(bizId,bizName,currentPlan){
   document.getElementById('selectedPlanKey').value=currentPlan;document.getElementById('changePlanModal').classList.add('open');
 };
 window.selectPlanOption=function(key){document.getElementById('selectedPlanKey').value=key;Object.keys(PLANS).forEach(k=>{const el=document.getElementById('planOpt_'+k);if(el){el.style.border=k===key?'2px solid '+PLANS[k].color:'2px solid var(--border)';el.style.background=k===key?'rgba(255,255,255,0.08)':'var(--bg)';}});};
-window.confirmChangePlan=async function(){
-  const bizId=document.getElementById('changePlanBizId').value,newPlan=document.getElementById('selectedPlanKey').value,btn=document.getElementById('confirmPlanBtn');
-  btn.textContent='Duke ndryshuar...';btn.disabled=true;
-  try{await db.collection("businesses").doc(bizId).update({plan:newPlan,commissionRate:Math.round(PLANS[newPlan].fee*100),planUpdatedAt:new Date()});closeModal('changePlanModal');showToast('✅ Plani u ndryshua!');}catch(e){showToast('❌ Error',true);}
-  btn.textContent='KONFIRMO';btn.disabled=false;
-};
+window.confirmChangePlan=async function(){const bizId=document.getElementById('changePlanBizId').value,newPlan=document.getElementById('selectedPlanKey').value,btn=document.getElementById('confirmPlanBtn');btn.textContent='Duke ndryshuar...';btn.disabled=true;try{await db.collection("businesses").doc(bizId).update({plan:newPlan,commissionRate:Math.round(PLANS[newPlan].fee*100),planUpdatedAt:new Date()});closeModal('changePlanModal');showToast('✅ Plani u ndryshua!');}catch(e){showToast('❌ Error',true);}btn.textContent='KONFIRMO';btn.disabled=false;};
 
 function renderEarnings(){
   const sold=allOrders.filter(o=>o.status==='sold');
@@ -165,11 +151,7 @@ window.showPage=function(page){
 window.toggleSidebar=function(){document.getElementById('sidebar')?.classList.toggle('open');};
 window.closeModal=function(id){document.getElementById(id)?.classList.remove('open');};
 window.setLang=function(l){lang=l;};
-
-document.addEventListener('DOMContentLoaded',()=>{
-  document.querySelectorAll('.modal-overlay').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('open');}));
-  document.addEventListener('keypress',e=>{if(e.key==='Enter'&&document.getElementById('loginScreen').style.display!=='none')doLogin();});
-});
+document.addEventListener('DOMContentLoaded',()=>{document.querySelectorAll('.modal-overlay').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('open');}));document.addEventListener('keypress',e=>{if(e.key==='Enter'&&document.getElementById('loginScreen').style.display!=='none')doLogin();});});
 </script>
 <style>
 :root{--bg:#0a0c10;--panel:#0f1420;--card:#151b28;--border:#1e2840;--red:#e02020;--red-dark:#b01515;--red-glow:rgba(224,32,32,0.1);--chrome:#8892a4;--white:#eef0f5;--yellow:#f5c518;--green:#22c55e;--blue:#3b82f6;--orange:#f59e0b;--radius:14px;--sw:240px;}
@@ -293,17 +275,14 @@ tbody td{padding:0.8rem 1.25rem;font-size:0.83rem;}
     </nav>
     <div class="sidebar-bottom">
       <div class="admin-info"><div class="ai-label">🔐 Identifikuar si Admin</div><div class="ai-email" id="adminEmail">—</div></div>
-      <a href="https://tori-webpage.github.io/cardeals/index.html" class="back-link" target="_blank">🌐 Cardeals.al ↗</a>
-      <a href="https://tori-webpage.github.io/cardeals/cardeals-backoffice.html" class="back-link" target="_blank">🏪 Backoffice ↗</a>
+      <a href="index.html" class="back-link" target="_blank">🌐 Cardeals.al ↗</a>
+      <a href="cardeals-backoffice.html" class="back-link" target="_blank">🏪 Backoffice ↗</a>
       <button class="logout-btn" onclick="doLogout()">⬅ Dil nga Admin</button>
     </div>
   </aside>
 
   <div class="main">
-    <div class="topbar">
-      <div style="display:flex;align-items:center;gap:1rem;"><button class="sidebar-toggle" onclick="toggleSidebar()">☰</button><div class="topbar-title" id="topbarTitle">PASQYRA KRYESORE</div></div>
-      <div class="topbar-right"></div>
-    </div>
+    <div class="topbar"><div style="display:flex;align-items:center;gap:1rem;"><button class="sidebar-toggle" onclick="toggleSidebar()">☰</button><div class="topbar-title" id="topbarTitle">PASQYRA KRYESORE</div></div><div class="topbar-right"></div></div>
 
     <div class="page active" id="page-dashboard">
       <div class="stats-row">
@@ -318,33 +297,41 @@ tbody td{padding:0.8rem 1.25rem;font-size:0.83rem;}
     </div>
 
     <div class="page" id="page-businesses">
-      <div class="table-card"><div class="table-header"><h3>🏪 TË GJITHA BIZNESET</h3><input class="search-inp" placeholder="🔍 Kërko biznes..." oninput="searchBiz(this.value)" /></div>
-        <table><thead><tr><th>Biznesi</th><th>Qyteti</th><th>Plani</th><th>Pjesë</th><th>Shitje</th><th>Fitim</th><th>Statusi</th><th>Veprime</th></tr></thead><tbody id="bizBody"></tbody></table></div>
+      <div class="table-card">
+        <div class="table-header">
+          <h3>🏪 TË GJITHA BIZNESET</h3>
+          <div style="display:flex;gap:0.5rem;">
+            <button class="icon-btn" onclick="fixBusinessData()" title="Rregullo lidhjen biznes-pjesë" style="background:rgba(245,197,24,0.1);border-color:#f5c518;color:#f5c518;">🔧 Rregullo të Dhënat</button>
+            <input class="search-inp" placeholder="🔍 Kërko biznes..." oninput="searchBiz(this.value)" />
+          </div>
+        </div>
+        <table><thead><tr><th>Biznesi</th><th>Qyteti</th><th>Plani</th><th>Pjesë</th><th>Shitje</th><th>Fitim</th><th>Statusi</th><th>Veprime</th></tr></thead><tbody id="bizBody"></tbody></table>
+      </div>
     </div>
 
     <div class="page" id="page-parts">
       <div class="table-card"><div class="table-header"><h3>🔩 TË GJITHA PJESËT</h3><input class="search-inp" placeholder="🔍 Kërko pjesë..." oninput="searchParts(this.value)" /></div>
-        <table><thead><tr><th>Pjesa</th><th>Shitësi</th><th>Gjendja</th><th>Stoku</th><th>Çmimi Bazë</th><th>Final</th><th>Statusi</th><th>Veprime</th></tr></thead><tbody id="allPartsBody"></tbody></table></div>
+        <table><thead><tr><th>Pjesa</th><th>Shitësi</th><th>Gjendja</th><th>Stoku</th><th>Çmimi Bazë</th><th>Final</th><th>Statusi</th><th>Veprime</th></tr></thead><tbody id="allPartsBody"></tbody></table>
+      </div>
     </div>
 
     <div class="page" id="page-orders">
-      <div style="display:flex;gap:0.5rem;margin-bottom:1.25rem;flex-wrap:wrap;">
-        <button class="ot-btn active" onclick="filterOrders('all',this)">Të Gjitha</button>
-        <button class="ot-btn" onclick="filterOrders('pending',this)">Në Pritje</button>
-        <button class="ot-btn" onclick="filterOrders('sold',this)">Shitur</button>
-      </div>
+      <div style="display:flex;gap:0.5rem;margin-bottom:1.25rem;flex-wrap:wrap;"><button class="ot-btn active" onclick="filterOrders('all',this)">Të Gjitha</button><button class="ot-btn" onclick="filterOrders('pending',this)">Në Pritje</button><button class="ot-btn" onclick="filterOrders('sold',this)">Shitur</button></div>
       <div class="table-card"><div class="table-header"><h3>📦 TË GJITHA POROSITË</h3><span id="ordersCount" style="color:#8892a4;font-size:0.82rem;font-weight:700;"></span></div>
-        <table><thead><tr><th>#</th><th>Pjesa</th><th>Blerësi</th><th>Shitësi</th><th>Data</th><th>Çmimi</th><th>Fitimi</th><th>Statusi</th></tr></thead><tbody id="allOrdersBody"></tbody></table></div>
+        <table><thead><tr><th>#</th><th>Pjesa</th><th>Blerësi</th><th>Shitësi</th><th>Data</th><th>Çmimi</th><th>Fitimi</th><th>Statusi</th></tr></thead><tbody id="allOrdersBody"></tbody></table>
+      </div>
     </div>
 
     <div class="page" id="page-messages">
       <div class="table-card"><div class="table-header"><h3>📬 MESAZHET NGA KONTAKTI</h3></div>
-        <table><thead><tr><th>Status</th><th>Emri</th><th>Email</th><th>Data</th><th>Mesazhi</th><th>Veprim</th></tr></thead><tbody id="messagesBody"></tbody></table></div>
+        <table><thead><tr><th>Status</th><th>Emri</th><th>Email</th><th>Data</th><th>Mesazhi</th><th>Veprim</th></tr></thead><tbody id="messagesBody"></tbody></table>
+      </div>
     </div>
 
     <div class="page" id="page-plans">
       <div class="table-card"><div class="table-header"><h3>⭐ KËRKESAT PËR UPGRADE PLANI</h3></div>
-        <table><thead><tr><th>Biznesi</th><th>Nga</th><th>Në</th><th>Çmimi</th><th>Data</th><th>Statusi</th><th>Veprim</th></tr></thead><tbody id="planRequestsBody"></tbody></table></div>
+        <table><thead><tr><th>Biznesi</th><th>Nga</th><th>Në</th><th>Çmimi</th><th>Data</th><th>Statusi</th><th>Veprim</th></tr></thead><tbody id="planRequestsBody"></tbody></table>
+      </div>
     </div>
 
     <div class="page" id="page-earnings">
@@ -354,33 +341,16 @@ tbody td{padding:0.8rem 1.25rem;font-size:0.83rem;}
         <div class="stat-card sc-blue"><div class="stat-ico">📦</div><div class="stat-val" id="earnTotalOrders">0</div><div class="stat-lbl">Shitje të Konfirmuara</div></div>
       </div>
       <div class="table-card"><div class="table-header"><h3>📅 PËRMBLEDHJA MUJORE</h3></div>
-        <table><thead><tr><th>Muaji</th><th>Shitje</th><th>GMV</th><th>Fitimi</th><th>Statusi</th></tr></thead><tbody id="earningsBody"></tbody></table></div>
+        <table><thead><tr><th>Muaji</th><th>Shitje</th><th>GMV</th><th>Fitimi</th><th>Statusi</th></tr></thead><tbody id="earningsBody"></tbody></table>
+      </div>
     </div>
 
   </div>
 </div>
 
-<div class="modal-overlay" id="detailModal">
-  <div class="modal"><button class="modal-close" onclick="closeModal('detailModal')">✕</button><h3 id="detailTitle">—</h3><div id="detailContent"></div></div>
-</div>
-
-<div class="modal-overlay" id="changePlanModal">
-  <div class="modal" style="max-width:520px;"><button class="modal-close" onclick="closeModal('changePlanModal')">✕</button>
-    <h3 style="margin-bottom:0.25rem;">⭐ NDRYSHO PLANIN</h3>
-    <p style="color:#8892a4;font-size:0.82rem;margin-bottom:1.25rem;">Biznesi: <strong id="changePlanBizName" style="color:#eef0f5;"></strong></p>
-    <input type="hidden" id="changePlanBizId" /><input type="hidden" id="selectedPlanKey" />
-    <div id="changePlanOptions" style="display:flex;flex-direction:column;gap:0.75rem;margin-bottom:1.5rem;"></div>
-    <div style="display:flex;gap:0.75rem;">
-      <button class="icon-btn" id="confirmPlanBtn" style="flex:1;padding:11px;background:var(--red);color:white;border:none;border-radius:8px;font-weight:800;cursor:pointer;" onclick="confirmChangePlan()">KONFIRMO</button>
-      <button class="icon-btn" style="flex:1;padding:11px;background:transparent;border:1px solid var(--border);color:var(--chrome);border-radius:8px;font-weight:800;cursor:pointer;" onclick="closeModal('changePlanModal')">Anulo</button>
-    </div>
-  </div>
-</div>
-
-<div class="modal-overlay" id="msgDetailModal">
-  <div class="modal"><button class="modal-close" onclick="closeModal('msgDetailModal')">✕</button><h3>📬 Detajet e Mesazhit</h3><div id="msgDetailContent"></div></div>
-</div>
-
+<div class="modal-overlay" id="detailModal"><div class="modal"><button class="modal-close" onclick="closeModal('detailModal')">✕</button><h3 id="detailTitle">—</h3><div id="detailContent"></div></div></div>
+<div class="modal-overlay" id="changePlanModal"><div class="modal" style="max-width:520px;"><button class="modal-close" onclick="closeModal('changePlanModal')">✕</button><h3 style="margin-bottom:0.25rem;">⭐ NDRYSHO PLANIN</h3><p style="color:#8892a4;font-size:0.82rem;margin-bottom:1.25rem;">Biznesi: <strong id="changePlanBizName" style="color:#eef0f5;"></strong></p><input type="hidden" id="changePlanBizId" /><input type="hidden" id="selectedPlanKey" /><div id="changePlanOptions" style="display:flex;flex-direction:column;gap:0.75rem;margin-bottom:1.5rem;"></div><div style="display:flex;gap:0.75rem;"><button class="icon-btn" id="confirmPlanBtn" style="flex:1;padding:11px;background:var(--red);color:white;border:none;border-radius:8px;font-weight:800;cursor:pointer;" onclick="confirmChangePlan()">KONFIRMO</button><button class="icon-btn" style="flex:1;padding:11px;background:transparent;border:1px solid var(--border);color:var(--chrome);border-radius:8px;font-weight:800;cursor:pointer;" onclick="closeModal('changePlanModal')">Anulo</button></div></div></div>
+<div class="modal-overlay" id="msgDetailModal"><div class="modal"><button class="modal-close" onclick="closeModal('msgDetailModal')">✕</button><h3>📬 Detajet e Mesazhit</h3><div id="msgDetailContent"></div></div></div>
 <div class="toast" id="toast"></div>
 </body>
 </html>
