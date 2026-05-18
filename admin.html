@@ -55,7 +55,15 @@ function renderBusinesses(filter=''){
     const bizSales=allOrders.filter(o=>o.sellerUid===b.id&&o.status==='sold').length;
     const bizEarn=allOrders.filter(o=>o.sellerUid===b.id&&o.status==='sold').reduce((s,o)=>s+(o.platformFee||0),0);
     const plan=b.plan||'basic',planData=PLANS[plan];
-    return `<tr><td><strong>${b.businessName||b.name||'—'}</strong><br><small style="color:#666">${b.email||''}</small></td><td style="color:#8892a4">${b.city||'—'}</td><td><span style="color:${planData.color};font-weight:800;">${planData.icon} ${planData.name}</span></td><td>${bizParts}</td><td>${bizSales}</td><td style="color:#22c55e;font-weight:800">${bizEarn.toLocaleString()} L</td><td><span class="sbadge ${b.status!=='suspended'?'s-active':'s-suspended'}">${b.status!=='suspended'?'Aktiv':'Pezulluar'}</span></td><td><div style="display:flex;gap:0.5rem;"><button class="icon-btn" onclick="toggleBizStatus('${b.id}','${b.status||'active'}')">${b.status!=='suspended'?'⏸️':'▶️'}</button><button class="icon-btn" onclick="openChangePlan('${b.id}','${b.businessName||b.name||''}','${plan}')">⭐</button><button class="icon-btn" onclick="viewBizDetails('${b.id}')">👁️</button></div></td></tr>`;
+    const expDate=b.planExpiresAt?b.planExpiresAt.toDate?b.planExpiresAt.toDate():new Date(b.planExpiresAt):null;
+    const daysLeft=expDate?Math.ceil((expDate-new Date())/(1000*60*60*24)):null;
+    let expiryBadge='';
+    if(plan!=='basic'&&daysLeft!==null){
+      if(daysLeft<=0)expiryBadge='<br><small style="color:#e02020;">⚠️ Skaduar</small>';
+      else if(daysLeft<=5)expiryBadge=`<br><small style="color:#f59e0b;">⏳ ${daysLeft} ditë</small>`;
+      else expiryBadge=`<br><small style="color:#22c55e;">✓ ${daysLeft} ditë</small>`;
+    }
+    return `<tr><td><strong>${b.businessName||b.name||'—'}</strong><br><small style="color:#666">${b.email||''}</small></td><td style="color:#8892a4">${b.city||'—'}</td><td><span style="color:${planData.color};font-weight:800;">${planData.icon} ${planData.name}</span>${expiryBadge}</td><td>${bizParts}</td><td>${bizSales}</td><td style="color:#22c55e;font-weight:800">${bizEarn.toLocaleString()} L</td><td><span class="sbadge ${b.status!=='suspended'?'s-active':'s-suspended'}">${b.status!=='suspended'?'Aktiv':'Pezulluar'}</span></td><td><div style="display:flex;gap:0.5rem;"><button class="icon-btn" onclick="toggleBizStatus('${b.id}','${b.status||'active'}')">${b.status!=='suspended'?'⏸️':'▶️'}</button><button class="icon-btn" onclick="openChangePlan('${b.id}','${b.businessName||b.name||''}','${plan}')">⭐</button><button class="icon-btn" onclick="viewBizDetails('${b.id}')">👁️</button></div></td></tr>`;
   }).join('');
 }
 window.toggleBizStatus=async function(id,s){const ns=s==='suspended'?'active':'suspended';await db.collection("businesses").doc(id).update({status:ns});showToast('✅ Status updated!');};
@@ -97,20 +105,35 @@ window.fixBusinessData = async function() {
     for (const part of allParts) {
       const sellerName = (part.sellerName || '').toLowerCase();
       if ((sellerName === bizName || sellerName === bizEmail || part.uid === bizEmail) && part.uid !== biz.id) {
-        try {
-          await db.collection("parts").doc(part.id).update({ uid: biz.id });
-          fixed++;
-        } catch(e) { console.error('Error fixing part:', part.id, e); }
+        try { await db.collection("parts").doc(part.id).update({ uid: biz.id }); fixed++; } catch(e) { console.error(e); }
       }
     }
   }
   showToast(`✅ ${fixed} pjesë u rregulluan! Rifresko faqen.`);
 };
 
-window.approvePlan=async function(id){
-  const req=allPlanRequests.find(x=>x.id===id);if(!req){showToast('❌ Kërkesa nuk u gjet.',true);return;}
-  try{await db.collection("businesses").doc(req.businessId).update({plan:req.toPlan,commissionRate:Math.round(PLANS[req.toPlan].fee*100),planUpdatedAt:new Date()});await db.collection("plan_requests").doc(id).update({status:'approved'});showToast('✅ Plani u aktivua!');}catch(e){showToast('❌ Gabim: '+e.message,true);}
+// ════════════════════════════════════
+//  APPROVE PLAN — 30-DAY EXPIRY
+// ════════════════════════════════════
+window.approvePlan = async function(id) {
+  const req = allPlanRequests.find(x => x.id === id);
+  if (!req) { showToast('❌ Kërkesa nuk u gjet.', true); return; }
+  const now = new Date();
+  const expiresAt = new Date(now);
+  expiresAt.setDate(expiresAt.getDate() + 30);
+  try {
+    await db.collection("businesses").doc(req.businessId).update({
+      plan: req.toPlan,
+      commissionRate: Math.round(PLANS[req.toPlan].fee * 100),
+      planActivatedAt: now,
+      planExpiresAt: expiresAt,
+      planUpdatedAt: now
+    });
+    await db.collection("plan_requests").doc(id).update({ status: 'approved' });
+    showToast('✅ Plani u aktivua për 30 ditë! Skadon më ' + expiresAt.toLocaleDateString('sq-AL'));
+  } catch(e) { showToast('❌ Gabim: ' + e.message, true); }
 };
+
 window.rejectPlan=async function(id){await db.collection("plan_requests").doc(id).update({status:'rejected'});showToast('❌ Kërkesa u refuzua.');};
 
 window.openChangePlan=function(bizId,bizName,currentPlan){
@@ -120,7 +143,31 @@ window.openChangePlan=function(bizId,bizName,currentPlan){
   document.getElementById('selectedPlanKey').value=currentPlan;document.getElementById('changePlanModal').classList.add('open');
 };
 window.selectPlanOption=function(key){document.getElementById('selectedPlanKey').value=key;Object.keys(PLANS).forEach(k=>{const el=document.getElementById('planOpt_'+k);if(el){el.style.border=k===key?'2px solid '+PLANS[k].color:'2px solid var(--border)';el.style.background=k===key?'rgba(255,255,255,0.08)':'var(--bg)';}});};
-window.confirmChangePlan=async function(){const bizId=document.getElementById('changePlanBizId').value,newPlan=document.getElementById('selectedPlanKey').value,btn=document.getElementById('confirmPlanBtn');btn.textContent='Duke ndryshuar...';btn.disabled=true;try{await db.collection("businesses").doc(bizId).update({plan:newPlan,commissionRate:Math.round(PLANS[newPlan].fee*100),planUpdatedAt:new Date()});closeModal('changePlanModal');showToast('✅ Plani u ndryshua!');}catch(e){showToast('❌ Error',true);}btn.textContent='KONFIRMO';btn.disabled=false;};
+
+// ════════════════════════════════════
+//  CHANGE PLAN — 30-DAY EXPIRY
+// ════════════════════════════════════
+window.confirmChangePlan = async function() {
+  const bizId = document.getElementById('changePlanBizId').value;
+  const newPlan = document.getElementById('selectedPlanKey').value;
+  const btn = document.getElementById('confirmPlanBtn');
+  btn.textContent = 'Duke ndryshuar...'; btn.disabled = true;
+  const now = new Date();
+  const expiresAt = new Date(now);
+  expiresAt.setDate(expiresAt.getDate() + 30);
+  try {
+    await db.collection("businesses").doc(bizId).update({
+      plan: newPlan,
+      commissionRate: Math.round(PLANS[newPlan].fee * 100),
+      planActivatedAt: now,
+      planExpiresAt: expiresAt,
+      planUpdatedAt: now
+    });
+    closeModal('changePlanModal');
+    showToast('✅ Plani u ndryshua! Skadon më ' + expiresAt.toLocaleDateString('sq-AL'));
+  } catch(e) { showToast('❌ Error', true); }
+  btn.textContent = 'KONFIRMO'; btn.disabled = false;
+};
 
 function renderEarnings(){
   const sold=allOrders.filter(o=>o.status==='sold');
@@ -309,41 +356,11 @@ tbody td{padding:0.8rem 1.25rem;font-size:0.83rem;}
       </div>
     </div>
 
-    <div class="page" id="page-parts">
-      <div class="table-card"><div class="table-header"><h3>🔩 TË GJITHA PJESËT</h3><input class="search-inp" placeholder="🔍 Kërko pjesë..." oninput="searchParts(this.value)" /></div>
-        <table><thead><tr><th>Pjesa</th><th>Shitësi</th><th>Gjendja</th><th>Stoku</th><th>Çmimi Bazë</th><th>Final</th><th>Statusi</th><th>Veprime</th></tr></thead><tbody id="allPartsBody"></tbody></table>
-      </div>
-    </div>
-
-    <div class="page" id="page-orders">
-      <div style="display:flex;gap:0.5rem;margin-bottom:1.25rem;flex-wrap:wrap;"><button class="ot-btn active" onclick="filterOrders('all',this)">Të Gjitha</button><button class="ot-btn" onclick="filterOrders('pending',this)">Në Pritje</button><button class="ot-btn" onclick="filterOrders('sold',this)">Shitur</button></div>
-      <div class="table-card"><div class="table-header"><h3>📦 TË GJITHA POROSITË</h3><span id="ordersCount" style="color:#8892a4;font-size:0.82rem;font-weight:700;"></span></div>
-        <table><thead><tr><th>#</th><th>Pjesa</th><th>Blerësi</th><th>Shitësi</th><th>Data</th><th>Çmimi</th><th>Fitimi</th><th>Statusi</th></tr></thead><tbody id="allOrdersBody"></tbody></table>
-      </div>
-    </div>
-
-    <div class="page" id="page-messages">
-      <div class="table-card"><div class="table-header"><h3>📬 MESAZHET NGA KONTAKTI</h3></div>
-        <table><thead><tr><th>Status</th><th>Emri</th><th>Email</th><th>Data</th><th>Mesazhi</th><th>Veprim</th></tr></thead><tbody id="messagesBody"></tbody></table>
-      </div>
-    </div>
-
-    <div class="page" id="page-plans">
-      <div class="table-card"><div class="table-header"><h3>⭐ KËRKESAT PËR UPGRADE PLANI</h3></div>
-        <table><thead><tr><th>Biznesi</th><th>Nga</th><th>Në</th><th>Çmimi</th><th>Data</th><th>Statusi</th><th>Veprim</th></tr></thead><tbody id="planRequestsBody"></tbody></table>
-      </div>
-    </div>
-
-    <div class="page" id="page-earnings">
-      <div class="stats-row">
-        <div class="stat-card sc-green"><div class="stat-ico">💰</div><div class="stat-val" id="earnTotalFees">0 L</div><div class="stat-lbl">Fitimi Platformës (8%)</div></div>
-        <div class="stat-card sc-yellow"><div class="stat-ico">📈</div><div class="stat-val" id="earnTotalGMV">0 L</div><div class="stat-lbl">GMV Total</div></div>
-        <div class="stat-card sc-blue"><div class="stat-ico">📦</div><div class="stat-val" id="earnTotalOrders">0</div><div class="stat-lbl">Shitje të Konfirmuara</div></div>
-      </div>
-      <div class="table-card"><div class="table-header"><h3>📅 PËRMBLEDHJA MUJORE</h3></div>
-        <table><thead><tr><th>Muaji</th><th>Shitje</th><th>GMV</th><th>Fitimi</th><th>Statusi</th></tr></thead><tbody id="earningsBody"></tbody></table>
-      </div>
-    </div>
+    <div class="page" id="page-parts"><div class="table-card"><div class="table-header"><h3>🔩 TË GJITHA PJESËT</h3><input class="search-inp" placeholder="🔍 Kërko pjesë..." oninput="searchParts(this.value)" /></div><table><thead><tr><th>Pjesa</th><th>Shitësi</th><th>Gjendja</th><th>Stoku</th><th>Çmimi Bazë</th><th>Final</th><th>Statusi</th><th>Veprime</th></tr></thead><tbody id="allPartsBody"></tbody></table></div></div>
+    <div class="page" id="page-orders"><div style="display:flex;gap:0.5rem;margin-bottom:1.25rem;"><button class="ot-btn active" onclick="filterOrders('all',this)">Të Gjitha</button><button class="ot-btn" onclick="filterOrders('pending',this)">Në Pritje</button><button class="ot-btn" onclick="filterOrders('sold',this)">Shitur</button></div><div class="table-card"><div class="table-header"><h3>📦 TË GJITHA POROSITË</h3><span id="ordersCount" style="color:#8892a4;font-size:0.82rem;"></span></div><table><thead><tr><th>#</th><th>Pjesa</th><th>Blerësi</th><th>Shitësi</th><th>Data</th><th>Çmimi</th><th>Fitimi</th><th>Statusi</th></tr></thead><tbody id="allOrdersBody"></tbody></table></div></div>
+    <div class="page" id="page-messages"><div class="table-card"><div class="table-header"><h3>📬 MESAZHET NGA KONTAKTI</h3></div><table><thead><tr><th>Status</th><th>Emri</th><th>Email</th><th>Data</th><th>Mesazhi</th><th>Veprim</th></tr></thead><tbody id="messagesBody"></tbody></table></div></div>
+    <div class="page" id="page-plans"><div class="table-card"><div class="table-header"><h3>⭐ KËRKESAT PËR UPGRADE PLANI</h3></div><table><thead><tr><th>Biznesi</th><th>Nga</th><th>Në</th><th>Çmimi</th><th>Data</th><th>Statusi</th><th>Veprim</th></tr></thead><tbody id="planRequestsBody"></tbody></table></div></div>
+    <div class="page" id="page-earnings"><div class="stats-row"><div class="stat-card sc-green"><div class="stat-ico">💰</div><div class="stat-val" id="earnTotalFees">0 L</div><div class="stat-lbl">Fitimi Platformës (8%)</div></div><div class="stat-card sc-yellow"><div class="stat-ico">📈</div><div class="stat-val" id="earnTotalGMV">0 L</div><div class="stat-lbl">GMV Total</div></div><div class="stat-card sc-blue"><div class="stat-ico">📦</div><div class="stat-val" id="earnTotalOrders">0</div><div class="stat-lbl">Shitje të Konfirmuara</div></div></div><div class="table-card"><div class="table-header"><h3>📅 PËRMBLEDHJA MUJORE</h3></div><table><thead><tr><th>Muaji</th><th>Shitje</th><th>GMV</th><th>Fitimi</th><th>Statusi</th></tr></thead><tbody id="earningsBody"></tbody></table></div></div>
 
   </div>
 </div>

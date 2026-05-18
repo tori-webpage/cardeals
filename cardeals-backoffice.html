@@ -56,8 +56,30 @@ function onPartMakeChange(){const make=document.getElementById('partMake').value
 
 function listenToBusinessProfile(uid){db.collection("businesses").doc(uid).onSnapshot(doc=>{if(doc.exists){currentBiz=doc.data();updateBizDisplay();renderMyParts();}},err=>{console.error(err);});}
 auth.onAuthStateChanged(async user=>{if(user){currentUser=user;listenToBusinessProfile(user.uid);showApp();}else{currentUser=null;currentBiz=null;showLogin();}});
-function updateBizDisplay(){const el=document.getElementById('bizName'),pl=document.getElementById('bizPlan');if(el)el.textContent=currentBiz?.businessName||currentBiz?.name||'Biznesi Im';const plan=currentBiz?.plan||'basic',planData=PLANS[plan];if(pl)pl.textContent=planData.icon+' '+planData.name.toUpperCase()+' · '+Math.round(planData.fee*100)+'%';renderPlanCards();}
-function renderPlanCards(){const plan=currentBiz?.plan||'basic';const cpd=document.getElementById('currentPlanDisplay');if(cpd){const p=PLANS[plan];cpd.innerHTML=`<div style="background:rgba(255,255,255,0.04);border:2px solid ${p.color};border-radius:12px;padding:1.25rem;display:flex;align-items:center;gap:1.25rem;"><div style="font-size:2.5rem">${p.icon}</div><div style="flex:1"><div style="font-family:'Bebas Neue',sans-serif;font-size:1.4rem;letter-spacing:2px;color:${p.color}">${p.name.toUpperCase()}</div><div style="font-size:0.85rem;color:#8892a4;">${p.monthly===0?'Falas':'€'+p.monthly+'/muaj'} · <strong>${Math.round(p.fee*100)}% komision</strong></div></div></div>`;}const pc=document.getElementById('planCards');if(!pc)return;pc.innerHTML=Object.entries(PLANS).map(([key,p])=>{const isCurrent=key===plan;return `<div style="background:${isCurrent?'rgba(255,255,255,0.06)':'var(--panel)'};border:2px solid ${isCurrent?p.color:'var(--border)'};border-radius:12px;padding:1.25rem;position:relative;"><div style="text-align:center;margin-bottom:1rem;"><div style="font-size:2rem;">${p.icon}</div><div style="font-family:'Bebas Neue',sans-serif;font-size:1.3rem;letter-spacing:2px;color:${p.color}">${p.name.toUpperCase()}</div><div style="font-size:1.5rem;font-weight:800;">${p.monthly===0?'Falas':'€'+p.monthly+'<span style="font-size:0.75rem;">/muaj</span>'}</div></div><div style="border-top:1px solid var(--border);padding-top:1rem;"><div style="display:flex;justify-content:space-between;font-size:0.85rem;margin-bottom:0.5rem;"><span style="color:#8892a4">Komision</span><strong style="color:${p.color}">${Math.round(p.fee*100)}%</strong></div>${!isCurrent?`<button onclick="requestUpgrade('${key}')" style="width:100%;background:${p.color};color:${p.color==='#f5c518'||p.color==='#e2e8f0'?'#000':'#fff'};border:none;border-radius:8px;padding:9px;font-weight:800;cursor:pointer;">UPGRADE →</button>`:'<div style="text-align:center;color:#8892a4;">✓ Aktiv</div>'}</div></div>`;}).join('');}
+
+// ════════════════════════════════════
+//  UPDATED: updateBizDisplay with countdown
+// ════════════════════════════════════
+function updateBizDisplay() {
+  const el = document.getElementById('bizName');
+  const pl = document.getElementById('bizPlan');
+  if (el) el.textContent = currentBiz?.businessName || currentBiz?.name || 'Biznesi Im';
+  const plan = currentBiz?.plan || 'basic';
+  const planData = PLANS[plan];
+  let countdownHTML = '';
+  if (plan !== 'basic' && currentBiz?.planExpiresAt) {
+    const expiresAt = currentBiz.planExpiresAt.toDate ? currentBiz.planExpiresAt.toDate() : new Date(currentBiz.planExpiresAt);
+    const now = new Date();
+    const daysLeft = Math.ceil((expiresAt - now) / (1000 * 60 * 60 * 24));
+    if (daysLeft <= 0) countdownHTML = '<span style="color:#e02020;">⚠️ Ka skaduar</span>';
+    else if (daysLeft <= 3) countdownHTML = `<span style="color:#f59e0b;">⚠️ ${daysLeft} ditë</span>`;
+    else countdownHTML = `<span style="color:#22c55e;">✓ ${daysLeft} ditë</span>`;
+  }
+  if (pl) pl.innerHTML = `${planData.icon} ${planData.name.toUpperCase()} · ${Math.round(planData.fee * 100)}%<br><small>${countdownHTML}</small>`;
+  renderPlanCards();
+}
+
+function renderPlanCards(){const plan=currentBiz?.plan||'basic';const cpd=document.getElementById('currentPlanDisplay');if(cpd){const p=PLANS[plan];cpd.innerHTML=`<div style="background:rgba(255,255,255,0.04);border:2px solid ${p.color};border-radius:12px;padding:1.25rem;display:flex;align-items:center;gap:1.25rem;"><div style="font-size:2.5rem">${p.icon}</div><div style="flex:1"><div style="font-family:'Bebas Neue',sans-serif;font-size:1.4rem;letter-spacing:2px;color:${p.color}">${p.name.toUpperCase()}</div><div style="font-size:0.85rem;color:#8892a4;">${p.monthly===0?'Falas':'€'+p.monthly+'/muaj'} · <strong>${Math.round(p.fee*100)}% komision</strong></div></div></div>`;}const pc=document.getElementById('planCards');if(!pc)return;pc.innerHTML=Object.entries(PLANS).map(([key,p])=>{const isCurrent=key===plan;return `<div style="background:${isCurrent?'rgba(255,255,255,0.06)':'var(--panel)'};border:2px solid ${isCurrent?p.color:'var(--border)'};border-radius:12px;padding:1.25rem;position:relative;"><div style="text-align:center;margin-bottom:1rem;"><div style="font-size:2rem;">${p.icon}</div><div style="font-family:'Bebas Neue',sans-serif;font-size:1.3rem;letter-spacing:2px;color:${p.color}">${p.name.toUpperCase()}</div><div style="font-size:1.5rem;font-weight:800;">${p.monthly===0?'Falas':'€'+p.monthly+'<span style="font-size:0.75rem;">/muaj</span>'}</div></div><div style="border-top:1px solid var(--border);padding-top:1rem;"><div style="display:flex;justify-content:space-between;font-size:0.85rem;margin-bottom:0.5rem;"><span style="color:#8892a4">Komision</span><strong style="color:${p.color}">${Math.round(p.fee*100)}%</strong></div>${!isCurrent?`<button onclick="requestUpgrade('${key}')" style="width:100%;background:${p.color};color:${p.color==='#f5c518'||p.color==='#e2e8f0'?'#000':'#fff'};border:none;border-radius:8px;padding:9px;font-weight:800;cursor:pointer;">UPGRADE →</button>`:`<div style="text-align:center;color:#8892a4;font-size:0.75rem;">${(function(){let ct='✓ Aktiv';if(plan!=='basic'&&currentBiz?.planExpiresAt){const exp=currentBiz.planExpiresAt.toDate?currentBiz.planExpiresAt.toDate():new Date(currentBiz.planExpiresAt);const dl=Math.ceil((exp-new Date())/(1000*60*60*24));if(dl<=0)ct='⚠️ Skaduar';else if(dl<=3)ct='⚠️ '+dl+' ditë';else ct='✓ '+dl+' ditë';}return ct;})()}</div>`}</div></div>`;}).join('');}
 window.requestUpgrade=async function(planKey){if(!currentUser||!currentBiz)return;try{await db.collection("plan_requests").add({businessId:currentUser.uid,businessName:currentBiz?.businessName||currentBiz?.name||'',email:currentUser?.email||'',fromPlan:currentBiz?.plan||'basic',toPlan:planKey,status:'pending',createdAt:firebase.firestore.FieldValue.serverTimestamp()});showToast('✅ Kërkesa u dërgua!');}catch(e){showToast('❌ Gabim',true);}};
 
 window.doLogin=async function(){const e=document.getElementById('loginEmail').value.trim(),p=document.getElementById('loginPass').value,btn=document.getElementById('loginBtn');if(!e||!p){showToast('⚠️ Plotëso fushat',true);return;}btn.textContent='Duke hyrë...';btn.disabled=true;try{await auth.signInWithEmailAndPassword(e,p);}catch(err){showToast('❌ '+err.message,true);btn.textContent='HYRJA →';btn.disabled=false;}};
@@ -97,13 +119,9 @@ function resetAddPartForm(){
   editPartId=null;
 }
 
-// ════════════════════════════════════
-//  EDIT PART — FIXED
-// ════════════════════════════════════
 window.editPart = function(partId) {
   const part = myParts.find(p => p.id === partId);
   if (!part) return;
-  
   editPartId = partId;
   document.getElementById('addPartTitle').textContent = 'NDRYSHO PJESËN';
   const name = typeof part.name === 'object' ? (part.name.sq || part.name.en) : part.name;
@@ -115,10 +133,7 @@ window.editPart = function(partId) {
   document.getElementById('fDesc').value = part.description || '';
   document.getElementById('fDiscount').value = part.discount || 0;
   document.getElementById('fFeatured').checked = part.featured || false;
-  
-  // Populate car makes first
   populateCarMakes();
-  
   const fits = part.fits || '';
   const spaceIndex = fits.indexOf(' ');
   if (spaceIndex > 0) {
@@ -129,32 +144,21 @@ window.editPart = function(partId) {
     setTimeout(() => {
       const modelSel = document.getElementById('partModel');
       modelSel.value = model;
-      if (modelSel.value !== model) {
-        const opt = document.createElement('option');
-        opt.value = model; opt.textContent = model;
-        modelSel.appendChild(opt);
-        modelSel.value = model;
-      }
+      if (modelSel.value !== model) { const opt = document.createElement('option'); opt.value = model; opt.textContent = model; modelSel.appendChild(opt); modelSel.value = model; }
     }, 300);
   } else {
     document.getElementById('partMake').value = '';
     document.getElementById('partModel').innerHTML = '<option value="">Zgjidh Modelin</option>';
     document.getElementById('partModel').disabled = true;
   }
-  
-  selectedImages = [];
-  renderImagePreviews();
-  calcFee();
-  showPage('addpart');
+  selectedImages = []; renderImagePreviews(); calcFee(); showPage('addpart');
 };
 
 window.parseBulkImport = function() {
-  const raw = document.getElementById('bulkText').value.trim();
-  if (!raw) { showToast('⚠️ Fut të dhënat!', true); return; }
+  const raw = document.getElementById('bulkText').value.trim(); if (!raw) { showToast('⚠️ Fut të dhënat!', true); return; }
   const lines = raw.split('\n').filter(line => line.trim()); bulkImportData = []; const errors = [];
   lines.forEach((line, i) => {
-    const parts = line.split('|').map(p => p.trim());
-    if (parts.length < 7) { errors.push(`Rreshti ${i+1}: Mungojnë fusha`); return; }
+    const parts = line.split('|').map(p => p.trim()); if (parts.length < 7) { errors.push(`Rreshti ${i+1}: Mungojnë fusha`); return; }
     const [name, cat, cond, priceStr, stockStr, make, model, ...descArr] = parts;
     const desc = descArr.join(' ').trim(); const price = parseFloat(priceStr); const stock = parseInt(stockStr) || 1;
     if (!name) { errors.push(`Rreshti ${i+1}: Emri mungon`); return; }
@@ -177,6 +181,24 @@ window.openUpdateStock=function(partId){const part=myParts.find(p=>p.id===partId
 window.confirmUpdateStock=async function(){const partId=document.getElementById('updateStockPartId').value,add=parseInt(document.getElementById('stockToAdd').value)||0;const part=myParts.find(p=>p.id===partId);if(!part||add<=0)return;const ns=(part.stock||0)+add;try{await db.collection("parts").doc(partId).update({stock:ns,status:ns>0?'active':'inactive'});showToast('✅ Stoku u përditësua!');closeModal('updateStockModal');}catch(e){showToast('❌ Gabim: '+e.message,true);}};
 window.saveSettings=async function(){if(!currentUser)return;const n=document.getElementById('setBizName').value.trim(),p=document.getElementById('setPhone').value.trim(),c=document.getElementById('setCity').value;await db.collection("businesses").doc(currentUser.uid).update({businessName:n,phone:p,city:c});currentBiz={...currentBiz,businessName:n,phone:p,city:c};updateBizDisplay();showToast('✅ Ndryshimet u ruajtën!');};
 
+// ════════════════════════════════════
+//  AUTO-REVERT EXPIRED PLANS
+// ════════════════════════════════════
+async function checkPlanExpiry() {
+  if (!currentUser || !currentBiz) return;
+  const plan = currentBiz?.plan || 'basic';
+  if (plan === 'basic') return;
+  const expiresAt = currentBiz?.planExpiresAt;
+  if (!expiresAt) return;
+  const expiryDate = expiresAt.toDate ? expiresAt.toDate() : new Date(expiresAt);
+  if (new Date() > expiryDate) {
+    try {
+      await db.collection("businesses").doc(currentUser.uid).update({ plan: 'basic', commissionRate: 8, planExpiresAt: null, planActivatedAt: null });
+      showToast('⚠️ Plani juaj ka skaduar. Jeni rikthyer në planin Basic.');
+    } catch(e) { console.error(e); }
+  }
+}
+
 function updateDashboardStats(){const e=myOrders.filter(o=>o.status==='sold').reduce((s,o)=>s+(o.platformFee||0),0);document.getElementById('statEarn').textContent=e.toLocaleString()+' L';document.getElementById('statSales').textContent=myOrders.filter(o=>o.status==='sold').length;document.getElementById('statViews').textContent=myParts.reduce((s,p)=>s+(p.views||0),0).toLocaleString();document.getElementById('statParts').textContent=myParts.filter(p=>p.status==='active').length;}
 function renderMyParts(){const tbody=document.getElementById('myPartsBody');if(!tbody)return;if(!myParts.length){tbody.innerHTML='<tr><td colspan="9"><div style="text-align:center;padding:3rem;color:#8892a4;">📦 Nuk keni pjesë të listuara.</div></td></tr>';return;}tbody.innerHTML=myParts.map(p=>{const name=typeof p.name==='object'?p.name[lang]||p.name.sq:p.name;const thumb=p.images?.length?`<img src="${p.images[0]}" style="width:40px;height:40px;object-fit:cover;border-radius:6px;vertical-align:middle;margin-right:8px;" />`:'';const discount=p.discount||0;const hasDiscount=discount>0;const featured=p.featured||false;let badges='';if(featured)badges+='<span style="background:rgba(245,197,24,0.15);color:#f5c518;font-size:0.6rem;padding:2px 6px;border-radius:10px;margin-left:4px;">⭐</span>';if(hasDiscount)badges+='<span style="background:rgba(34,197,94,0.15);color:#22c55e;font-size:0.6rem;padding:2px 6px;border-radius:10px;margin-left:4px;">-'+discount+'%</span>';return `<tr><td>${thumb}${p.emoji||'🔩'} <strong>${name}</strong>${badges}<br><small style="color:#666">${p.fits||''}</small></td><td style="color:#8892a4">${p.category||''}</td><td><span class="status-badge ${p.condition==='new'?'badge-active':'badge-used'}">${p.condition==='new'?'E Re':'E Përdorur'}</span></td><td>${(p.basePrice||0).toLocaleString()} L</td><td style="font-weight:800;color:#f5c518">${((p.basePrice||0)+Math.round((p.basePrice||0)*PLATFORM_FEE)).toLocaleString()} L</td><td style="font-weight:700;">${p.stock||0}</td><td><span class="status-badge ${p.status==='active'?'badge-active':'badge-inactive'}">${p.status==='active'?'Aktiv':'Joaktiv'}</span></td><td><div style="display:flex;gap:0.5rem;"><button class="icon-btn" onclick="togglePartStatus('${p.id}','${p.status}')">${p.status==='active'?'⏸️':'▶️'}</button><button class="icon-btn" style="border-color:#3b82f6;color:#3b82f6" onclick="editPart('${p.id}')" title="Ndrysho">✏️</button><button class="icon-btn" style="border-color:#22c55e;color:#22c55e" onclick="openUpdateStock('${p.id}')" title="Shto stok">📦+</button><button class="icon-btn" style="border-color:#e02020;color:#e02020" onclick="deletePart('${p.id}')">🗑️</button></div></td></tr>`;}).join('');}
 function renderRecentOrders(){const tbody=document.getElementById('recentOrdersBody');if(!tbody)return;const recent=myOrders.slice(0,5);tbody.innerHTML=recent.length?recent.map(o=>orderRow(o)).join(''):'<tr><td colspan="7" style="text-align:center;padding:2rem;color:#8892a4;">Ende nuk keni porosi.</td></tr>';}
@@ -192,7 +214,18 @@ window.filterEarnings=function(f,btn){currentEarnFilter=f;document.querySelector
 function renderEarnings(){const sold=myOrders.filter(o=>o.status==='sold'),now=new Date(),thisMonthKey=now.getFullYear()+'-'+(now.getMonth()+1).toString().padStart(2,'0');let filtered=sold;if(currentEarnFilter==='thismonth')filtered=sold.filter(o=>{const d=o.createdAt?.toDate?o.createdAt.toDate():new Date();return(d.getFullYear()+'-'+(d.getMonth()+1).toString().padStart(2,'0'))===thisMonthKey;});else if(currentEarnFilter==='online')filtered=sold.filter(o=>o.payMethod==='online');else if(currentEarnFilter==='pickup')filtered=sold.filter(o=>o.payMethod==='pickup');document.getElementById('salesCount').textContent=filtered.length+' shitje';document.getElementById('earnTotalVal').textContent=sold.reduce((s,o)=>s+((o.totalPrice||0)-(o.platformFee||0)),0).toLocaleString()+' L';document.getElementById('earnMonthVal').textContent=sold.filter(o=>{const d=o.createdAt?.toDate?o.createdAt.toDate():new Date();return(d.getFullYear()+'-'+(d.getMonth()+1).toString().padStart(2,'0'))===thisMonthKey;}).reduce((s,o)=>s+((o.totalPrice||0)-(o.platformFee||0)),0).toLocaleString()+' L';document.getElementById('earnTotalOrders').textContent=sold.length;document.getElementById('earnFeeVal').textContent=sold.reduce((s,o)=>s+(o.platformFee||0),0).toLocaleString()+' L';const salesBody=document.getElementById('salesListBody');if(salesBody)salesBody.innerHTML=filtered.length?filtered.map(o=>{const d=o.createdAt?.toDate?o.createdAt.toDate():new Date(),gross=o.totalPrice||0,fee=o.platformFee||0,net=gross-fee;return `<tr><td style="font-weight:800;color:#e02020;font-size:0.8rem">#${o.id?.slice(-6)||'—'}</td><td>${o.partEmoji||'🔩'} ${o.partName||'—'}</td><td>${o.buyerName||'—'}</td><td>${o.buyerPhone||'—'}</td><td>${d.toLocaleDateString('sq-AL')}</td><td style="font-weight:800;color:#f5c518">${gross.toLocaleString()} L</td><td style="color:#e02020">-${fee.toLocaleString()} L</td><td style="color:#22c55e">+${net.toLocaleString()} L</td></tr>`;}).join(''):'<tr><td colspan="8" style="text-align:center;padding:2rem;">Ende nuk keni shitje.</td></tr>';const byMonth={};sold.forEach(o=>{const d=o.createdAt?.toDate?o.createdAt.toDate():new Date(),key=d.getFullYear()+'-'+(d.getMonth()+1).toString().padStart(2,'0'),label=d.toLocaleDateString('sq-AL',{month:'long',year:'numeric'});if(!byMonth[key])byMonth[key]={label,orders:0,gross:0,fee:0,net:0};byMonth[key].orders++;byMonth[key].gross+=o.totalPrice||0;byMonth[key].fee+=o.platformFee||0;byMonth[key].net+=(o.totalPrice||0)-(o.platformFee||0);});const tbody=document.getElementById('earningsBody');if(tbody)tbody.innerHTML=Object.values(byMonth).reverse().map(m=>`<tr><td>${m.label}</td><td>${m.orders}</td><td style="color:#f5c518">${m.gross.toLocaleString()} L</td><td style="color:#e02020">-${m.fee.toLocaleString()} L</td><td style="color:#22c55e">+${m.net.toLocaleString()} L</td><td><span class="status-badge badge-active">✓</span></td></tr>`).join('')||'<tr><td colspan="6" style="text-align:center;padding:2rem;">Ende nuk keni shitje.</td></tr>';}
 window.calcFee=function(){const price=parseFloat(document.getElementById('fPrice')?.value)||0,plan=currentBiz?.plan||'basic',feeRate=PLANS[plan]?.fee||0.08,fee=Math.round(price*feeRate);const discount=parseInt(document.getElementById('fDiscount')?.value)||0;const discountedPrice=discount>0?Math.round(price*(1-discount/100)):price;const finalWithFee=discountedPrice+fee;document.getElementById('fpBase').textContent=price.toLocaleString()+' L';if(discount>0){document.getElementById('fpBase').innerHTML=`<span style="text-decoration:line-through;color:#e02020;">${price.toLocaleString()} L</span> <span style="color:#22c55e;">${discountedPrice.toLocaleString()} L (-${discount}%)</span>`;}document.getElementById('fpFee').textContent=fee.toLocaleString()+' L ('+Math.round(feeRate*100)+'%)';document.getElementById('fpTotal').textContent=finalWithFee.toLocaleString()+' L';};
 
-function showApp(){document.getElementById('loginScreen').style.display='none';document.getElementById('app').style.display='flex';loadMyParts();loadMyOrders();applyTranslations();showPage('dashboard');}
+// ════════════════════════════════════
+//  UPDATED: showApp with checkPlanExpiry
+// ════════════════════════════════════
+function showApp(){
+  document.getElementById('loginScreen').style.display='none';
+  document.getElementById('app').style.display='flex';
+  loadMyParts();
+  loadMyOrders();
+  applyTranslations();
+  showPage('dashboard');
+  checkPlanExpiry();
+}
 function showLogin(){document.getElementById('loginScreen').style.display='flex';document.getElementById('app').style.display='none';}
 window.showPage=function(page){
   currentPage=page;
@@ -292,8 +325,7 @@ tbody td{padding:0.85rem 1.25rem;font-size:0.85rem;}
 .field-group label{display:block;font-size:0.75rem;font-weight:800;color:var(--chrome);margin-bottom:5px;text-transform:uppercase;letter-spacing:1px;}
 .field-group input,.field-group select,.field-group textarea{width:100%;background:var(--panel);border:1px solid var(--border);border-radius:8px;color:var(--white);padding:10px 13px;font-family:'Nunito',sans-serif;font-size:0.9rem;outline:none;transition:border-color 0.2s;}
 .field-group input:focus,.field-group select:focus,.field-group textarea:focus{border-color:var(--red);}
-.toggle-row{display:flex;align-items:center;gap:1rem;}.toggle-row input[type=checkbox]{width:20px;height:20px;accent-color:var(--red);cursor:pointer;}
-.toggle-row label{cursor:pointer;font-weight:700;}
+.toggle-row{display:flex;align-items:center;gap:1rem;}.toggle-row input[type=checkbox]{width:20px;height:20px;accent-color:var(--red);cursor:pointer;}.toggle-row label{cursor:pointer;font-weight:700;}
 .fee-preview{background:var(--red-glow);border:1px solid rgba(224,32,32,0.3);border-radius:10px;padding:1rem 1.25rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.75rem;}
 .fpi{text-align:center;}.fpi .fv{font-family:'Bebas Neue',sans-serif;font-size:1.3rem;}.fpi .fl{font-size:0.68rem;color:var(--chrome);text-transform:uppercase;letter-spacing:1px;}.fpi.hi .fv{color:var(--green);}
 .fee-divider{font-size:1.3rem;color:var(--chrome);}
@@ -333,15 +365,13 @@ tbody td{padding:0.85rem 1.25rem;font-size:0.85rem;}
       <a class="nav-item" onclick="showPage('earnings')" id="nav-earnings"><span class="ico">💰</span><span data-t="navEarn">Fitimet</span></a>
       <div class="nav-section">LLOGARIA</div><a class="nav-item" onclick="showPage('settings')" id="nav-settings"><span class="ico">⚙️</span><span data-t="navSet">Cilësimet</span></a>
     </nav>
-<div class="sidebar-bottom">
-  <div class="biz-badge">
-    <div class="biz-name" id="bizName">—</div>
-    <div class="biz-plan" id="bizPlan">PLAN STANDARD · 8%</div>
-  </div>
-  <a href="index.html" class="back-link" target="_blank">🌐 Cardeals.al ↗</a>
-  <a href="privacy.html" class="back-link" target="_blank">📜 Politika e Privatësisë</a>
-  <button class="logout-btn" onclick="doLogout()" data-t="logout">Dil nga Llogaria</button>
-</div>  </aside>
+    <div class="sidebar-bottom">
+      <div class="biz-badge"><div class="biz-name" id="bizName">—</div><div class="biz-plan" id="bizPlan">PLAN STANDARD · 8%</div></div>
+      <a href="index.html" class="back-link" target="_blank">🌐 Cardeals.al ↗</a>
+      <a href="privacy.html" class="back-link" target="_blank">📜 Politika e Privatësisë</a>
+      <button class="logout-btn" onclick="doLogout()" data-t="logout">Dil nga Llogaria</button>
+    </div>
+  </aside>
 
   <div class="main">
     <div class="topbar"><div style="display:flex;align-items:center;gap:1rem;"><button class="sidebar-toggle" onclick="toggleSidebar()">☰</button><div class="topbar-title" id="topbarTitle">PASQYRA</div></div><div class="topbar-right"><div class="lang-toggle"><button class="lang-btn active" onclick="setLang('sq')">🇦🇱 SQ</button><button class="lang-btn" onclick="setLang('en')">🇬🇧 EN</button></div></div></div>
