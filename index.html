@@ -50,26 +50,31 @@ nav{background:var(--panel);border-bottom:3px solid var(--red);display:flex;alig
 .user-dropdown.open{display:block;}
 .user-dropdown a,.user-dropdown button{display:block;width:100%;text-align:left;padding:10px 16px;color:var(--chrome);text-decoration:none;background:none;border:none;font-family:'Nunito',sans-serif;font-size:0.85rem;cursor:pointer;transition:all 0.2s;}
 .user-dropdown a:hover,.user-dropdown button:hover{background:rgba(255,255,255,0.05);color:var(--white);}
-.hero{background:linear-gradient(135deg,#0a0c10 0%,#1e2430 50%,#0a0c10 100%);padding:3rem 2rem 2rem;text-align:center;}
+.hero{background:linear-gradient(135deg,#0a0c10 0%,#1e2430 50%,#0a0c10 100%);padding:3rem 2rem 2rem;text-align:center;animation:fadeIn 0.6s ease;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
 .hero-badge{display:inline-block;background:rgba(224,32,32,0.12);border:1px solid var(--red);color:var(--red);font-size:0.72rem;font-weight:800;letter-spacing:3px;text-transform:uppercase;padding:6px 18px;border-radius:20px;margin-bottom:1.5rem;}
 .hero h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(2.8rem,8vw,5.5rem);line-height:1;letter-spacing:4px;margin-bottom:1rem;}
 .hero h1 span{color:var(--red);}
 .hero p{font-size:1.1rem;color:var(--chrome);max-width:580px;margin:0 auto 2rem;line-height:1.7;}
 .car-selector{display:flex;gap:0.5rem;justify-content:center;flex-wrap:wrap;margin-bottom:1rem;}
-.car-selector select,.car-selector input{background:var(--panel);border:2px solid var(--border);color:var(--white);padding:0.75rem 1rem;border-radius:8px;font-family:'Nunito',sans-serif;font-size:0.9rem;outline:none;min-width:200px;}
+.car-selector select,.car-selector input{background:var(--panel);border:2px solid var(--border);color:var(--white);padding:0.75rem 1rem;border-radius:8px;font-family:'Nunito',sans-serif;font-size:0.9rem;outline:none;min-width:200px;transition:border-color 0.2s,box-shadow 0.2s;}
+.car-selector select:focus,.car-selector input:focus{border-color:var(--red);box-shadow:0 0 0 3px rgba(224,32,32,0.2);}
 .search-wrap{max-width:760px;margin:0 auto 1.5rem;}
 .search-bar{display:flex;background:var(--panel);border:2px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,0.4);}
-.search-bar input{flex:1;background:transparent;border:none;padding:1rem 1.5rem;font-size:1rem;color:var(--white);font-family:'Nunito',sans-serif;outline:none;}
+.search-bar input{flex:1;background:transparent;border:none;padding:1rem 1.5rem;font-size:1rem;color:var(--white);font-family:'Nunito',sans-serif;outline:none;transition:box-shadow 0.2s;}
+.search-bar input:focus{box-shadow:0 0 0 3px rgba(224,32,32,0.2);}
 .search-bar input::placeholder{color:#555;}
 .search-bar select{background:var(--panel);border:none;border-left:2px solid var(--border);color:var(--white);padding:0 1rem;font-family:'Nunito',sans-serif;font-weight:700;cursor:pointer;outline:none;}
-.search-bar button{background:var(--red);color:white;border:none;padding:0 2rem;font-family:'Bebas Neue',sans-serif;font-size:1.2rem;letter-spacing:2px;cursor:pointer;transition:background 0.2s;}
-.search-bar button:hover{background:var(--red-dark);}
-.advanced-filters-toggle{background:transparent;border:1px solid var(--border);color:var(--chrome);padding:6px 16px;border-radius:20px;font-size:0.8rem;font-weight:800;cursor:pointer;margin-top:0.75rem;}
-.advanced-filters{display:none;margin-top:1rem;background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem;text-align:left;}
-.advanced-filters.open{display:block;}
+.search-bar button{background:var(--red);color:white;border:none;padding:0 2rem;font-family:'Bebas Neue',sans-serif;font-size:1.2rem;letter-spacing:2px;cursor:pointer;transition:background 0.2s,transform 0.15s,box-shadow 0.15s;}
+.search-bar button:hover{background:var(--red-dark);transform:translateY(-1px);box-shadow:0 4px 12px rgba(224,32,32,0.3);}
+.advanced-filters-toggle{background:transparent;border:1px solid var(--border);color:var(--chrome);padding:6px 16px;border-radius:20px;font-size:0.8rem;font-weight:800;cursor:pointer;margin-top:0.75rem;transition:all 0.2s;}
+.advanced-filters-toggle:hover{border-color:var(--red);color:var(--red);}
+.advanced-filters{max-height:0;overflow:hidden;opacity:0;transition:max-height 0.35s ease,opacity 0.25s ease,margin 0.25s ease;background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:0 1.25rem;text-align:left;}
+.advanced-filters.open{max-height:500px;opacity:1;margin-top:1rem;padding:1.25rem;}
 .filter-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;margin-bottom:1rem;}
 .filter-group label{display:block;font-size:0.72rem;font-weight:800;color:var(--chrome);text-transform:uppercase;letter-spacing:1px;margin-bottom:0.3rem;}
-.filter-group input,.filter-group select{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--white);padding:8px 12px;font-family:'Nunito',sans-serif;font-size:0.85rem;outline:none;}
+.filter-group input,.filter-group select{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--white);padding:8px 12px;font-family:'Nunito',sans-serif;font-size:0.85rem;outline:none;transition:border-color 0.2s;}
+.filter-group input:focus,.filter-group select:focus{border-color:var(--red);}
 .filter-tags{display:flex;gap:0.75rem;justify-content:center;flex-wrap:wrap;margin-top:1rem;}
 .tag{background:rgba(255,255,255,0.05);border:1px solid #333;color:var(--chrome);padding:8px 18px;border-radius:20px;font-size:0.82rem;font-weight:700;cursor:pointer;transition:all 0.2s;text-transform:uppercase;letter-spacing:1px;user-select:none;}
 .tag:hover,.tag.active{background:var(--red);border-color:var(--red);color:white;}
@@ -82,8 +87,10 @@ nav{background:var(--panel);border-bottom:3px solid var(--red);display:flex;alig
 .section-title span{color:var(--red);}
 .section-sub{color:var(--chrome);font-size:0.88rem;margin-bottom:2rem;}
 .parts-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1.5rem;}
-.part-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;transition:transform 0.2s,box-shadow 0.2s,border-color 0.2s;cursor:pointer;position:relative;}
-.part-card:hover{transform:translateY(-4px);box-shadow:0 12px 40px rgba(224,32,32,0.15);border-color:var(--red);}
+.part-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;cursor:pointer;position:relative;opacity:0;transform:translateY(16px);animation:cardFadeIn 0.4s ease forwards;transition:transform 0.25s cubic-bezier(0.34,1.56,0.64,1),box-shadow 0.25s ease,border-color 0.25s ease;}
+.part-card:nth-child(1){animation-delay:0.02s;}.part-card:nth-child(2){animation-delay:0.05s;}.part-card:nth-child(3){animation-delay:0.08s;}.part-card:nth-child(4){animation-delay:0.11s;}.part-card:nth-child(5){animation-delay:0.14s;}.part-card:nth-child(6){animation-delay:0.17s;}.part-card:nth-child(7){animation-delay:0.20s;}.part-card:nth-child(8){animation-delay:0.23s;}.part-card:nth-child(9){animation-delay:0.26s;}.part-card:nth-child(10){animation-delay:0.29s;}.part-card:nth-child(11){animation-delay:0.32s;}.part-card:nth-child(12){animation-delay:0.35s;}
+@keyframes cardFadeIn{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);}}
+.part-card:hover{transform:translateY(-6px) scale(1.02);box-shadow:0 16px 48px rgba(224,32,32,0.2);border-color:var(--red);}
 .part-card.promoted-card{border-color:rgba(245,197,24,0.6);box-shadow:0 0 20px rgba(245,197,24,0.15);}
 .part-card.promoted-card:hover{border-color:#f5c518;box-shadow:0 12px 40px rgba(245,197,24,0.3);}
 .part-img{width:100%;height:180px;display:flex;align-items:center;justify-content:center;font-size:5rem;position:relative;overflow:hidden;background:linear-gradient(135deg,#1a1a2e,#2d3748);}
@@ -108,10 +115,11 @@ nav{background:var(--panel);border-bottom:3px solid var(--red);display:flex;alig
 .pr-fee{color:var(--chrome);font-size:0.75rem;}
 .pr-total{border-top:1px solid var(--border);margin-top:4px;padding-top:6px;font-weight:800;}
 .pr-total-val{color:var(--green);font-size:1rem;font-weight:800;}
-.buy-btn{width:100%;background:var(--red);color:white;border:none;border-radius:8px;padding:10px;font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:2px;cursor:pointer;transition:background 0.2s;}
-.buy-btn:hover{background:var(--red-dark);}
-.buy-btn:disabled{opacity:0.4;cursor:not-allowed;}
-.spinner{width:40px;height:40px;border:3px solid var(--border);border-top-color:var(--red);border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto;}
+.buy-btn{width:100%;background:var(--red);color:white;border:none;border-radius:8px;padding:10px;font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:2px;cursor:pointer;transition:background 0.2s,transform 0.15s,box-shadow 0.15s;}
+.buy-btn:hover{background:var(--red-dark);transform:translateY(-1px);box-shadow:0 4px 12px rgba(224,32,32,0.3);}
+.buy-btn:active{transform:translateY(0);}
+.buy-btn:disabled{opacity:0.4;cursor:not-allowed;transform:none;box-shadow:none;}
+.spinner{width:40px;height:40px;border:3px solid var(--border);border-top-color:var(--red);border-radius:50%;animation:spin 0.6s linear infinite;margin:0 auto;}
 @keyframes spin{to{transform:rotate(360deg)}}
 .how-section{background:var(--panel);padding:4rem 2rem;}
 .how-inner{max-width:1300px;margin:0 auto;}
@@ -126,35 +134,44 @@ nav{background:var(--panel);border-bottom:3px solid var(--red);display:flex;alig
 .biz-features{display:flex;justify-content:center;gap:2rem;flex-wrap:wrap;margin-bottom:2rem;}
 .biz-feat{font-size:0.88rem;font-weight:700;color:var(--chrome);}
 .biz-feat span{color:var(--green);}
-.cta-btn{display:inline-block;background:var(--red);color:white;text-decoration:none;padding:14px 2.5rem;border-radius:10px;font-family:'Bebas Neue',sans-serif;font-size:1.2rem;letter-spacing:2px;transition:background 0.2s;}
-.cta-btn:hover{background:var(--red-dark);}
+.cta-btn{display:inline-block;background:var(--red);color:white;text-decoration:none;padding:14px 2.5rem;border-radius:10px;font-family:'Bebas Neue',sans-serif;font-size:1.2rem;letter-spacing:2px;transition:background 0.2s,transform 0.15s,box-shadow 0.15s;}
+.cta-btn:hover{background:var(--red-dark);transform:translateY(-1px);box-shadow:0 4px 12px rgba(224,32,32,0.3);}
 .contact-section{background:var(--bg);padding:4rem 2rem;}
 .contact-inner{max-width:600px;margin:0 auto;}
 .contact-form{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:2rem;}
 .field{margin-bottom:1rem;}
 .field label{display:block;font-size:0.78rem;font-weight:800;color:var(--chrome);margin-bottom:6px;text-transform:uppercase;letter-spacing:1px;}
-.field input,.field textarea{width:100%;background:var(--panel);border:1px solid var(--border);border-radius:8px;color:var(--white);padding:10px 14px;font-family:'Nunito',sans-serif;font-size:0.9rem;outline:none;}
-.submit-btn{width:100%;background:var(--red);color:white;border:none;border-radius:8px;padding:12px;font-family:'Bebas Neue',sans-serif;font-size:1.1rem;letter-spacing:2px;cursor:pointer;transition:background 0.2s;}
+.field input,.field textarea{width:100%;background:var(--panel);border:1px solid var(--border);border-radius:8px;color:var(--white);padding:10px 14px;font-family:'Nunito',sans-serif;font-size:0.9rem;outline:none;transition:border-color 0.2s;}
+.field input:focus,.field textarea:focus{border-color:var(--red);}
+.submit-btn{width:100%;background:var(--red);color:white;border:none;border-radius:8px;padding:12px;font-family:'Bebas Neue',sans-serif;font-size:1.1rem;letter-spacing:2px;cursor:pointer;transition:background 0.2s,transform 0.15s,box-shadow 0.15s;}
+.submit-btn:hover{background:var(--red-dark);transform:translateY(-1px);box-shadow:0 4px 12px rgba(224,32,32,0.3);}
 footer{background:var(--panel);border-top:3px solid var(--red);padding:3rem 2rem 1.5rem;text-align:center;}
 .footer-logo{font-family:'Bebas Neue',sans-serif;font-size:2rem;letter-spacing:3px;margin-bottom:0.5rem;}
 .footer-logo span{color:var(--red);}
 footer p{color:var(--chrome);font-size:0.85rem;margin-bottom:1.5rem;}
 .footer-links{display:flex;gap:2rem;justify-content:center;flex-wrap:wrap;margin-bottom:1.5rem;}
-.footer-links a{color:var(--chrome);text-decoration:none;font-size:0.82rem;font-weight:700;}
+.footer-links a{color:var(--chrome);text-decoration:none;font-size:0.82rem;font-weight:700;transition:color 0.2s;}
 .footer-links a:hover{color:var(--red);}
 .footer-copy{font-size:0.72rem;color:#444;}
-.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:200;align-items:center;justify-content:center;padding:1rem;}
-.modal-overlay.open{display:flex;}
-.modal{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:2rem;max-width:500px;width:100%;position:relative;max-height:90vh;overflow-y:auto;}
-.modal-x{position:absolute;top:1rem;right:1rem;background:none;border:none;color:var(--chrome);font-size:1.4rem;cursor:pointer;}
-.toast{position:fixed;bottom:2rem;right:2rem;color:white;padding:1rem 1.5rem;border-radius:10px;font-weight:800;font-size:0.88rem;display:none;z-index:300;box-shadow:0 8px 24px rgba(0,0,0,0.4);max-width:360px;}
-.toast.show{display:block;animation:sIn 0.3s ease;}
-@keyframes sIn{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
-.cookie-banner{position:fixed;bottom:0;left:0;right:0;background:var(--card);border-top:2px solid var(--red);padding:1rem 2rem;z-index:500;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;}
+/* Modal animations */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:200;align-items:center;justify-content:center;padding:1rem;opacity:0;transition:opacity 0.25s ease;}
+.modal-overlay.open{display:flex;opacity:1;}
+.modal{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:2rem;max-width:500px;width:100%;position:relative;max-height:90vh;overflow-y:auto;opacity:0;transform:scale(0.95) translateY(10px);transition:opacity 0.25s ease,transform 0.25s ease;}
+.modal-overlay.open .modal{opacity:1;transform:scale(1) translateY(0);}
+.modal-x{position:absolute;top:1rem;right:1rem;background:none;border:none;color:var(--chrome);font-size:1.4rem;cursor:pointer;transition:color 0.2s;}
+.modal-x:hover{color:var(--red);}
+/* Toast */
+.toast{position:fixed;bottom:2rem;right:2rem;color:white;padding:1rem 1.5rem;border-radius:10px;font-weight:800;font-size:0.88rem;display:none;z-index:300;box-shadow:0 8px 24px rgba(0,0,0,0.4);max-width:360px;opacity:0;transform:translateY(20px);transition:opacity 0.3s ease,transform 0.3s ease;}
+.toast.show{display:block;opacity:1;transform:translateY(0);animation:toastBounce 0.4s ease;}
+@keyframes toastBounce{0%{opacity:0;transform:translateY(20px);}60%{opacity:1;transform:translateY(-4px);}100%{transform:translateY(0);}}
+/* Cookie banner */
+.cookie-banner{position:fixed;bottom:0;left:0;right:0;background:var(--card);border-top:2px solid var(--red);padding:1rem 2rem;z-index:500;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;opacity:0;transform:translateY(100%);animation:slideUp 0.4s ease 0.5s forwards;}
+@keyframes slideUp{from{opacity:0;transform:translateY(100%);}to{opacity:1;transform:translateY(0);}}
 .cookie-banner p{color:var(--chrome);font-size:0.85rem;max-width:700px;}
 .cookie-banner a{color:var(--red);text-decoration:underline;}
-.cookie-btn{padding:8px 20px;border-radius:8px;font-weight:800;font-size:0.82rem;cursor:pointer;border:none;font-family:'Nunito',sans-serif;}
+.cookie-btn{padding:8px 20px;border-radius:8px;font-weight:800;font-size:0.82rem;cursor:pointer;border:none;font-family:'Nunito',sans-serif;transition:background 0.2s,transform 0.15s;}
 .cookie-btn.accept{background:var(--red);color:white;}
+.cookie-btn.accept:hover{transform:translateY(-1px);}
 .cookie-btn.settings{background:transparent;border:1px solid var(--border);color:var(--chrome);}
 .featured-section{background:rgba(245,197,24,0.03);border:1px solid rgba(245,197,24,0.15);border-radius:var(--radius);padding:1.5rem;margin-bottom:2rem;}
 .featured-title{font-family:'Bebas Neue',sans-serif;font-size:1.3rem;letter-spacing:2px;color:#f5c518;margin-bottom:1rem;}
@@ -163,13 +180,12 @@ footer p{color:var(--chrome);font-size:0.85rem;margin-bottom:1.5rem;}
 .price-original{text-decoration:line-through;color:#e02020;font-size:0.78rem;}
 .price-discounted{color:#22c55e;font-weight:800;font-size:0.9rem;}
 .promo-badge{display:inline-block;font-size:0.6rem;font-weight:800;padding:2px 7px;border-radius:10px;margin:1px;letter-spacing:0.5px;}
-.promo-featured{background:#f5c518;color:#000;}
-.promo-discount{background:#22c55e;color:#fff;}
-.promo-special{background:#f97316;color:#fff;}
-.promo-shipping{background:#3b82f6;color:#fff;}
-.promo-limited{background:#e02020;color:#fff;}
-.promo-bestseller{background:#a855f7;color:#fff;}
-.promo-new{background:#8b5cf6;color:#fff;}
+.promo-featured{background:#f5c518;color:#000;}.promo-discount{background:#22c55e;color:#fff;}.promo-special{background:#f97316;color:#fff;}.promo-shipping{background:#3b82f6;color:#fff;}.promo-limited{background:#e02020;color:#fff;}.promo-bestseller{background:#a855f7;color:#fff;}.promo-new{background:#8b5cf6;color:#fff;}
+/* Nav items */
+.nav-item{transition:all 0.2s cubic-bezier(0.34,1.56,0.64,1);}
+.nav-item:hover{transform:translateX(4px);}
+.stat-card{transition:transform 0.2s ease,border-color 0.2s ease;}
+.stat-card:hover{transform:translateY(-2px);}
 @media(max-width:640px){.nav-links a:not(.nav-sell){display:none;}nav{padding:0 1rem;}.stats-bar{gap:1.5rem;}.car-selector{flex-direction:column;align-items:center;}}
 </style>
 </head>
@@ -224,7 +240,7 @@ footer p{color:var(--chrome);font-size:0.85rem;margin-bottom:1.5rem;}
   <div class="parts-grid" id="partsGrid"><div style="grid-column:1/-1;text-align:center;padding:4rem;color:#8892a4;"><div class="spinner"></div><p>Duke ngarkuar pjesët...</p></div></div>
 </div>
 
-<div class="section" style="text-align:center;padding:2rem;"><h2 style="font-family:'Bebas Neue',sans-serif;font-size:1.5rem;letter-spacing:2px;">Pjesë Këmbimi për Çdo Makinë në Shqipëri</h2><p style="color:var(--chrome);max-width:700px;margin:0 auto;line-height:1.8;">Cardeals.al është platforma më e madhe online për <strong>pjesë këmbimi automjetesh</strong> në Shqipëri. Kërkoni nga qindra pjesë për <strong>Volkswagen, Audi, BMW, Mercedes, Opel, Ford, Toyota</strong> dhe shumë marka të tjera.</p></div>
+<div class="section" style="text-align:center;padding:2rem;"><h2 style="font-family:'Bebas Neue',sans-serif;font-size:1.5rem;">Pjesë Këmbimi për Çdo Makinë në Shqipëri</h2><p style="color:var(--chrome);max-width:700px;margin:0 auto;line-height:1.8;">Cardeals.al është platforma më e madhe online për <strong>pjesë këmbimi automjetesh</strong> në Shqipëri.</p></div>
 
 <div class="how-section" id="how"><div class="how-inner"><h2 class="section-title">⚡ Si Funksionon <span>Cardeals.al</span></h2><div class="steps"><div class="step"><div class="step-icon">🚗</div><h3>Zgjidh Makinën</h3><p>Zgjidh markën dhe modelin.</p></div><div class="step"><div class="step-icon">⚖️</div><h3>Krahaso</h3><p>Shiko çmimet dhe vlerësimet.</p></div><div class="step"><div class="step-icon">💳</div><h3>Bli</h3><p>Paguaj online ose rezervo falas.</p></div><div class="step"><div class="step-icon">⭐</div><h3>Vlerëso</h3><p>Lër vlerësimin tënd.</p></div></div></div></div>
 
@@ -239,8 +255,8 @@ footer p{color:var(--chrome);font-size:0.85rem;margin-bottom:1.5rem;}
   <div class="footer-copy">© 2025 Cardeals.al</div>
 </footer>
 
-<div class="modal-overlay" id="buyModal"><div class="modal"><button class="modal-x" onclick="closeModal('buyModal')">✕</button><div class="modal-emoji" id="mEmoji"></div><h2 id="mName"></h2><div class="modal-seller-txt" id="mSeller"></div><div id="mStockInfo" style="margin-bottom:0.75rem;"></div><div style="display:flex;align-items:center;gap:1rem;background:rgba(0,0,0,0.2);border-radius:10px;padding:0.75rem 1rem;margin-bottom:1rem;"><span style="color:#8892a4;">Sasia:</span><div style="display:flex;align-items:center;gap:0.5rem;"><button onclick="changeQty(-1)" style="width:32px;height:32px;border-radius:8px;border:1px solid #444;background:var(--panel);color:white;font-size:1.2rem;cursor:pointer;font-weight:800;">−</button><input type="number" id="mQty" value="1" min="1" max="99" oninput="updateModalTotal()" style="width:56px;text-align:center;background:var(--panel);border:1px solid #444;border-radius:8px;color:white;padding:6px;font-family:'Nunito',sans-serif;font-weight:800;font-size:1rem;outline:none;" /><button onclick="changeQty(1)" style="width:32px;height:32px;border-radius:8px;border:1px solid #444;background:var(--panel);color:white;font-size:1.2rem;cursor:pointer;font-weight:800;">+</button></div></div><div class="price-summary"><div class="ps-r"><span>Çmimi shitësit</span><span id="mBase"></span></div><div class="ps-r ps-fee"><span>Tarifa Cardeals (8%)</span><span id="mFee"></span></div><div class="ps-r ps-total"><span>Totali</span><span id="mTotal" style="color:var(--green)"></span></div></div><div class="pay-toggle"><div class="pay-opt active" id="btnOnline" onclick="selectPay('online')">💳 Paguo Online</div><div class="pay-opt" id="btnPickup" onclick="selectPay('pickup')">🤝 Paguo në Marrje</div></div><div id="secOnline"><p style="color:#8892a4;font-size:0.82rem;margin-bottom:1rem;">Plotëso të dhënat.</p><div class="field"><label>Emri i Plotë *</label><input type="text" id="onlineName" /></div><div class="field"><label>Telefon *</label><input type="text" id="onlinePhone" /></div><div class="field"><label>Email *</label><input type="email" id="onlineEmail" /></div><button class="buy-btn" id="btnOnlinePay" onclick="confirmOnline()">💳 VAZHDO ME PAGESËN</button></div><div id="secPickup" style="display:none"><p style="color:#8892a4;font-size:0.82rem;margin-bottom:1rem;">Rezervo falas.</p><div class="field"><label>Emri i Plotë *</label><input type="text" id="pickupName" /></div><div class="field"><label>Telefon *</label><input type="text" id="pickupPhone" /></div><div class="field"><label>Email (opsional)</label><input type="email" id="pickupEmail" /></div><button class="buy-btn" id="btnReserve" onclick="confirmPickup()">🤝 REZERVO FALAS</button></div></div></div>
-<div class="modal-overlay" id="authModal"><div class="modal"><button class="modal-x" onclick="closeModal('authModal')">✕</button><div style="display:flex;margin-bottom:1.5rem;background:var(--panel);border-radius:10px;overflow:hidden;"><button onclick="showAuthTab('login')" id="tabLogin" style="flex:1;padding:12px;border:none;background:var(--red);color:white;font-weight:800;cursor:pointer;">🔑 Hyr</button><button onclick="showAuthTab('register')" id="tabRegister" style="flex:1;padding:12px;border:none;background:transparent;color:var(--chrome);font-weight:800;cursor:pointer;">✨ Regjistrohu</button></div><div id="authLoginForm"><div class="field"><label>Email</label><input type="email" id="authEmail" /></div><div class="field"><label>Fjalëkalimi</label><input type="password" id="authPass" /></div><button class="buy-btn" onclick="buyerLogin()">HYR</button></div><div id="authRegisterForm" style="display:none;"><p style="font-size:0.78rem;color:var(--chrome);margin-bottom:1rem;">✅ Ruaj kërkimet ✅ Ndjek porositë</p><div class="field"><label>Emri i Plotë</label><input type="text" id="regName" /></div><div class="field"><label>Email</label><input type="email" id="regEmail" /></div><div class="field"><label>Fjalëkalimi</label><input type="password" id="regPass" /></div><button class="buy-btn" onclick="buyerRegister()">REGJISTROHU</button></div></div></div>
+<div class="modal-overlay" id="buyModal"><div class="modal"><button class="modal-x" onclick="closeModal('buyModal')">✕</button><div class="modal-emoji" id="mEmoji"></div><h2 id="mName"></h2><div class="modal-seller-txt" id="mSeller"></div><div id="mStockInfo" style="margin-bottom:0.75rem;"></div><div style="display:flex;align-items:center;gap:1rem;background:rgba(0,0,0,0.2);border-radius:10px;padding:0.75rem 1rem;margin-bottom:1rem;"><span style="color:#8892a4;">Sasia:</span><div style="display:flex;align-items:center;gap:0.5rem;"><button onclick="changeQty(-1)" style="width:32px;height:32px;border-radius:8px;border:1px solid #444;background:var(--panel);color:white;font-size:1.2rem;cursor:pointer;font-weight:800;">−</button><input type="number" id="mQty" value="1" min="1" max="99" oninput="updateModalTotal()" style="width:56px;text-align:center;background:var(--panel);border:1px solid #444;border-radius:8px;color:white;padding:6px;font-family:'Nunito',sans-serif;font-weight:800;font-size:1rem;outline:none;" /><button onclick="changeQty(1)" style="width:32px;height:32px;border-radius:8px;border:1px solid #444;background:var(--panel);color:white;font-size:1.2rem;cursor:pointer;font-weight:800;">+</button></div></div><div class="price-summary"><div class="ps-r"><span>Çmimi shitësit</span><span id="mBase"></span></div><div class="ps-r ps-fee"><span>Tarifa Cardeals (8%)</span><span id="mFee"></span></div><div class="ps-r ps-total"><span>Totali</span><span id="mTotal" style="color:var(--green)"></span></div></div><div class="pay-toggle"><div class="pay-opt active" id="btnOnline" onclick="selectPay('online')">💳 Paguo Online</div><div class="pay-opt" id="btnPickup" onclick="selectPay('pickup')">🤝 Paguo në Marrje</div></div><div id="secOnline"><p style="color:#8892a4;font-size:0.82rem;">Plotëso të dhënat.</p><div class="field"><label>Emri i Plotë *</label><input type="text" id="onlineName" /></div><div class="field"><label>Telefon *</label><input type="text" id="onlinePhone" /></div><div class="field"><label>Email *</label><input type="email" id="onlineEmail" /></div><button class="buy-btn" id="btnOnlinePay" onclick="confirmOnline()">💳 VAZHDO ME PAGESËN</button></div><div id="secPickup" style="display:none"><p style="color:#8892a4;">Rezervo falas.</p><div class="field"><label>Emri i Plotë *</label><input type="text" id="pickupName" /></div><div class="field"><label>Telefon *</label><input type="text" id="pickupPhone" /></div><div class="field"><label>Email</label><input type="email" id="pickupEmail" /></div><button class="buy-btn" id="btnReserve" onclick="confirmPickup()">🤝 REZERVO FALAS</button></div></div></div>
+<div class="modal-overlay" id="authModal"><div class="modal"><button class="modal-x" onclick="closeModal('authModal')">✕</button><div style="display:flex;margin-bottom:1.5rem;background:var(--panel);border-radius:10px;overflow:hidden;"><button onclick="showAuthTab('login')" id="tabLogin" style="flex:1;padding:12px;border:none;background:var(--red);color:white;font-weight:800;cursor:pointer;">🔑 Hyr</button><button onclick="showAuthTab('register')" id="tabRegister" style="flex:1;padding:12px;border:none;background:transparent;color:var(--chrome);font-weight:800;cursor:pointer;">✨ Regjistrohu</button></div><div id="authLoginForm"><div class="field"><label>Email</label><input type="email" id="authEmail" /></div><div class="field"><label>Fjalëkalimi</label><input type="password" id="authPass" /></div><button class="buy-btn" onclick="buyerLogin()">HYR</button></div><div id="authRegisterForm" style="display:none;"><p style="font-size:0.78rem;color:var(--chrome);">✅ Ruaj kërkimet ✅ Ndjek porositë</p><div class="field"><label>Emri i Plotë</label><input type="text" id="regName" /></div><div class="field"><label>Email</label><input type="email" id="regEmail" /></div><div class="field"><label>Fjalëkalimi</label><input type="password" id="regPass" /></div><button class="buy-btn" onclick="buyerRegister()">REGJISTROHU</button></div></div></div>
 
 <div class="toast" id="toast"></div>
 <div id="installBanner" style="display:none;position:fixed;bottom:0;left:0;right:0;background:var(--card);border-top:2px solid var(--red);padding:1rem;z-index:400;text-align:center;"><p style="margin-bottom:0.75rem;font-weight:700;">📲 Instalo Cardeals.al</p><button class="buy-btn" style="width:auto;padding:8px 24px;" onclick="installApp()">INSTALO</button></div>
@@ -283,11 +299,7 @@ function populateFilters(){const cs=g('filterCity');cs.innerHTML='<option value=
 function filterCat(el,cat){currentFilter=cat;document.querySelectorAll('.tag').forEach(t=>t.classList.remove('active'));el.classList.add('active');renderParts();}
 function filterCond(val){currentCondition=val;renderParts();}
 
-function isPromoActive(p){
-  if(!p.weeklyPromo||!p.promoExpiresAt)return false;
-  const exp=p.promoExpiresAt.toDate?p.promoExpiresAt.toDate():new Date(p.promoExpiresAt);
-  return new Date()<exp;
-}
+function isPromoActive(p){if(!p.weeklyPromo||!p.promoExpiresAt)return false;const exp=p.promoExpiresAt.toDate?p.promoExpiresAt.toDate():new Date(p.promoExpiresAt);return new Date()<exp;}
 
 function renderPartCard(p,isFeatured){
   const name=typeof p.name==='object'?(p.name[currentLang]||p.name.sq):p.name;
@@ -296,14 +308,8 @@ function renderPartCard(p,isFeatured){
   const stock=getStockImage(p.category),catLabel=currentLang==='sq'?stock.label_sq:stock.label_en;
   const mainImage=p.images?.length?p.images[0]:null;
   const promoted=isPromoActive(p);
-  // Countdown for promo
   let countdownHTML='';
-  if(promoted){
-    const exp=p.promoExpiresAt.toDate?p.promoExpiresAt.toDate():new Date(p.promoExpiresAt);
-    const daysLeft=Math.ceil((exp-new Date())/(1000*60*60*24));
-    const hoursLeft=Math.ceil((exp-new Date())/(1000*60*60));
-    countdownHTML=`<div class="promo-countdown"><span style="font-weight:800;color:#f5c518;font-size:0.8rem;">🔥 PROMOVUAR</span> <span style="font-size:0.7rem;color:${daysLeft<=1?'#e02020':'#f5c518'};font-weight:700;">⏳ ${daysLeft>0?daysLeft+' ditë':hoursLeft+' orë'}</span></div>`;
-  }
+  if(promoted){const exp=p.promoExpiresAt.toDate?p.promoExpiresAt.toDate():new Date(p.promoExpiresAt);const daysLeft=Math.ceil((exp-new Date())/(1000*60*60*24));const hoursLeft=Math.ceil((exp-new Date())/(1000*60*60));countdownHTML=`<div class="promo-countdown"><span style="font-weight:800;color:#f5c518;font-size:0.8rem;">🔥 PROMOVUAR</span> <span style="font-size:0.7rem;color:${daysLeft<=1?'#e02020':'#f5c518'};font-weight:700;">⏳ ${daysLeft>0?daysLeft+' ditë':hoursLeft+' orë'}</span></div>`;}
   let priceHTML=discount>0?`<div class="pr"><span class="pr-lbl">Çmimi</span><span><span class="price-original">${(p.basePrice||0).toLocaleString()} L</span> <span class="price-discounted">${dp.toLocaleString()} L</span></span></div>`:`<div class="pr"><span class="pr-lbl">Çmimi shitësit</span><span>${(p.basePrice||0).toLocaleString()} L</span></div>`;
   return `<div class="part-card ${promoted?'promoted-card':''}" onclick="openModal('${p.id}')"><div class="part-img">${mainImage?`<img src="${mainImage}" alt="${name}" loading="lazy" />`:`<span class="part-img-icon">${stock.emoji}</span>`}<span class="part-img-cat">${catLabel}</span></div><div class="cond-badge" style="background:${p.condition==='new'?'#22c55e':'#f59e0b'}">${p.condition==='new'?'E RE':'E PËRDORUR'}</div>${promoted?'<div class="promo-badge-top">🔥 PROMOVUAR</div>':''}<div class="part-body">${countdownHTML}<div class="rating-row"><span class="stars">⭐</span><span class="review-count">(${p.reviewCount||0})</span></div><div class="part-name">${name}</div><div class="part-fits">🚗 ${p.fits||''}</div><div class="part-seller">🏪 ${p.sellerName||''} · ${p.sellerCity||''}</div><div class="part-stock">📦 Stoku: ${isOut?'<span style="color:#e02020;">Jashtë stokut</span>':stk<=3?`<span style="color:#f59e0b;">⚠️ ${stk} copë</span>`:`<span style="color:#22c55e;">✓ ${stk} copë</span>`}</div><div class="price-box">${priceHTML}<div class="pr pr-fee"><span>+ Tarifa (8%)</span><span style="color:#e02020">+${fee.toLocaleString()} L</span></div><div class="pr pr-total"><span>Totali</span><span class="pr-total-val">${fin.toLocaleString()} L</span></div></div><button class="buy-btn" onclick="event.stopPropagation();openModal('${p.id}')" ${isOut?'disabled':''}>${isOut?'Jashtë stokut':'BLI TANI — '+fin.toLocaleString()+' L'}</button></div></div>`;
 }
@@ -311,19 +317,8 @@ function renderPartCard(p,isFeatured){
 function renderParts(){
   const search=g('searchInput').value.toLowerCase(),brand=currentCarMake,model=currentCarModel.toLowerCase(),city=g('filterCity').value,maxPrice=parseFloat(g('filterMaxPrice').value)||Infinity,sort=g('filterSort').value;
   let filtered=allParts.filter(p=>{const name=typeof p.name==='object'?(p.name[currentLang]||p.name.sq||''):(p.name||''),fits=(p.fits||'').toLowerCase();if(currentFilter!=='all'&&p.category!==currentFilter)return false;if(currentCondition!=='all'&&p.condition!==currentCondition)return false;if(search&&!name.toLowerCase().includes(search)&&!fits.includes(search)&&!(p.sellerCity||'').toLowerCase().includes(search))return false;if(brand&&fits.indexOf(brand.toLowerCase())===-1)return false;if(model&&fits.indexOf(model)===-1)return false;if(city&&p.sellerCity!==city)return false;if((p.basePrice||0)>maxPrice)return false;return true;});
-  // Sort: promoted first (newest promo first), then by chosen sort
-  filtered.sort((a,b)=>{
-    const aP=isPromoActive(a),bP=isPromoActive(b);
-    if(aP&&!bP)return -1;
-    if(!aP&&bP)return 1;
-    if(aP&&bP){const aT=a.promoActivatedAt?.toDate?a.promoActivatedAt.toDate().getTime():0;const bT=b.promoActivatedAt?.toDate?b.promoActivatedAt.toDate().getTime():0;return bT-aT;}
-    if(sort==='price_asc')return (a.basePrice||0)-(b.basePrice||0);
-    if(sort==='price_desc')return (b.basePrice||0)-(a.basePrice||0);
-    if(sort==='discount')return (b.discount||0)-(a.discount||0);
-    return 0;
-  });
-  const grid=g('partsGrid');
-  if(!filtered.length){grid.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:4rem;color:#8892a4;"><div style="font-size:3rem;margin-bottom:1rem">🔍</div><p>Nuk u gjet asnjë pjesë.</p></div>';return;}
+  filtered.sort((a,b)=>{const aP=isPromoActive(a),bP=isPromoActive(b);if(aP&&!bP)return -1;if(!aP&&bP)return 1;if(aP&&bP){const aT=a.promoActivatedAt?.toDate?a.promoActivatedAt.toDate().getTime():0;const bT=b.promoActivatedAt?.toDate?b.promoActivatedAt.toDate().getTime():0;return bT-aT;}if(sort==='price_asc')return(a.basePrice||0)-(b.basePrice||0);if(sort==='price_desc')return(b.basePrice||0)-(a.basePrice||0);if(sort==='discount')return(b.discount||0)-(a.discount||0);return 0;});
+  const grid=g('partsGrid');if(!filtered.length){grid.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:4rem;color:#8892a4;"><div style="font-size:3rem;">🔍</div><p>Nuk u gjet asnjë pjesë.</p></div>';return;}
   grid.innerHTML=filtered.map(p=>renderPartCard(p,false)).join('');
 }
 
