@@ -18,12 +18,20 @@ const PLATFORM_FEE=0.08;
 let allBusinesses=[],allParts=[],allOrders=[],allMessages=[],allPlanRequests=[],allWeeklyPromos=[];
 let lang='sq',currentPage='dashboard';
 
+// ════════════════════════════════════
+//  FULL TRANSLATIONS — SQ / EN
+// ════════════════════════════════════
+const L={sq:{pageTitle:'Cardeals.al — Admin Panel',loginBadge:'🔐 ADMIN PANEL',loginEmailLabel:'EMAIL ADMIN',loginEmailPlaceholder:'emaili_juaj@gmail.com',loginPassLabel:'FJALËKALIMI',loginPassPlaceholder:'••••••••',loginBtn:'HYRJA →',loginLoading:'Duke hyrë...',loginErrorAccess:'🚫 Akses i refuzuar. Vetëm për admin.',loginErrorWrong:'❌ Kredenciale të gabuara',loginErrorFill:'⚠️ Plotëso të gjitha fushat',adminIdentified:'🔐 Identifikuar si Admin',sidebarAdminPill:'🔐 ADMIN',navDashboard:'📊 Pasqyra Kryesore',navBusinesses:'🏪 Të Gjitha Bizneset',navParts:'🔩 Të Gjitha Pjesët',navOrders:'📦 Të Gjitha Porositë',navMessages:'📬 Mesazhet',navWeeklyPromos:'🚀 Promocione Javore',navEarnings:'💰 Fitimet e Platformës',navPlans:'⭐ Kërkesat për Plane',secOverview:'KRYEFAQJA',secManagement:'MENAXHIM',secPromotions:'PROMOCIONE',secFinances:'FINANCAT',topbarDashboard:'PASQYRA KRYESORE',topbarBusinesses:'TË GJITHA BIZNESET',topbarParts:'TË GJITHA PJESËT',topbarOrders:'TË GJITHA POROSITË',topbarMessages:'MESAZHET',topbarWeeklyPromos:'PROMOCIONE JAVORE',topbarEarnings:'FITIMET E PLATFORMËS',topbarPlans:'KËRKESAT PËR PLANE',statRevenue:'Fitimet e Platformës',statGMV:'Vlera Totale Shitjeve',statBiz:'Biznese të Regjistruara',statParts:'Pjesë Aktive',statOrders:'Porosi Totale',statPending:'Porosi në Pritje',recentActivity:'⚡ AKTIVITETI I FUNDIT',noActivity:'Asnjë aktivitet',thBiz:'Biznesi',thCity:'Qyteti',thPlan:'Plani',thParts:'Pjesë',thSales:'Shitje',thEarn:'Fitim',thStatus:'Statusi',thActions:'Veprime',thPart:'Pjesa',thSeller:'Shitësi',thCondition:'Gjendja',thStock:'Stoku',thBasePrice:'Çmimi Bazë',thFinal:'Final',thOrderNum:'#',thBuyer:'Blerësi',thDate:'Data',thPrice:'Çmimi',thProfit:'Fitimi',thMsgStatus:'Status',thName:'Emri',thEmail:'Email',thMessage:'Mesazhi',thAction:'Veprim',thBizPromo:'Biznesi',thTier:'Tier',thCost:'Çmimi',thExpires:'Skadon',thFrom:'Nga',thTo:'Në',thMonth:'Muaji',thGMV:'GMV',active:'Aktiv',suspended:'Pezulluar',sold:'Shitur',pending:'Në Pritje',cancelled:'Anuluar',approved:'Aprovuar',rejected:'Refuzuar',expired:'Skaduar',new_:'E Re',used:'E Përdorur',unread:'Pashënuar',read:'Lexo',fixDataBtn:'🔧 Rregullo të Dhënat',fixDataConfirm:'Kjo do të rregullojë lidhjen midis bizneseve dhe pjesëve të tyre. Vazhdo?',fixDataRunning:'🔧 Duke rregulluar...',fixDataDone:'pjesë u rregulluan! Rifresko faqen.',searchBiz:'🔍 Kërko biznes...',searchParts:'🔍 Kërko pjesë...',noBusinesses:'Asnjë biznes.',noParts:'Asnjë pjesë.',noOrders:'Asnjë porosi.',noMessages:'📭 Nuk ka mesazhe.',noPlanRequests:'Nuk ka kërkesa.',noPromoRequests:'Nuk ka kërkesa.',noEarnings:'Ende nuk ka shitje.',ordersCount:'porosi',filterAll:'Të Gjitha',filterPending:'Në Pritje',filterSold:'Shitur',msgDetailTitle:'📬 Detajet e Mesazhit',msgFrom:'Nga:',msgEmail:'Email:',msgContent:'Mesazhi:',detailModalTitle:'—',changePlanTitle:'⭐ NDRYSHO PLANIN',changePlanBiz:'Biznesi:',changePlanCurrent:'✓ AKTUAL',changePlanConfirm:'KONFIRMO',changePlanCancel:'Anulo',changePlanUpdating:'Duke ndryshuar...',earnTotalFees:'Fitimi Platformës (8%)',earnTotalGMV:'GMV Total',earnTotalOrders:'Shitje të Konfirmuara',earnMonthlyTitle:'📅 PËRMBLEDHJA MUJORE',earnMonthlyStatus:'✓',backMarketplace:'🌐 Cardeals.al ↗',backBackoffice:'🏪 Backoffice ↗',logoutBtn:'⬅ Dil nga Admin',toastStatusUpdated:'✅ Statusi u përditësua!',toastPlanActivated:'✅ Plani u aktivua!',toastPlanRejected:'❌ Kërkesa u refuzua.',toastPlanChanged:'✅ Plani u ndryshua!',toastPromoApproved:'Promocioni u aktivua për',toastPromoApprovedDays:'ditë!',toastPromoApprovedRefresh:'(ri-boostohet çdo',toastPromoApprovedRefreshEnd:'h)',toastPromoRejected:'❌ Kërkesa u refuzua.',toastError:'❌ Gabim',toastFixDone:'pjesë u rregulluan! Rifresko faqen.',approveBtn:'✅',rejectBtn:'❌',toggleSuspend:'⏸️',toggleActivate:'▶️',viewDetails:'👁️',changePlanBtn:'⭐',detailParts:'Pjesë',detailSales:'Shitje',promoWeek:'🚀 PROMOCIONE JAVORE',promoPricePrefix:'€',promoPerWeek:'/javë',tierBasic:'Basic',tierStandard:'Standard',tierPremium:'Premium',tierUltimate:'Ultimate',tierRefreshEvery:'çdo',tierRefreshHour:'h',},
+en:{pageTitle:'Cardeals.al — Admin Panel',loginBadge:'🔐 ADMIN PANEL',loginEmailLabel:'ADMIN EMAIL',loginEmailPlaceholder:'your_email@gmail.com',loginPassLabel:'PASSWORD',loginPassPlaceholder:'••••••••',loginBtn:'LOGIN →',loginLoading:'Logging in...',loginErrorAccess:'🚫 Access denied. Admin only.',loginErrorWrong:'❌ Wrong credentials',loginErrorFill:'⚠️ Fill all fields',adminIdentified:'🔐 Logged in as Admin',sidebarAdminPill:'🔐 ADMIN',navDashboard:'📊 Dashboard',navBusinesses:'🏪 All Businesses',navParts:'🔩 All Parts',navOrders:'📦 All Orders',navMessages:'📬 Messages',navWeeklyPromos:'🚀 Weekly Promotions',navEarnings:'💰 Platform Earnings',navPlans:'⭐ Plan Requests',secOverview:'OVERVIEW',secManagement:'MANAGEMENT',secPromotions:'PROMOTIONS',secFinances:'FINANCES',topbarDashboard:'DASHBOARD',topbarBusinesses:'ALL BUSINESSES',topbarParts:'ALL PARTS',topbarOrders:'ALL ORDERS',topbarMessages:'MESSAGES',topbarWeeklyPromos:'WEEKLY PROMOTIONS',topbarEarnings:'PLATFORM EARNINGS',topbarPlans:'PLAN REQUESTS',statRevenue:'Platform Earnings',statGMV:'Total Sales Value',statBiz:'Registered Businesses',statParts:'Active Parts',statOrders:'Total Orders',statPending:'Pending Orders',recentActivity:'⚡ RECENT ACTIVITY',noActivity:'No activity',thBiz:'Business',thCity:'City',thPlan:'Plan',thParts:'Parts',thSales:'Sales',thEarn:'Earnings',thStatus:'Status',thActions:'Actions',thPart:'Part',thSeller:'Seller',thCondition:'Condition',thStock:'Stock',thBasePrice:'Base Price',thFinal:'Final',thOrderNum:'#',thBuyer:'Buyer',thDate:'Date',thPrice:'Price',thProfit:'Profit',thMsgStatus:'Status',thName:'Name',thEmail:'Email',thMessage:'Message',thAction:'Action',thBizPromo:'Business',thTier:'Tier',thCost:'Price',thExpires:'Expires',thFrom:'From',thTo:'To',thMonth:'Month',thGMV:'GMV',active:'Active',suspended:'Suspended',sold:'Sold',pending:'Pending',cancelled:'Cancelled',approved:'Approved',rejected:'Rejected',expired:'Expired',new_:'New',used:'Used',unread:'Unread',read:'Read',fixDataBtn:'🔧 Fix Data',fixDataConfirm:'This will fix the link between businesses and their parts. Continue?',fixDataRunning:'🔧 Fixing...',fixDataDone:'parts fixed! Refresh the page.',searchBiz:'🔍 Search business...',searchParts:'🔍 Search part...',noBusinesses:'No businesses.',noParts:'No parts.',noOrders:'No orders.',noMessages:'📭 No messages.',noPlanRequests:'No requests.',noPromoRequests:'No requests.',noEarnings:'No sales yet.',ordersCount:'orders',filterAll:'All',filterPending:'Pending',filterSold:'Sold',msgDetailTitle:'📬 Message Details',msgFrom:'From:',msgEmail:'Email:',msgContent:'Message:',detailModalTitle:'—',changePlanTitle:'⭐ CHANGE PLAN',changePlanBiz:'Business:',changePlanCurrent:'✓ CURRENT',changePlanConfirm:'CONFIRM',changePlanCancel:'Cancel',changePlanUpdating:'Updating...',earnTotalFees:'Platform Earnings (8%)',earnTotalGMV:'Total GMV',earnTotalOrders:'Confirmed Sales',earnMonthlyTitle:'📅 MONTHLY SUMMARY',earnMonthlyStatus:'✓',backMarketplace:'🌐 Cardeals.al ↗',backBackoffice:'🏪 Backoffice ↗',logoutBtn:'⬅ Admin Logout',toastStatusUpdated:'✅ Status updated!',toastPlanActivated:'✅ Plan activated!',toastPlanRejected:'❌ Request rejected.',toastPlanChanged:'✅ Plan changed!',toastPromoApproved:'Promotion activated for',toastPromoApprovedDays:'days!',toastPromoApprovedRefresh:'(re-boosts every',toastPromoApprovedRefreshEnd:'h)',toastPromoRejected:'❌ Request rejected.',toastError:'❌ Error',toastFixDone:'parts fixed! Refresh the page.',approveBtn:'✅',rejectBtn:'❌',toggleSuspend:'⏸️',toggleActivate:'▶️',viewDetails:'👁️',changePlanBtn:'⭐',detailParts:'Parts',detailSales:'Sales',promoWeek:'🚀 WEEKLY PROMOTIONS',promoPricePrefix:'€',promoPerWeek:'/week',tierBasic:'Basic',tierStandard:'Standard',tierPremium:'Premium',tierUltimate:'Ultimate',tierRefreshEvery:'every',tierRefreshHour:'h',}};
+
+function l(k){return L[lang][k]||k;}
+
 function s(id,v){const el=document.getElementById(id);if(el)el.textContent=v;}
 function showError(msg){const el=document.getElementById('loginError');if(el){el.textContent=msg;el.style.display='block';}}
 function showToast(msg,isErr){const t=document.getElementById('toast');t.textContent=msg;t.style.background=isErr?'#e02020':'#22c55e';t.classList.add('show');setTimeout(()=>t.classList.remove('show'),4000);}
 
-auth.onAuthStateChanged(async user=>{if(user){if(user.email.toLowerCase()!==ADMIN_EMAIL.toLowerCase()){await auth.signOut();showError('🚫 Access denied. Admin only.');return;}document.getElementById('adminEmail').textContent=user.email;showApp();loadAllData();}else showLogin();});
-window.doLogin=async function(){const e=document.getElementById('loginEmail').value.trim(),p=document.getElementById('loginPass').value,btn=document.getElementById('loginBtn');if(!e||!p){showError('⚠️ Fill all fields');return;}btn.textContent='Duke hyrë...';btn.disabled=true;try{await auth.signInWithEmailAndPassword(e,p);}catch(err){showError('❌ Wrong credentials');btn.textContent='HYRJA →';btn.disabled=false;}};
+auth.onAuthStateChanged(async user=>{if(user){if(user.email.toLowerCase()!==ADMIN_EMAIL.toLowerCase()){await auth.signOut();showError(l('loginErrorAccess'));return;}document.getElementById('adminEmail').textContent=user.email;showApp();loadAllData();}else showLogin();});
+window.doLogin=async function(){const e=document.getElementById('loginEmail').value.trim(),p=document.getElementById('loginPass').value,btn=document.getElementById('loginBtn');if(!e||!p){showError(l('loginErrorFill'));return;}btn.textContent=l('loginLoading');btn.disabled=true;try{await auth.signInWithEmailAndPassword(e,p);}catch(err){showError(l('loginErrorWrong'));btn.textContent=l('loginBtn');btn.disabled=false;}};
 window.doLogout=async()=>{await auth.signOut();};
 
 function loadAllData(){loadBusinesses();loadAllParts();loadAllOrders();loadMessages();loadPlanRequests();loadWeeklyPromos();}
@@ -44,139 +52,89 @@ function updateDashboard(){
   s('statPending',allOrders.filter(o=>o.status==='pending').length);
   const recent=allOrders.slice(0,6);
   const actEl=document.getElementById('recentActivity');
-  if(actEl)actEl.innerHTML=recent.length?recent.map(o=>`<div class="activity-row"><div class="act-icon">${o.status==='sold'?'💰':'⏳'}</div><div class="act-info"><div class="act-title">${o.partName||'—'}</div><div class="act-sub">${o.buyerName||'—'} · ${o.sellerName||'—'}</div></div><div class="act-price" style="color:${o.status==='sold'?'#22c55e':'#f59e0b'}">${(o.totalPrice||0).toLocaleString()} L</div></div>`).join(''):'<div style="text-align:center;padding:2rem;color:#8892a4;">No activity</div>';
+  if(actEl)actEl.innerHTML=recent.length?recent.map(o=>`<div class="activity-row"><div class="act-icon">${o.status==='sold'?'💰':'⏳'}</div><div class="act-info"><div class="act-title">${o.partName||'—'}</div><div class="act-sub">${o.buyerName||'—'} · ${o.sellerName||'—'}</div></div><div class="act-price" style="color:${o.status==='sold'?'#22c55e':'#f59e0b'}">${(o.totalPrice||0).toLocaleString()} L</div></div>`).join(''):`<div style="text-align:center;padding:2rem;color:#8892a4;">${l('noActivity')}</div>`;
 }
 
 function renderBusinesses(filter=''){
   const tbody=document.getElementById('bizBody');if(!tbody)return;
   let list=allBusinesses;if(filter)list=list.filter(b=>(b.businessName||'').toLowerCase().includes(filter.toLowerCase())||(b.email||'').toLowerCase().includes(filter.toLowerCase()));
-  if(!list.length){tbody.innerHTML='<tr><td colspan="8" style="text-align:center;padding:2rem;color:#8892a4;">No businesses.</td></tr>';return;}
+  if(!list.length){tbody.innerHTML=`<tr><td colspan="8" style="text-align:center;padding:2rem;color:#8892a4;">${l('noBusinesses')}</td></tr>`;return;}
   tbody.innerHTML=list.map(b=>{
     const bizParts=allParts.filter(p=>p.uid===b.id).length;
     const bizSales=allOrders.filter(o=>o.sellerUid===b.id&&o.status==='sold').length;
     const bizEarn=allOrders.filter(o=>o.sellerUid===b.id&&o.status==='sold').reduce((s,o)=>s+(o.platformFee||0),0);
     const plan=b.plan||'basic',planData=PLANS[plan];
-    return `<tr><td><strong>${b.businessName||b.name||'—'}</strong><br><small style="color:#666">${b.email||''}</small></td><td style="color:#8892a4">${b.city||'—'}</td><td><span style="color:${planData.color};font-weight:800;">${planData.icon} ${planData.name}</span></td><td>${bizParts}</td><td>${bizSales}</td><td style="color:#22c55e;font-weight:800">${bizEarn.toLocaleString()} L</td><td><span class="sbadge ${b.status!=='suspended'?'s-active':'s-suspended'}">${b.status!=='suspended'?'Aktiv':'Pezulluar'}</span></td><td><div style="display:flex;gap:0.5rem;"><button class="icon-btn" onclick="toggleBizStatus('${b.id}','${b.status||'active'}')">${b.status!=='suspended'?'⏸️':'▶️'}</button><button class="icon-btn" onclick="openChangePlan('${b.id}','${b.businessName||b.name||''}','${plan}')">⭐</button><button class="icon-btn" onclick="viewBizDetails('${b.id}')">👁️</button></div></td></tr>`;
+    return `<tr><td><strong>${b.businessName||b.name||'—'}</strong><br><small style="color:#666">${b.email||''}</small></td><td style="color:#8892a4">${b.city||'—'}</td><td><span style="color:${planData.color};font-weight:800;">${planData.icon} ${planData.name}</span></td><td>${bizParts}</td><td>${bizSales}</td><td style="color:#22c55e;font-weight:800">${bizEarn.toLocaleString()} L</td><td><span class="sbadge ${b.status!=='suspended'?'s-active':'s-suspended'}">${b.status!=='suspended'?l('active'):l('suspended')}</span></td><td><div style="display:flex;gap:0.5rem;"><button class="icon-btn" onclick="toggleBizStatus('${b.id}','${b.status||'active'}')">${b.status!=='suspended'?l('toggleSuspend'):l('toggleActivate')}</button><button class="icon-btn" onclick="openChangePlan('${b.id}','${b.businessName||b.name||''}','${plan}')">${l('changePlanBtn')}</button><button class="icon-btn" onclick="viewBizDetails('${b.id}')">${l('viewDetails')}</button></div></td></tr>`;
   }).join('');
 }
-window.toggleBizStatus=async function(id,s){const ns=s==='suspended'?'active':'suspended';await db.collection("businesses").doc(id).update({status:ns});showToast('✅ Status updated!');};
-window.viewBizDetails=function(id){const b=allBusinesses.find(x=>x.id===id);if(!b)return;document.getElementById('detailContent').innerHTML=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;"><div class="detail-card"><div class="dc-val">${allParts.filter(p=>p.uid===id).length}</div><div class="dc-lbl">Pjesë</div></div><div class="detail-card"><div class="dc-val">${allOrders.filter(o=>o.sellerUid===id&&o.status==='sold').length}</div><div class="dc-lbl">Shitje</div></div></div>`;document.getElementById('detailTitle').textContent=b.businessName||b.name||'—';document.getElementById('detailModal').classList.add('open');};
+window.toggleBizStatus=async function(id,s){const ns=s==='suspended'?'active':'suspended';await db.collection("businesses").doc(id).update({status:ns});showToast(l('toastStatusUpdated'));};
+window.viewBizDetails=function(id){const b=allBusinesses.find(x=>x.id===id);if(!b)return;document.getElementById('detailContent').innerHTML=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;"><div class="detail-card"><div class="dc-val">${allParts.filter(p=>p.uid===id).length}</div><div class="dc-lbl">${l('detailParts')}</div></div><div class="detail-card"><div class="dc-val">${allOrders.filter(o=>o.sellerUid===id&&o.status==='sold').length}</div><div class="dc-lbl">${l('detailSales')}</div></div></div>`;document.getElementById('detailTitle').textContent=b.businessName||b.name||l('detailModalTitle');document.getElementById('detailModal').classList.add('open');};
 
 function renderAllParts(filter=''){
   const tbody=document.getElementById('allPartsBody');if(!tbody)return;
   let list=allParts;if(filter)list=list.filter(p=>{const name=typeof p.name==='object'?p.name.sq:p.name;return(name||'').toLowerCase().includes(filter.toLowerCase());});
-  if(!list.length){tbody.innerHTML='<tr><td colspan="8" style="text-align:center;padding:2rem;">No parts.</td></tr>';return;}
-  tbody.innerHTML=list.map(p=>{const name=typeof p.name==='object'?p.name.sq||p.name.en:p.name,stk=p.stock||0;return `<tr><td>${p.emoji||'🔩'} <strong>${name||'—'}</strong></td><td style="color:#8892a4">${p.sellerName||'—'}</td><td style="color:#8892a4">${p.condition==='new'?'E Re':'E Përdorur'}</td><td style="font-weight:700;color:${stk<=3?'#f59e0b':'#22c55e'}">${stk===0?'0 🔴':stk}</td><td>${(p.basePrice||0).toLocaleString()} L</td><td style="font-weight:800;color:#f5c518">${((p.basePrice||0)+Math.round((p.basePrice||0)*PLATFORM_FEE)).toLocaleString()} L</td><td><span class="sbadge ${p.status==='active'?'s-active':'s-suspended'}">${p.status==='active'?'Aktiv':'Joaktiv'}</span></td><td><button class="icon-btn" onclick="adminTogglePart('${p.id}','${p.status}')">${p.status==='active'?'⏸️':'▶️'}</button></td></tr>`;}).join('');
+  if(!list.length){tbody.innerHTML=`<tr><td colspan="8" style="text-align:center;padding:2rem;">${l('noParts')}</td></tr>`;return;}
+  tbody.innerHTML=list.map(p=>{const name=typeof p.name==='object'?p.name.sq||p.name.en:p.name,stk=p.stock||0;return `<tr><td>${p.emoji||'🔩'} <strong>${name||'—'}</strong></td><td style="color:#8892a4">${p.sellerName||'—'}</td><td style="color:#8892a4">${p.condition==='new'?l('new_'):l('used')}</td><td style="font-weight:700;color:${stk<=3?'#f59e0b':'#22c55e'}">${stk===0?'0 🔴':stk}</td><td>${(p.basePrice||0).toLocaleString()} L</td><td style="font-weight:800;color:#f5c518">${((p.basePrice||0)+Math.round((p.basePrice||0)*PLATFORM_FEE)).toLocaleString()} L</td><td><span class="sbadge ${p.status==='active'?'s-active':'s-suspended'}">${p.status==='active'?l('active'):l('suspended')}</span></td><td><button class="icon-btn" onclick="adminTogglePart('${p.id}','${p.status}')">${p.status==='active'?l('toggleSuspend'):l('toggleActivate')}</button></td></tr>`;}).join('');
 }
-window.adminTogglePart=async function(id,status){const ns=status==='active'?'inactive':'active';await db.collection("parts").doc(id).update({status:ns});showToast('✅ Status updated!');};
+window.adminTogglePart=async function(id,status){const ns=status==='active'?'inactive':'active';await db.collection("parts").doc(id).update({status:ns});showToast(l('toastStatusUpdated'));};
 
 function renderAllOrders(filter='all'){
   const tbody=document.getElementById('allOrdersBody');if(!tbody)return;
   let list=allOrders;if(filter==='pending')list=allOrders.filter(o=>o.status==='pending');if(filter==='sold')list=allOrders.filter(o=>o.status==='sold');
-  document.getElementById('ordersCount').textContent=list.length+' porosi';
-  if(!list.length){tbody.innerHTML='<tr><td colspan="8" style="text-align:center;padding:2rem;">No orders.</td></tr>';return;}
-  tbody.innerHTML=list.map(o=>{const fee=o.platformFee||Math.round((o.totalPrice||0)*PLATFORM_FEE/1.08),sc=o.status==='sold'?'s-sold':o.status==='pending'?'s-pending':'s-suspended',sl=o.status==='sold'?'Shitur':o.status==='pending'?'Në Pritje':'Anuluar';return `<tr><td style="font-weight:800;color:#e02020">#${o.id?.slice(-6)||'—'}</td><td><strong>${o.partName||'—'}</strong></td><td style="color:#8892a4">${o.buyerName||'—'}</td><td style="color:#8892a4">${o.sellerName||'—'}</td><td style="color:#8892a4;font-size:0.8rem">${o.createdAt?.toDate?o.createdAt.toDate().toLocaleDateString('sq-AL'):'—'}</td><td style="font-weight:800;color:#f5c518">${(o.totalPrice||0).toLocaleString()} L</td><td style="font-weight:800;color:#22c55e">+${fee.toLocaleString()} L</td><td><span class="sbadge ${sc}">${sl}</span></td></tr>`;}).join('');
+  document.getElementById('ordersCount').textContent=list.length+' '+l('ordersCount');
+  if(!list.length){tbody.innerHTML=`<tr><td colspan="8" style="text-align:center;padding:2rem;">${l('noOrders')}</td></tr>`;return;}
+  tbody.innerHTML=list.map(o=>{const fee=o.platformFee||Math.round((o.totalPrice||0)*PLATFORM_FEE/1.08),sc=o.status==='sold'?'s-sold':o.status==='pending'?'s-pending':'s-suspended',sl=o.status==='sold'?l('sold'):o.status==='pending'?l('pending'):l('cancelled');return `<tr><td style="font-weight:800;color:#e02020">#${o.id?.slice(-6)||'—'}</td><td><strong>${o.partName||'—'}</strong></td><td style="color:#8892a4">${o.buyerName||'—'}</td><td style="color:#8892a4">${o.sellerName||'—'}</td><td style="color:#8892a4;font-size:0.8rem">${o.createdAt?.toDate?o.createdAt.toDate().toLocaleDateString('sq-AL'):'—'}</td><td style="font-weight:800;color:#f5c518">${(o.totalPrice||0).toLocaleString()} L</td><td style="font-weight:800;color:#22c55e">+${fee.toLocaleString()} L</td><td><span class="sbadge ${sc}">${sl}</span></td></tr>`;}).join('');
 }
 window.filterOrders=function(f,btn){document.querySelectorAll('.ot-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderAllOrders(f);};
 
-function renderMessages(){const tbody=document.getElementById('messagesBody');if(!tbody)return;if(!allMessages.length){tbody.innerHTML='<tr><td colspan="6" style="text-align:center;">📭 Nuk ka mesazhe.</td></tr>';return;}tbody.innerHTML=allMessages.map(m=>{const date=m.createdAt?.toDate?m.createdAt.toDate().toLocaleDateString('sq-AL'):'—';return `<tr onclick="viewMessage('${m.id}')" style="cursor:pointer;"><td>${m.status==='unread'?'🔴':'✅'}</td><td><strong>${m.name||'—'}</strong></td><td style="color:#8892a4">${m.email||'—'}</td><td style="color:#8892a4;font-size:0.8rem">${date}</td><td style="max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${m.message||'—'}</td><td><button class="icon-btn" onclick="event.stopPropagation();toggleMessageStatus('${m.id}','${m.status}')">${m.status==='unread'?'✅ Lexo':'🔴 Pashënuar'}</button></td></tr>`;}).join('');}
+function renderMessages(){const tbody=document.getElementById('messagesBody');if(!tbody)return;if(!allMessages.length){tbody.innerHTML=`<tr><td colspan="6" style="text-align:center;">${l('noMessages')}</td></tr>`;return;}tbody.innerHTML=allMessages.map(m=>{const date=m.createdAt?.toDate?m.createdAt.toDate().toLocaleDateString('sq-AL'):'—';return `<tr onclick="viewMessage('${m.id}')" style="cursor:pointer;"><td>${m.status==='unread'?'🔴':'✅'}</td><td><strong>${m.name||'—'}</strong></td><td style="color:#8892a4">${m.email||'—'}</td><td style="color:#8892a4;font-size:0.8rem">${date}</td><td style="max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${m.message||'—'}</td><td><button class="icon-btn" onclick="event.stopPropagation();toggleMessageStatus('${m.id}','${m.status}')">${m.status==='unread'?l('read'):l('unread')}</button></td></tr>`;}).join('');}
 function updateMessageBadge(){const unread=allMessages.filter(m=>m.status==='unread').length;const badge=document.getElementById('msgBadge');if(badge){badge.textContent=unread;badge.style.display=unread>0?'inline-block':'none';}}
-window.viewMessage=function(id){const m=allMessages.find(x=>x.id===id);if(!m)return;document.getElementById('msgDetailContent').innerHTML=`<div style="background:var(--bg);border-radius:10px;padding:1.25rem;"><div><strong>Nga:</strong> ${m.name||'—'}</div><div><strong>Email:</strong> <a href="mailto:${m.email}" style="color:#3b82f6">${m.email||'—'}</a></div><div style="margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border);"><strong>Mesazhi:</strong><br>${m.message||'—'}</div></div>`;if(m.status==='unread'){db.collection("contact_messages").doc(id).update({status:'read'});}document.getElementById('msgDetailModal').classList.add('open');};
-window.toggleMessageStatus=async function(id,status){const ns=status==='unread'?'read':'unread';await db.collection("contact_messages").doc(id).update({status:ns});showToast('✅ Status updated!');};
+window.viewMessage=function(id){const m=allMessages.find(x=>x.id===id);if(!m)return;document.getElementById('msgDetailContent').innerHTML=`<div style="background:var(--bg);border-radius:10px;padding:1.25rem;"><div><strong>${l('msgFrom')}</strong> ${m.name||'—'}</div><div><strong>${l('msgEmail')}</strong> <a href="mailto:${m.email}" style="color:#3b82f6">${m.email||'—'}</a></div><div style="margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border);"><strong>${l('msgContent')}</strong><br>${m.message||'—'}</div></div>`;if(m.status==='unread'){db.collection("contact_messages").doc(id).update({status:'read'});}document.getElementById('msgDetailModal').classList.add('open');};
+window.toggleMessageStatus=async function(id,status){const ns=status==='unread'?'read':'unread';await db.collection("contact_messages").doc(id).update({status:ns});showToast(l('toastStatusUpdated'));};
 
-function renderPlanRequests(){const tbody=document.getElementById('planRequestsBody');if(!tbody)return;if(!allPlanRequests.length){tbody.innerHTML='<tr><td colspan="7" style="text-align:center;">Nuk ka kërkesa.</td></tr>';return;}tbody.innerHTML=allPlanRequests.map(r=>{const date=r.createdAt?.toDate?r.createdAt.toDate().toLocaleDateString('sq-AL'):'—';const fromPlan=PLANS[r.fromPlan]||PLANS.basic,toPlan=PLANS[r.toPlan]||PLANS.basic;return `<tr><td><strong>${r.businessName||'—'}</strong><br><small>${r.email||''}</small></td><td><span style="color:${fromPlan.color};">${fromPlan.icon} ${fromPlan.name}</span></td><td><span style="color:${toPlan.color};font-weight:800;">${toPlan.icon} ${toPlan.name}</span></td><td>€${toPlan.monthly}/muaj</td><td>${date}</td><td><span class="sbadge ${r.status==='approved'?'s-active':r.status==='rejected'?'s-suspended':'s-pending'}">${r.status==='approved'?'Aprovuar':r.status==='rejected'?'Refuzuar':'Në Pritje'}</span></td><td>${r.status==='pending'?`<div style="display:flex;gap:0.5rem;"><button class="icon-btn" style="background:rgba(34,197,94,0.15);border-color:#22c55e;color:#22c55e;" onclick="approvePlan('${r.id}')">✅</button><button class="icon-btn" style="background:rgba(224,32,32,0.1);border-color:#e02020;color:#e02020;" onclick="rejectPlan('${r.id}')">❌</button></div>`:'—'}</td></tr>`;}).join('');}
+function renderPlanRequests(){const tbody=document.getElementById('planRequestsBody');if(!tbody)return;if(!allPlanRequests.length){tbody.innerHTML=`<tr><td colspan="7" style="text-align:center;">${l('noPlanRequests')}</td></tr>`;return;}tbody.innerHTML=allPlanRequests.map(r=>{const date=r.createdAt?.toDate?r.createdAt.toDate().toLocaleDateString('sq-AL'):'—';const fromPlan=PLANS[r.fromPlan]||PLANS.basic,toPlan=PLANS[r.toPlan]||PLANS.basic;return `<tr><td><strong>${r.businessName||'—'}</strong><br><small>${r.email||''}</small></td><td><span style="color:${fromPlan.color};">${fromPlan.icon} ${fromPlan.name}</span></td><td><span style="color:${toPlan.color};font-weight:800;">${toPlan.icon} ${toPlan.name}</span></td><td>€${toPlan.monthly}${l('promoPerWeek').replace('/javë','/muaj')}</td><td>${date}</td><td><span class="sbadge ${r.status==='approved'?'s-active':r.status==='rejected'?'s-suspended':'s-pending'}">${r.status==='approved'?l('approved'):r.status==='rejected'?l('rejected'):l('pending')}</span></td><td>${r.status==='pending'?`<div style="display:flex;gap:0.5rem;"><button class="icon-btn" style="background:rgba(34,197,94,0.15);border-color:#22c55e;color:#22c55e;" onclick="approvePlan('${r.id}')">${l('approveBtn')}</button><button class="icon-btn" style="background:rgba(224,32,32,0.1);border-color:#e02020;color:#e02020;" onclick="rejectPlan('${r.id}')">${l('rejectBtn')}</button></div>`:'—'}</td></tr>`;}).join('');}
 
-// ════════════════════════════════════
-//  WEEKLY PROMOS WITH TIER SUPPORT
-// ════════════════════════════════════
 function renderWeeklyPromos(){
-  const tbody=document.getElementById('weeklyPromosBody');
-  if(!tbody)return;
-  if(!allWeeklyPromos.length){tbody.innerHTML='<tr><td colspan="8" style="text-align:center;">Nuk ka kërkesa.</td></tr>';return;}
+  const tbody=document.getElementById('weeklyPromosBody');if(!tbody)return;
+  if(!allWeeklyPromos.length){tbody.innerHTML=`<tr><td colspan="8" style="text-align:center;">${l('noPromoRequests')}</td></tr>`;return;}
   const tierColors={basic:'#8892a4',standard:'#94a3b8',premium:'#f5c518',ultimate:'#e2e8f0'};
   const tierIcons={basic:'🥉',standard:'🥈',premium:'🥇',ultimate:'💎'};
   tbody.innerHTML=allWeeklyPromos.map(r=>{
     const date=r.createdAt?.toDate?r.createdAt.toDate().toLocaleDateString('sq-AL'):'—';
     const expires=r.expiresAt?.toDate?r.expiresAt.toDate().toLocaleDateString('sq-AL'):'—';
     const tier=r.tier||'basic';
-    const tierLabel=(r.tierName||'Basic')+(r.refreshHours?' (çdo '+r.refreshHours+'h)':'');
-    return `<tr>
-      <td><strong>${r.businessName||'—'}</strong><br><small>${r.email||''}</small></td>
-      <td>${r.partName||'—'}</td>
-      <td style="font-weight:800;color:${tierColors[tier]||'#8892a4'};">${tierIcons[tier]||''} ${tierLabel}</td>
-      <td style="font-weight:800;color:#f5c518;">€${r.cost||3}</td>
-      <td>${date}</td>
-      <td>${expires||'—'}</td>
-      <td><span class="sbadge ${r.status==='active'?'s-active':r.status==='expired'?'s-suspended':'s-pending'}">${r.status==='active'?'Aktiv':r.status==='expired'?'Skaduar':'Në Pritje'}</span></td>
-      <td>${r.status==='pending'?`<div style="display:flex;gap:0.5rem;"><button class="icon-btn" style="background:rgba(34,197,94,0.15);border-color:#22c55e;color:#22c55e;" onclick="approveWeeklyPromo('${r.id}')">✅</button><button class="icon-btn" style="background:rgba(224,32,32,0.1);border-color:#e02020;color:#e02020;" onclick="rejectWeeklyPromo('${r.id}')">❌</button></div>`:'—'}</td>
-    </tr>`;
+    const tierLabel=(r.tierName||l('tierBasic'))+(r.refreshHours?` (${l('tierRefreshEvery')} ${r.refreshHours}${l('tierRefreshHour')})`:'');
+    return `<tr><td><strong>${r.businessName||'—'}</strong><br><small>${r.email||''}</small></td><td>${r.partName||'—'}</td><td style="font-weight:800;color:${tierColors[tier]||'#8892a4'};">${tierIcons[tier]||''} ${tierLabel}</td><td style="font-weight:800;color:#f5c518;">${l('promoPricePrefix')}${r.cost||3}</td><td>${date}</td><td>${expires||'—'}</td><td><span class="sbadge ${r.status==='active'?'s-active':r.status==='expired'?'s-suspended':'s-pending'}">${r.status==='active'?l('active'):r.status==='expired'?l('expired'):l('pending')}</span></td><td>${r.status==='pending'?`<div style="display:flex;gap:0.5rem;"><button class="icon-btn" style="background:rgba(34,197,94,0.15);border-color:#22c55e;color:#22c55e;" onclick="approveWeeklyPromo('${r.id}')">${l('approveBtn')}</button><button class="icon-btn" style="background:rgba(224,32,32,0.1);border-color:#e02020;color:#e02020;" onclick="rejectWeeklyPromo('${r.id}')">${l('rejectBtn')}</button></div>`:'—'}</td></tr>`;
   }).join('');
 }
 
 window.approveWeeklyPromo=async function(id){
-  const promo=allWeeklyPromos.find(p=>p.id===id);
-  if(!promo)return;
-  const now=new Date();
-  const durationDays=promo.durationDays||7;
-  const refreshHours=promo.refreshHours||null;
-  const expiresAt=new Date(now);
-  expiresAt.setDate(expiresAt.getDate()+durationDays);
+  const promo=allWeeklyPromos.find(p=>p.id===id);if(!promo)return;
+  const now=new Date();const durationDays=promo.durationDays||7;const refreshHours=promo.refreshHours||null;
+  const expiresAt=new Date(now);expiresAt.setDate(expiresAt.getDate()+durationDays);
   try{
-    await db.collection("weekly_promotions").doc(id).update({
-      status:'active',
-      activatedAt:now,
-      lastBoostedAt:now,
-      promoRefreshInterval:refreshHours,
-      expiresAt:expiresAt
-    });
-    await db.collection("parts").doc(promo.partId).update({
-      weeklyPromo:true,
-      promoActivatedAt:now,
-      promoExpiresAt:expiresAt,
-      promoRefreshInterval:refreshHours,
-      promoLastBoostedAt:now,
-      promoTier:promo.tier||'basic',
-      promoTierName:promo.tierName||'Basic'
-    });
-    const tierLabel=promo.tierName||'Basic';
-    const refreshMsg=refreshHours?' (ri-boostohet çdo '+refreshHours+'h)':'';
-    showToast(`✅ Promocioni ${tierLabel} u aktivua për ${durationDays} ditë!${refreshMsg}`);
-  }catch(e){showToast('❌ Error: '+e.message,true);}
+    await db.collection("weekly_promotions").doc(id).update({status:'active',activatedAt:now,lastBoostedAt:now,promoRefreshInterval:refreshHours,expiresAt:expiresAt});
+    await db.collection("parts").doc(promo.partId).update({weeklyPromo:true,promoActivatedAt:now,promoExpiresAt:expiresAt,promoRefreshInterval:refreshHours,promoLastBoostedAt:now,promoTier:promo.tier||'basic',promoTierName:promo.tierName||l('tierBasic')});
+    const tierLabel=promo.tierName||l('tierBasic');
+    const refreshMsg=refreshHours?` ${l('toastPromoApprovedRefresh')} ${refreshHours}${l('toastPromoApprovedRefreshEnd')}`:'';
+    showToast(`✅ ${l('toastPromoApproved')} ${tierLabel} ${durationDays} ${l('toastPromoApprovedDays')}${refreshMsg}`);
+  }catch(e){showToast(l('toastError')+': '+e.message,true);}
 };
-window.rejectWeeklyPromo=async function(id){await db.collection("weekly_promotions").doc(id).update({status:'rejected'});showToast('❌ Kërkesa u refuzua.');};
+window.rejectWeeklyPromo=async function(id){await db.collection("weekly_promotions").doc(id).update({status:'rejected'});showToast(l('toastPromoRejected'));};
 
-// ════════════════════════════════════
-//  FIX BUSINESS DATA
-// ════════════════════════════════════
-window.fixBusinessData=async function(){
-  if(!confirm('Kjo do të rregullojë lidhjen midis bizneseve dhe pjesëve të tyre. Vazhdo?'))return;
-  showToast('🔧 Duke rregulluar...');
-  let fixed=0;
-  for(const biz of allBusinesses){
-    const bizName=(biz.businessName||biz.name||'').toLowerCase().trim();
-    const bizEmail=(biz.email||'').toLowerCase().trim();
-    for(const part of allParts){
-      const sellerName=(part.sellerName||'').toLowerCase().trim();
-      const partUid=part.uid||'';
-      if((sellerName===bizName||sellerName===bizEmail||partUid===bizEmail)&&partUid!==biz.id){
-        try{await db.collection("parts").doc(part.id).update({uid:biz.id});fixed++;}catch(e){console.error(e);}
-      }
-    }
-  }
-  showToast(`✅ ${fixed} pjesë u rregulluan! Rifresko faqen.`);
-};
+window.fixBusinessData=async function(){if(!confirm(l('fixDataConfirm')))return;showToast(l('fixDataRunning'));let fixed=0;for(const biz of allBusinesses){const bizName=(biz.businessName||biz.name||'').toLowerCase().trim();const bizEmail=(biz.email||'').toLowerCase().trim();for(const part of allParts){const sellerName=(part.sellerName||'').toLowerCase().trim();const partUid=part.uid||'';if((sellerName===bizName||sellerName===bizEmail||partUid===bizEmail)&&partUid!==biz.id){try{await db.collection("parts").doc(part.id).update({uid:biz.id});fixed++;}catch(e){console.error(e);}}}}showToast(`✅ ${fixed} ${l('fixDataDone')}`);};
 
-window.approvePlan=async function(id){const req=allPlanRequests.find(x=>x.id===id);if(!req)return;const now=new Date();const expiresAt=new Date(now);expiresAt.setDate(expiresAt.getDate()+30);try{await db.collection("businesses").doc(req.businessId).update({plan:req.toPlan,commissionRate:Math.round(PLANS[req.toPlan].fee*100),planActivatedAt:now,planExpiresAt:expiresAt});await db.collection("plan_requests").doc(id).update({status:'approved'});showToast('✅ Plani u aktivua!');}catch(e){showToast('❌ Error',true);}};
-window.rejectPlan=async function(id){await db.collection("plan_requests").doc(id).update({status:'rejected'});showToast('❌ Kërkesa u refuzua.');};
+window.approvePlan=async function(id){const req=allPlanRequests.find(x=>x.id===id);if(!req)return;const now=new Date();const expiresAt=new Date(now);expiresAt.setDate(expiresAt.getDate()+30);try{await db.collection("businesses").doc(req.businessId).update({plan:req.toPlan,commissionRate:Math.round(PLANS[req.toPlan].fee*100),planActivatedAt:now,planExpiresAt:expiresAt});await db.collection("plan_requests").doc(id).update({status:'approved'});showToast(l('toastPlanActivated'));}catch(e){showToast(l('toastError'),true);}};
+window.rejectPlan=async function(id){await db.collection("plan_requests").doc(id).update({status:'rejected'});showToast(l('toastPlanRejected'));};
 
 window.openChangePlan=function(bizId,bizName,currentPlan){
   document.getElementById('changePlanBizName').textContent=bizName;document.getElementById('changePlanBizId').value=bizId;
   const container=document.getElementById('changePlanOptions');
-  container.innerHTML=Object.entries(PLANS).map(([key,p])=>{const isCurrent=key===currentPlan;return `<div onclick="selectPlanOption('${key}')" id="planOpt_${key}" style="background:${isCurrent?'rgba(255,255,255,0.08)':'var(--bg)'};border:2px solid ${isCurrent?p.color:'var(--border)'};border-radius:10px;padding:1rem;cursor:pointer;display:flex;align-items:center;gap:1rem;"><div style="font-size:1.5rem">${p.icon}</div><div style="flex:1"><div style="font-weight:800;color:${p.color}">${p.name}</div><div style="font-size:0.75rem;color:#8892a4">${p.monthly===0?'Falas':'€'+p.monthly+'/muaj'} · ${Math.round(p.fee*100)}% komision</div></div>${isCurrent?'<span style="font-size:0.7rem;color:#22c55e;">✓ AKTUAL</span>':''}</div>`;}).join('');
+  container.innerHTML=Object.entries(PLANS).map(([key,p])=>{const isCurrent=key===currentPlan;return `<div onclick="selectPlanOption('${key}')" id="planOpt_${key}" style="background:${isCurrent?'rgba(255,255,255,0.08)':'var(--bg)'};border:2px solid ${isCurrent?p.color:'var(--border)'};border-radius:10px;padding:1rem;cursor:pointer;display:flex;align-items:center;gap:1rem;"><div style="font-size:1.5rem">${p.icon}</div><div style="flex:1"><div style="font-weight:800;color:${p.color}">${p.name}</div><div style="font-size:0.75rem;color:#8892a4">${p.monthly===0?l('tierBasic'):'€'+p.monthly+'/muaj'} · ${Math.round(p.fee*100)}% komision</div></div>${isCurrent?`<span style="font-size:0.7rem;color:#22c55e;">${l('changePlanCurrent')}</span>`:''}</div>`;}).join('');
   document.getElementById('selectedPlanKey').value=currentPlan;document.getElementById('changePlanModal').classList.add('open');
 };
 window.selectPlanOption=function(key){document.getElementById('selectedPlanKey').value=key;Object.keys(PLANS).forEach(k=>{const el=document.getElementById('planOpt_'+k);if(el){el.style.border=k===key?'2px solid '+PLANS[k].color:'2px solid var(--border)';el.style.background=k===key?'rgba(255,255,255,0.08)':'var(--bg)';}});};
-window.confirmChangePlan=async function(){const bizId=document.getElementById('changePlanBizId').value,newPlan=document.getElementById('selectedPlanKey').value,btn=document.getElementById('confirmPlanBtn');btn.textContent='Duke ndryshuar...';btn.disabled=true;const now=new Date();const expiresAt=new Date(now);expiresAt.setDate(expiresAt.getDate()+30);try{await db.collection("businesses").doc(bizId).update({plan:newPlan,commissionRate:Math.round(PLANS[newPlan].fee*100),planActivatedAt:now,planExpiresAt:expiresAt});closeModal('changePlanModal');showToast('✅ Plani u ndryshua!');}catch(e){showToast('❌ Error',true);}btn.textContent='KONFIRMO';btn.disabled=false;};
+window.confirmChangePlan=async function(){const bizId=document.getElementById('changePlanBizId').value,newPlan=document.getElementById('selectedPlanKey').value,btn=document.getElementById('confirmPlanBtn');btn.textContent=l('changePlanUpdating');btn.disabled=true;const now=new Date();const expiresAt=new Date(now);expiresAt.setDate(expiresAt.getDate()+30);try{await db.collection("businesses").doc(bizId).update({plan:newPlan,commissionRate:Math.round(PLANS[newPlan].fee*100),planActivatedAt:now,planExpiresAt:expiresAt});closeModal('changePlanModal');showToast(l('toastPlanChanged'));}catch(e){showToast(l('toastError'),true);}btn.textContent=l('changePlanConfirm');btn.disabled=false;};
 
 function renderEarnings(){
   const sold=allOrders.filter(o=>o.status==='sold');
@@ -185,13 +143,13 @@ function renderEarnings(){
   s('earnTotalOrders',sold.length);
   const byMonth={};sold.forEach(o=>{const d=o.createdAt?.toDate?o.createdAt.toDate():new Date();const key=d.getFullYear()+'-'+(d.getMonth()+1).toString().padStart(2,'0'),label=d.toLocaleDateString('sq-AL',{month:'long',year:'numeric'});if(!byMonth[key])byMonth[key]={label,orders:0,gmv:0,fees:0};byMonth[key].orders++;byMonth[key].gmv+=o.totalPrice||0;byMonth[key].fees+=o.platformFee||0;});
   const earnBody=document.getElementById('earningsBody');if(!earnBody)return;
-  earnBody.innerHTML=Object.values(byMonth).reverse().map(m=>`<tr><td style="font-weight:800">${m.label}</td><td>${m.orders}</td><td style="color:#f5c518">${m.gmv.toLocaleString()} L</td><td style="color:#22c55e">+${m.fees.toLocaleString()} L</td><td><span class="sbadge s-active">✓</span></td></tr>`).join('')||'<tr><td colspan="5" style="text-align:center;">Ende nuk ka shitje.</td></tr>';
+  earnBody.innerHTML=Object.values(byMonth).reverse().map(m=>`<tr><td style="font-weight:800">${m.label}</td><td>${m.orders}</td><td style="color:#f5c518">${m.gmv.toLocaleString()} L</td><td style="color:#22c55e">+${m.fees.toLocaleString()} L</td><td><span class="sbadge s-active">${l('earnMonthlyStatus')}</span></td></tr>`).join('')||`<tr><td colspan="5" style="text-align:center;">${l('noEarnings')}</td></tr>`;
 }
 
 window.searchBiz=function(v){renderBusinesses(v);};
 window.searchParts=function(v){renderAllParts(v);};
 
-function showApp(){document.getElementById('loginScreen').style.display='none';document.getElementById('app').style.display='flex';}
+function showApp(){document.getElementById('loginScreen').style.display='none';document.getElementById('app').style.display='flex';applyLang();}
 function showLogin(){document.getElementById('loginScreen').style.display='flex';document.getElementById('app').style.display='none';}
 window.showPage=function(page){
   currentPage=page;
@@ -199,14 +157,27 @@ window.showPage=function(page){
   document.getElementById('page-'+page)?.classList.add('active');
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
   document.getElementById('nav-'+page)?.classList.add('active');
-  const titles={dashboard:'PASQYRA KRYESORE',businesses:'TË GJITHA BIZNESET',parts:'TË GJITHA PJESËT',orders:'TË GJITHA POROSITË',earnings:'FITIMET E PLATFORMËS',messages:'MESAZHET',plans:'KËRKESAT PËR PLANE',weeklyPromos:'PROMOCIONE JAVORE'};
-  document.getElementById('topbarTitle').textContent=titles[page]||'';
+  const topbarKey='topbar'+page.charAt(0).toUpperCase()+page.slice(1);
+  document.getElementById('topbarTitle').textContent=l(topbarKey);
   if(page==='earnings')renderEarnings();
   if(window.innerWidth<=768)document.getElementById('sidebar')?.classList.remove('open');
 };
 window.toggleSidebar=function(){document.getElementById('sidebar')?.classList.toggle('open');};
 window.closeModal=function(id){document.getElementById(id)?.classList.remove('open');};
-window.setLang=function(l){lang=l;};
+window.setLang=function(lg){lang=lg;applyLang();renderBusinesses();renderAllParts();renderAllOrders();renderMessages();renderPlanRequests();renderWeeklyPromos();renderEarnings();updateDashboard();};
+function applyLang(){
+  document.title=l('pageTitle');
+  document.querySelectorAll('[data-l]').forEach(el=>{const key=el.dataset.l;if(L[lang][key]!==undefined)el.textContent=L[lang][key];});
+  document.querySelectorAll('[data-l-placeholder]').forEach(el=>{const key=el.dataset.lPlaceholder;if(L[lang][key]!==undefined)el.placeholder=L[lang][key];});
+  const topbarKey='topbar'+currentPage.charAt(0).toUpperCase()+currentPage.slice(1);
+  document.getElementById('topbarTitle').textContent=l(topbarKey);
+  document.getElementById('adminIdentified').textContent=l('adminIdentified');
+  document.getElementById('loginBadge').textContent=l('loginBadge');
+  document.getElementById('loginEmailLabel').textContent=l('loginEmailLabel');
+  document.getElementById('loginPassLabel').textContent=l('loginPassLabel');
+  document.getElementById('loginBtn').textContent=l('loginBtn');
+  document.getElementById('logoutBtn').textContent=l('logoutBtn');
+}
 document.addEventListener('DOMContentLoaded',()=>{document.querySelectorAll('.modal-overlay').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('open');}));document.addEventListener('keypress',e=>{if(e.key==='Enter'&&document.getElementById('loginScreen').style.display!=='none')doLogin();});});
 </script>
 <style>
@@ -306,36 +277,36 @@ tbody td{padding:0.8rem 1.25rem;font-size:0.83rem;}
 <div class="login-screen" id="loginScreen">
   <div class="login-box">
     <div class="login-logo">Car<span>deals</span>.al</div>
-    <div class="admin-badge">🔐 ADMIN PANEL</div>
-    <div class="inp-group"><label>EMAIL ADMIN</label><input type="email" id="loginEmail" placeholder="emaili_juaj@gmail.com" /></div>
-    <div class="inp-group"><label>FJALËKALIMI</label><input type="password" id="loginPass" placeholder="••••••••" /></div>
-    <button class="auth-btn" id="loginBtn" onclick="doLogin()">HYRJA →</button>
+    <div class="admin-badge" id="loginBadge" data-l="loginBadge">🔐 ADMIN PANEL</div>
+    <div class="inp-group"><label id="loginEmailLabel" data-l="loginEmailLabel">EMAIL ADMIN</label><input type="email" id="loginEmail" data-l-placeholder="loginEmailPlaceholder" placeholder="emaili_juaj@gmail.com" /></div>
+    <div class="inp-group"><label id="loginPassLabel" data-l="loginPassLabel">FJALËKALIMI</label><input type="password" id="loginPass" data-l-placeholder="loginPassPlaceholder" placeholder="••••••••" /></div>
+    <button class="auth-btn" id="loginBtn" onclick="doLogin()" data-l="loginBtn">HYRJA →</button>
     <div class="login-error" id="loginError"></div>
   </div>
 </div>
 
 <div id="app" style="display:none;">
   <aside class="sidebar" id="sidebar">
-    <div class="sidebar-logo"><div class="logo-text">Car<span>deals</span>.al</div><div class="admin-pill">🔐 ADMIN</div></div>
+    <div class="sidebar-logo"><div class="logo-text">Car<span>deals</span>.al</div><div class="admin-pill" data-l="sidebarAdminPill">🔐 ADMIN</div></div>
     <nav class="sidebar-nav">
-      <div class="nav-section">KRYEFAQJA</div>
-      <a class="nav-item active" onclick="showPage('dashboard')" id="nav-dashboard"><span>📊</span> Pasqyra Kryesore</a>
-      <div class="nav-section">MENAXHIM</div>
-      <a class="nav-item" onclick="showPage('businesses')" id="nav-businesses"><span>🏪</span> Të Gjitha Bizneset</a>
-      <a class="nav-item" onclick="showPage('parts')" id="nav-parts"><span>🔩</span> Të Gjitha Pjesët</a>
-      <a class="nav-item" onclick="showPage('orders')" id="nav-orders"><span>📦</span> Të Gjitha Porositë</a>
-      <a class="nav-item" onclick="showPage('messages')" id="nav-messages"><span>📬</span> Mesazhet <span class="nav-badge" id="msgBadge">0</span></a>
-      <div class="nav-section">PROMOCIONE</div>
-      <a class="nav-item" onclick="showPage('weeklyPromos')" id="nav-weeklyPromos"><span>🚀</span> Promocione Javore</a>
-      <div class="nav-section">FINANCAT</div>
-      <a class="nav-item" onclick="showPage('earnings')" id="nav-earnings"><span>💰</span> Fitimet e Platformës</a>
-      <a class="nav-item" onclick="showPage('plans')" id="nav-plans"><span>⭐</span> Kërkesat për Plane</a>
+      <div class="nav-section" data-l="secOverview">KRYEFAQJA</div>
+      <a class="nav-item active" onclick="showPage('dashboard')" id="nav-dashboard"><span>📊</span> <span data-l="navDashboard">Pasqyra Kryesore</span></a>
+      <div class="nav-section" data-l="secManagement">MENAXHIM</div>
+      <a class="nav-item" onclick="showPage('businesses')" id="nav-businesses"><span>🏪</span> <span data-l="navBusinesses">Të Gjitha Bizneset</span></a>
+      <a class="nav-item" onclick="showPage('parts')" id="nav-parts"><span>🔩</span> <span data-l="navParts">Të Gjitha Pjesët</span></a>
+      <a class="nav-item" onclick="showPage('orders')" id="nav-orders"><span>📦</span> <span data-l="navOrders">Të Gjitha Porositë</span></a>
+      <a class="nav-item" onclick="showPage('messages')" id="nav-messages"><span>📬</span> <span data-l="navMessages">Mesazhet</span> <span class="nav-badge" id="msgBadge">0</span></a>
+      <div class="nav-section" data-l="secPromotions">PROMOCIONE</div>
+      <a class="nav-item" onclick="showPage('weeklyPromos')" id="nav-weeklyPromos"><span>🚀</span> <span data-l="navWeeklyPromos">Promocione Javore</span></a>
+      <div class="nav-section" data-l="secFinances">FINANCAT</div>
+      <a class="nav-item" onclick="showPage('earnings')" id="nav-earnings"><span>💰</span> <span data-l="navEarnings">Fitimet e Platformës</span></a>
+      <a class="nav-item" onclick="showPage('plans')" id="nav-plans"><span>⭐</span> <span data-l="navPlans">Kërkesat për Plane</span></a>
     </nav>
     <div class="sidebar-bottom">
-      <div class="admin-info"><div class="ai-label">🔐 Identifikuar si Admin</div><div class="ai-email" id="adminEmail">—</div></div>
-      <a href="index.html" class="back-link" target="_blank">🌐 Cardeals.al ↗</a>
-      <a href="cardeals-backoffice.html" class="back-link" target="_blank">🏪 Backoffice ↗</a>
-      <button class="logout-btn" onclick="doLogout()">⬅ Dil nga Admin</button>
+      <div class="admin-info"><div class="ai-label" id="adminIdentified" data-l="adminIdentified">🔐 Identifikuar si Admin</div><div class="ai-email" id="adminEmail">—</div></div>
+      <a href="index.html" class="back-link" target="_blank" data-l="backMarketplace">🌐 Cardeals.al ↗</a>
+      <a href="cardeals-backoffice.html" class="back-link" target="_blank" data-l="backBackoffice">🏪 Backoffice ↗</a>
+      <button class="logout-btn" id="logoutBtn" onclick="doLogout()" data-l="logoutBtn">⬅ Dil nga Admin</button>
     </div>
   </aside>
 
@@ -344,42 +315,32 @@ tbody td{padding:0.8rem 1.25rem;font-size:0.83rem;}
 
     <div class="page active" id="page-dashboard">
       <div class="stats-row">
-        <div class="stat-card sc-green"><div class="stat-ico">💰</div><div class="stat-val" id="statRevenue">0 L</div><div class="stat-lbl">Fitimet e Platformës</div></div>
-        <div class="stat-card sc-yellow"><div class="stat-ico">📈</div><div class="stat-val" id="statGMV">0 L</div><div class="stat-lbl">Vlera Totale Shitjeve</div></div>
-        <div class="stat-card sc-blue"><div class="stat-ico">🏪</div><div class="stat-val" id="statBiz">0</div><div class="stat-lbl">Biznese të Regjistruara</div></div>
-        <div class="stat-card sc-orange"><div class="stat-ico">🔩</div><div class="stat-val" id="statParts">0</div><div class="stat-lbl">Pjesë Aktive</div></div>
-        <div class="stat-card sc-red"><div class="stat-ico">📦</div><div class="stat-val" id="statOrders">0</div><div class="stat-lbl">Porosi Totale</div></div>
-        <div class="stat-card sc-orange"><div class="stat-ico">⏳</div><div class="stat-val" id="statPending">0</div><div class="stat-lbl">Porosi në Pritje</div></div>
+        <div class="stat-card sc-green"><div class="stat-ico">💰</div><div class="stat-val" id="statRevenue">0 L</div><div class="stat-lbl" data-l="statRevenue">Fitimet e Platformës</div></div>
+        <div class="stat-card sc-yellow"><div class="stat-ico">📈</div><div class="stat-val" id="statGMV">0 L</div><div class="stat-lbl" data-l="statGMV">Vlera Totale Shitjeve</div></div>
+        <div class="stat-card sc-blue"><div class="stat-ico">🏪</div><div class="stat-val" id="statBiz">0</div><div class="stat-lbl" data-l="statBiz">Biznese të Regjistruara</div></div>
+        <div class="stat-card sc-orange"><div class="stat-ico">🔩</div><div class="stat-val" id="statParts">0</div><div class="stat-lbl" data-l="statParts">Pjesë Aktive</div></div>
+        <div class="stat-card sc-red"><div class="stat-ico">📦</div><div class="stat-val" id="statOrders">0</div><div class="stat-lbl" data-l="statOrders">Porosi Totale</div></div>
+        <div class="stat-card sc-orange"><div class="stat-ico">⏳</div><div class="stat-val" id="statPending">0</div><div class="stat-lbl" data-l="statPending">Porosi në Pritje</div></div>
       </div>
-      <div class="table-card"><div class="table-header"><h3>⚡ AKTIVITETI I FUNDIT</h3></div><div id="recentActivity"></div></div>
+      <div class="table-card"><div class="table-header"><h3 data-l="recentActivity">⚡ AKTIVITETI I FUNDIT</h3></div><div id="recentActivity"></div></div>
     </div>
 
     <div class="page" id="page-businesses">
-      <div class="table-card">
-        <div class="table-header">
-          <h3>🏪 TË GJITHA BIZNESET</h3>
-          <div style="display:flex;gap:0.5rem;">
-            <button class="icon-btn" onclick="fixBusinessData()" style="background:rgba(245,197,24,0.1);border-color:#f5c518;color:#f5c518;" title="Rregullo lidhjen biznes-pjesë">🔧 Rregullo të Dhënat</button>
-            <input class="search-inp" placeholder="🔍 Kërko biznes..." oninput="searchBiz(this.value)" />
-          </div>
-        </div>
-        <table><thead><tr><th>Biznesi</th><th>Qyteti</th><th>Plani</th><th>Pjesë</th><th>Shitje</th><th>Fitim</th><th>Statusi</th><th>Veprime</th></tr></thead><tbody id="bizBody"></tbody></table>
-      </div>
+      <div class="table-card"><div class="table-header"><h3 data-l="navBusinesses">🏪 TË GJITHA BIZNESET</h3><div style="display:flex;gap:0.5rem;"><button class="icon-btn" onclick="fixBusinessData()" style="background:rgba(245,197,24,0.1);border-color:#f5c518;color:#f5c518;" data-l="fixDataBtn">🔧 Rregullo të Dhënat</button><input class="search-inp" data-l-placeholder="searchBiz" placeholder="🔍 Kërko biznes..." oninput="searchBiz(this.value)" /></div></div><table><thead><tr><th data-l="thBiz">Biznesi</th><th data-l="thCity">Qyteti</th><th data-l="thPlan">Plani</th><th data-l="thParts">Pjesë</th><th data-l="thSales">Shitje</th><th data-l="thEarn">Fitim</th><th data-l="thStatus">Statusi</th><th data-l="thActions">Veprime</th></tr></thead><tbody id="bizBody"></tbody></table></div>
     </div>
 
-    <div class="page" id="page-parts"><div class="table-card"><div class="table-header"><h3>🔩 TË GJITHA PJESËT</h3><input class="search-inp" placeholder="🔍 Kërko pjesë..." oninput="searchParts(this.value)" /></div><table><thead><tr><th>Pjesa</th><th>Shitësi</th><th>Gjendja</th><th>Stoku</th><th>Çmimi Bazë</th><th>Final</th><th>Statusi</th><th>Veprime</th></tr></thead><tbody id="allPartsBody"></tbody></table></div></div>
-    <div class="page" id="page-orders"><div style="display:flex;gap:0.5rem;margin-bottom:1.25rem;"><button class="ot-btn active" onclick="filterOrders('all',this)">Të Gjitha</button><button class="ot-btn" onclick="filterOrders('pending',this)">Në Pritje</button><button class="ot-btn" onclick="filterOrders('sold',this)">Shitur</button></div><div class="table-card"><div class="table-header"><h3>📦 TË GJITHA POROSITË</h3><span id="ordersCount" style="color:#8892a4;font-size:0.82rem;"></span></div><table><thead><tr><th>#</th><th>Pjesa</th><th>Blerësi</th><th>Shitësi</th><th>Data</th><th>Çmimi</th><th>Fitimi</th><th>Statusi</th></tr></thead><tbody id="allOrdersBody"></tbody></table></div></div>
-    <div class="page" id="page-messages"><div class="table-card"><div class="table-header"><h3>📬 MESAZHET NGA KONTAKTI</h3></div><table><thead><tr><th>Status</th><th>Emri</th><th>Email</th><th>Data</th><th>Mesazhi</th><th>Veprim</th></tr></thead><tbody id="messagesBody"></tbody></table></div></div>
-    <div class="page" id="page-weeklyPromos"><div class="table-card"><div class="table-header"><h3>🚀 PROMOCIONE JAVORE</h3></div><table><thead><tr><th>Biznesi</th><th>Pjesa</th><th>Tier</th><th>Çmimi</th><th>Data</th><th>Skadon</th><th>Statusi</th><th>Veprim</th></tr></thead><tbody id="weeklyPromosBody"></tbody></table></div></div>
-    <div class="page" id="page-plans"><div class="table-card"><div class="table-header"><h3>⭐ KËRKESAT PËR UPGRADE PLANI</h3></div><table><thead><tr><th>Biznesi</th><th>Nga</th><th>Në</th><th>Çmimi</th><th>Data</th><th>Statusi</th><th>Veprim</th></tr></thead><tbody id="planRequestsBody"></tbody></table></div></div>
-    <div class="page" id="page-earnings"><div class="stats-row"><div class="stat-card sc-green"><div class="stat-ico">💰</div><div class="stat-val" id="earnTotalFees">0 L</div><div class="stat-lbl">Fitimi Platformës (8%)</div></div><div class="stat-card sc-yellow"><div class="stat-ico">📈</div><div class="stat-val" id="earnTotalGMV">0 L</div><div class="stat-lbl">GMV Total</div></div><div class="stat-card sc-blue"><div class="stat-ico">📦</div><div class="stat-val" id="earnTotalOrders">0</div><div class="stat-lbl">Shitje të Konfirmuara</div></div></div><div class="table-card"><div class="table-header"><h3>📅 PËRMBLEDHJA MUJORE</h3></div><table><thead><tr><th>Muaji</th><th>Shitje</th><th>GMV</th><th>Fitimi</th><th>Statusi</th></tr></thead><tbody id="earningsBody"></tbody></table></div></div>
-
+    <div class="page" id="page-parts"><div class="table-card"><div class="table-header"><h3 data-l="navParts">🔩 TË GJITHA PJESËT</h3><input class="search-inp" data-l-placeholder="searchParts" placeholder="🔍 Kërko pjesë..." oninput="searchParts(this.value)" /></div><table><thead><tr><th data-l="thPart">Pjesa</th><th data-l="thSeller">Shitësi</th><th data-l="thCondition">Gjendja</th><th data-l="thStock">Stoku</th><th data-l="thBasePrice">Çmimi Bazë</th><th data-l="thFinal">Final</th><th data-l="thStatus">Statusi</th><th data-l="thActions">Veprime</th></tr></thead><tbody id="allPartsBody"></tbody></table></div></div>
+    <div class="page" id="page-orders"><div style="display:flex;gap:0.5rem;margin-bottom:1.25rem;"><button class="ot-btn active" onclick="filterOrders('all',this)" data-l="filterAll">Të Gjitha</button><button class="ot-btn" onclick="filterOrders('pending',this)" data-l="filterPending">Në Pritje</button><button class="ot-btn" onclick="filterOrders('sold',this)" data-l="filterSold">Shitur</button></div><div class="table-card"><div class="table-header"><h3 data-l="navOrders">📦 TË GJITHA POROSITË</h3><span id="ordersCount" style="color:#8892a4;font-size:0.82rem;"></span></div><table><thead><tr><th data-l="thOrderNum">#</th><th data-l="thPart">Pjesa</th><th data-l="thBuyer">Blerësi</th><th data-l="thSeller">Shitësi</th><th data-l="thDate">Data</th><th data-l="thPrice">Çmimi</th><th data-l="thProfit">Fitimi</th><th data-l="thStatus">Statusi</th></tr></thead><tbody id="allOrdersBody"></tbody></table></div></div>
+    <div class="page" id="page-messages"><div class="table-card"><div class="table-header"><h3 data-l="navMessages">📬 MESAZHET NGA KONTAKTI</h3></div><table><thead><tr><th data-l="thMsgStatus">Status</th><th data-l="thName">Emri</th><th data-l="thEmail">Email</th><th data-l="thDate">Data</th><th data-l="thMessage">Mesazhi</th><th data-l="thAction">Veprim</th></tr></thead><tbody id="messagesBody"></tbody></table></div></div>
+    <div class="page" id="page-weeklyPromos"><div class="table-card"><div class="table-header"><h3 data-l="promoWeek">🚀 PROMOCIONE JAVORE</h3></div><table><thead><tr><th data-l="thBizPromo">Biznesi</th><th data-l="thPart">Pjesa</th><th data-l="thTier">Tier</th><th data-l="thCost">Çmimi</th><th data-l="thDate">Data</th><th data-l="thExpires">Skadon</th><th data-l="thStatus">Statusi</th><th data-l="thActions">Veprim</th></tr></thead><tbody id="weeklyPromosBody"></tbody></table></div></div>
+    <div class="page" id="page-plans"><div class="table-card"><div class="table-header"><h3 data-l="navPlans">⭐ KËRKESAT PËR UPGRADE PLANI</h3></div><table><thead><tr><th data-l="thBiz">Biznesi</th><th data-l="thFrom">Nga</th><th data-l="thTo">Në</th><th data-l="thCost">Çmimi</th><th data-l="thDate">Data</th><th data-l="thStatus">Statusi</th><th data-l="thActions">Veprim</th></tr></thead><tbody id="planRequestsBody"></tbody></table></div></div>
+    <div class="page" id="page-earnings"><div class="stats-row"><div class="stat-card sc-green"><div class="stat-ico">💰</div><div class="stat-val" id="earnTotalFees">0 L</div><div class="stat-lbl" data-l="earnTotalFees">Fitimi Platformës (8%)</div></div><div class="stat-card sc-yellow"><div class="stat-ico">📈</div><div class="stat-val" id="earnTotalGMV">0 L</div><div class="stat-lbl" data-l="earnTotalGMV">GMV Total</div></div><div class="stat-card sc-blue"><div class="stat-ico">📦</div><div class="stat-val" id="earnTotalOrders">0</div><div class="stat-lbl" data-l="earnTotalOrders">Shitje të Konfirmuara</div></div></div><div class="table-card"><div class="table-header"><h3 data-l="earnMonthlyTitle">📅 PËRMBLEDHJA MUJORE</h3></div><table><thead><tr><th data-l="thMonth">Muaji</th><th data-l="thSales">Shitje</th><th data-l="thGMV">GMV</th><th data-l="thProfit">Fitimi</th><th data-l="thStatus">Statusi</th></tr></thead><tbody id="earningsBody"></tbody></table></div></div>
   </div>
 </div>
 
 <div class="modal-overlay" id="detailModal"><div class="modal"><button class="modal-close" onclick="closeModal('detailModal')">✕</button><h3 id="detailTitle">—</h3><div id="detailContent"></div></div></div>
-<div class="modal-overlay" id="changePlanModal"><div class="modal" style="max-width:520px;"><button class="modal-close" onclick="closeModal('changePlanModal')">✕</button><h3>⭐ NDRYSHO PLANIN</h3><p style="color:#8892a4;">Biznesi: <strong id="changePlanBizName"></strong></p><input type="hidden" id="changePlanBizId" /><input type="hidden" id="selectedPlanKey" /><div id="changePlanOptions" style="display:flex;flex-direction:column;gap:0.75rem;margin-bottom:1.5rem;"></div><div style="display:flex;gap:0.75rem;"><button class="icon-btn" id="confirmPlanBtn" style="flex:1;padding:11px;background:var(--red);color:white;border:none;border-radius:8px;font-weight:800;cursor:pointer;" onclick="confirmChangePlan()">KONFIRMO</button><button class="icon-btn" style="flex:1;padding:11px;background:transparent;border:1px solid var(--border);color:var(--chrome);border-radius:8px;font-weight:800;cursor:pointer;" onclick="closeModal('changePlanModal')">Anulo</button></div></div></div>
-<div class="modal-overlay" id="msgDetailModal"><div class="modal"><button class="modal-close" onclick="closeModal('msgDetailModal')">✕</button><h3>📬 Detajet e Mesazhit</h3><div id="msgDetailContent"></div></div></div>
+<div class="modal-overlay" id="changePlanModal"><div class="modal" style="max-width:520px;"><button class="modal-close" onclick="closeModal('changePlanModal')">✕</button><h3 data-l="changePlanTitle">⭐ NDRYSHO PLANIN</h3><p style="color:#8892a4;"><span data-l="changePlanBiz">Biznesi:</span> <strong id="changePlanBizName"></strong></p><input type="hidden" id="changePlanBizId" /><input type="hidden" id="selectedPlanKey" /><div id="changePlanOptions" style="display:flex;flex-direction:column;gap:0.75rem;margin-bottom:1.5rem;"></div><div style="display:flex;gap:0.75rem;"><button class="icon-btn" id="confirmPlanBtn" style="flex:1;padding:11px;background:var(--red);color:white;border:none;border-radius:8px;font-weight:800;cursor:pointer;" onclick="confirmChangePlan()" data-l="changePlanConfirm">KONFIRMO</button><button class="icon-btn" style="flex:1;padding:11px;background:transparent;border:1px solid var(--border);color:var(--chrome);border-radius:8px;font-weight:800;cursor:pointer;" onclick="closeModal('changePlanModal')" data-l="changePlanCancel">Anulo</button></div></div></div>
+<div class="modal-overlay" id="msgDetailModal"><div class="modal"><button class="modal-close" onclick="closeModal('msgDetailModal')">✕</button><h3 data-l="msgDetailTitle">📬 Detajet e Mesazhit</h3><div id="msgDetailContent"></div></div></div>
 <div class="toast" id="toast"></div>
 </body>
 </html>
