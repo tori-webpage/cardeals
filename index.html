@@ -46,7 +46,7 @@ nav{background:var(--panel);border-bottom:3px solid var(--red);display:flex;alig
 .user-menu{position:relative;display:flex;gap:0.5rem;}
 .user-btn{background:var(--panel);border:1px solid var(--border);color:var(--white);border-radius:8px;padding:6px 14px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;}
 .register-btn{background:var(--red)!important;color:white!important;border-color:var(--red)!important;}
-.user-dropdown{display:none;position:absolute;top:100%;right:0;margin-top:8px;background:var(--card);border:1px solid var(--border);border-radius:10px;min-width:220px;overflow:hidden;z-index:50;}
+.user-dropdown{display:none;position:absolute;top:100%;right:0;margin-top:8px;background:var(--card);border:1px solid var(--border);border-radius:10px;min-width:200px;overflow:hidden;z-index:50;}
 .user-dropdown.open{display:block;}
 .user-dropdown a,.user-dropdown button{display:block;width:100%;text-align:left;padding:10px 16px;color:var(--chrome);text-decoration:none;background:none;border:none;font-family:'Nunito',sans-serif;font-size:0.85rem;cursor:pointer;transition:all 0.2s;}
 .user-dropdown a:hover,.user-dropdown button:hover{background:rgba(255,255,255,0.05);color:var(--white);}
@@ -119,8 +119,6 @@ nav{background:var(--panel);border-bottom:3px solid var(--red);display:flex;alig
 .buy-btn:hover{background:var(--red-dark);transform:translateY(-1px);box-shadow:0 4px 12px rgba(224,32,32,0.3);}
 .buy-btn:active{transform:translateY(0);}
 .buy-btn:disabled{opacity:0.4;cursor:not-allowed;transform:none;box-shadow:none;}
-.msg-btn{width:100%;background:var(--panel);border:1px solid var(--border);color:var(--white);border-radius:8px;padding:10px;font-family:'Bebas Neue',sans-serif;font-size:0.9rem;letter-spacing:1px;cursor:pointer;transition:all 0.2s;margin-top:0.5rem;}
-.msg-btn:hover{border-color:var(--green);color:var(--green);}
 .spinner{width:40px;height:40px;border:3px solid var(--border);border-top-color:var(--red);border-radius:50%;animation:spin 0.6s linear infinite;margin:0 auto;}
 @keyframes spin{to{transform:rotate(360deg)}}
 .how-section{background:var(--panel);padding:4rem 2rem;}
@@ -172,23 +170,16 @@ footer p{color:var(--chrome);font-size:0.85rem;margin-bottom:1.5rem;}
 .cookie-btn.accept{background:var(--red);color:white;}
 .cookie-btn.accept:hover{transform:translateY(-1px);}
 .cookie-btn.settings{background:transparent;border:1px solid var(--border);color:var(--chrome);}
+.featured-section{background:rgba(245,197,24,0.03);border:1px solid rgba(245,197,24,0.15);border-radius:var(--radius);padding:1.5rem;margin-bottom:2rem;}
+.featured-title{font-family:'Bebas Neue',sans-serif;font-size:1.3rem;letter-spacing:2px;color:#f5c518;margin-bottom:1rem;}
+.featured-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1.5rem;}
+.part-card.featured-card{border-color:rgba(245,197,24,0.4);}
 .price-original{text-decoration:line-through;color:#e02020;font-size:0.78rem;}
 .price-discounted{color:#22c55e;font-weight:800;font-size:0.9rem;}
-/* Chat Styles */
-.chat-bubble{max-width:75%;padding:0.6rem 1rem;border-radius:16px;font-size:0.85rem;line-height:1.4;word-wrap:break-word;}
-.chat-bubble.sent{background:var(--red);color:white;align-self:flex-end;border-bottom-right-radius:4px;}
-.chat-bubble.received{background:var(--panel);border:1px solid var(--border);align-self:flex-start;border-bottom-left-radius:4px;}
-.chat-time{font-size:0.65rem;color:rgba(255,255,255,0.5);margin-top:4px;text-align:right;}
-.chat-time.received{color:var(--chrome);}
-.chat-inbox-item{display:flex;align-items:center;gap:1rem;padding:0.85rem 1rem;border-bottom:1px solid var(--border);cursor:pointer;transition:background 0.15s;}
-.chat-inbox-item:hover{background:rgba(255,255,255,0.03);}
-.chat-inbox-avatar{width:44px;height:44px;border-radius:50%;background:var(--panel);display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0;}
-.chat-inbox-info{flex:1;min-width:0;}
-.chat-inbox-name{font-weight:800;font-size:0.88rem;display:flex;align-items:center;gap:0.5rem;}
-.chat-inbox-last{font-size:0.78rem;color:var(--chrome);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.chat-inbox-meta{text-align:right;flex-shrink:0;}
-.chat-inbox-time{font-size:0.7rem;color:var(--chrome);}
-.chat-inbox-badge{background:var(--red);color:white;font-size:0.65rem;font-weight:800;padding:3px 8px;border-radius:10px;margin-top:4px;display:inline-block;}
+.promo-badge{display:inline-block;font-size:0.6rem;font-weight:800;padding:2px 7px;border-radius:10px;margin:1px;letter-spacing:0.5px;}
+.promo-featured{background:#f5c518;color:#000;}.promo-discount{background:#22c55e;color:#fff;}.promo-special{background:#f97316;color:#fff;}.promo-shipping{background:#3b82f6;color:#fff;}.promo-limited{background:#e02020;color:#fff;}.promo-bestseller{background:#a855f7;color:#fff;}.promo-new{background:#8b5cf6;color:#fff;}
+.stat-card{transition:transform 0.2s ease,border-color 0.2s ease;}
+.stat-card:hover{transform:translateY(-2px);}
 @media(max-width:640px){.nav-links a:not(.nav-sell){display:none;}nav{padding:0 1rem;}.stats-bar{gap:1.5rem;}.car-selector{flex-direction:column;align-items:center;}}
 </style>
 </head>
@@ -213,13 +204,7 @@ footer p{color:var(--chrome);font-size:0.85rem;margin-bottom:1.5rem;}
     <div class="user-menu">
       <button class="user-btn" onclick="toggleUserMenu()">👤 <span id="userDisplay" data-l="account">Llogaria</span></button>
       <button class="user-btn register-btn" onclick="openRegisterModal()" id="registerBtn" data-l="register">✨ Regjistrohu</button>
-      <div class="user-dropdown" id="userDropdown">
-        <a href="#" onclick="openChatInbox();return false;"><span data-l="chatTitle">💬 Mesazhe</span> <span id="chatBadge" style="background:var(--red);color:white;font-size:0.6rem;padding:2px 7px;border-radius:10px;display:none;">0</span></a>
-        <a href="#" onclick="showBuyerOrders();return false;" data-l="myOrders">📦 Porositë e Mia</a>
-        <a href="#" onclick="showSavedSearches();return false;" data-l="savedSearches">🔍 Kërkimet e Ruajtura</a>
-        <a href="#" onclick="openBuyerProfile();return false;" data-l="profile">⚙️ Profili</a>
-        <button onclick="buyerLogout()" data-l="logout">🚪 Dil</button>
-      </div>
+      <div class="user-dropdown" id="userDropdown"><a href="#" onclick="showBuyerOrders(); return false;" data-l="myOrders">📦 Porositë e Mia</a><a href="#" onclick="showSavedSearches(); return false;" data-l="savedSearches">🔍 Kërkimet e Ruajtura</a><a href="#" onclick="openBuyerProfile(); return false;" data-l="profile">⚙️ Profili</a><button onclick="buyerLogout()" data-l="logout">🚪 Dil</button></div>
     </div>
   </div>
 </nav>
@@ -264,17 +249,8 @@ footer p{color:var(--chrome);font-size:0.85rem;margin-bottom:1.5rem;}
   <div class="footer-copy">© 2025 Cardeals.al</div>
 </footer>
 
-<!-- Buy Modal -->
 <div class="modal-overlay" id="buyModal"><div class="modal"><button class="modal-x" onclick="closeModal('buyModal')">✕</button><div class="modal-emoji" id="mEmoji"></div><h2 id="mName"></h2><div class="modal-seller-txt" id="mSeller"></div><div id="mStockInfo" style="margin-bottom:0.75rem;"></div><div style="display:flex;align-items:center;gap:1rem;background:rgba(0,0,0,0.2);border-radius:10px;padding:0.75rem 1rem;margin-bottom:1rem;"><span style="color:#8892a4;" data-l="modalQty">Sasia:</span><div style="display:flex;align-items:center;gap:0.5rem;"><button onclick="changeQty(-1)" style="width:32px;height:32px;border-radius:8px;border:1px solid #444;background:var(--panel);color:white;font-size:1.2rem;cursor:pointer;font-weight:800;">−</button><input type="number" id="mQty" value="1" min="1" max="99" oninput="updateModalTotal()" style="width:56px;text-align:center;background:var(--panel);border:1px solid #444;border-radius:8px;color:white;padding:6px;font-family:'Nunito',sans-serif;font-weight:800;font-size:1rem;outline:none;" /><button onclick="changeQty(1)" style="width:32px;height:32px;border-radius:8px;border:1px solid #444;background:var(--panel);color:white;font-size:1.2rem;cursor:pointer;font-weight:800;">+</button></div></div><div class="price-summary"><div class="ps-r"><span data-l="modalBasePrice">Çmimi shitësit</span><span id="mBase"></span></div><div class="ps-r ps-fee"><span data-l="modalFee">Tarifa Cardeals (8%)</span><span id="mFee"></span></div><div class="ps-r ps-total"><span data-l="modalTotal">Totali</span><span id="mTotal" style="color:var(--green)"></span></div></div><div class="pay-toggle"><div class="pay-opt active" id="btnOnline" onclick="selectPay('online')" data-l="payOnline">💳 Paguo Online</div><div class="pay-opt" id="btnPickup" onclick="selectPay('pickup')" data-l="payPickup">🤝 Paguo në Marrje</div></div><div id="secOnline"><p style="color:#8892a4;" data-l="onlineFill">Plotëso të dhënat.</p><div class="field"><label data-l="onlineName">Emri i Plotë *</label><input type="text" id="onlineName" /></div><div class="field"><label data-l="onlinePhone">Telefon *</label><input type="text" id="onlinePhone" /></div><div class="field"><label data-l="onlineEmail">Email *</label><input type="email" id="onlineEmail" /></div><button class="buy-btn" id="btnOnlinePay" onclick="confirmOnline()" data-l="onlineBtn">💳 VAZHDO ME PAGESËN</button></div><div id="secPickup" style="display:none"><p style="color:#8892a4;" data-l="pickupFill">Rezervo falas.</p><div class="field"><label data-l="pickupName">Emri i Plotë *</label><input type="text" id="pickupName" /></div><div class="field"><label data-l="pickupPhone">Telefon *</label><input type="text" id="pickupPhone" /></div><div class="field"><label>Email</label><input type="email" id="pickupEmail" /></div><button class="buy-btn" id="btnReserve" onclick="confirmPickup()" data-l="pickupBtn">🤝 REZERVO FALAS</button></div></div></div>
-
-<!-- Auth Modal -->
 <div class="modal-overlay" id="authModal"><div class="modal"><button class="modal-x" onclick="closeModal('authModal')">✕</button><div style="display:flex;margin-bottom:1.5rem;background:var(--panel);border-radius:10px;overflow:hidden;"><button onclick="showAuthTab('login')" id="tabLogin" style="flex:1;padding:12px;border:none;background:var(--red);color:white;font-weight:800;cursor:pointer;" data-l="authLogin">🔑 Hyr</button><button onclick="showAuthTab('register')" id="tabRegister" style="flex:1;padding:12px;border:none;background:transparent;color:var(--chrome);font-weight:800;cursor:pointer;" data-l="authRegister">✨ Regjistrohu</button></div><div id="authLoginForm"><div class="field"><label>Email</label><input type="email" id="authEmail" /></div><div class="field"><label data-l="authPass">Fjalëkalimi</label><input type="password" id="authPass" /></div><button class="buy-btn" onclick="buyerLogin()" data-l="authLoginBtn">HYR</button></div><div id="authRegisterForm" style="display:none;"><p style="font-size:0.78rem;color:var(--chrome);" data-l="authRegBenefits">✅ Ruaj kërkimet ✅ Ndjek porositë</p><div class="field"><label data-l="authRegName">Emri i Plotë</label><input type="text" id="regName" /></div><div class="field"><label>Email</label><input type="email" id="regEmail" /></div><div class="field"><label data-l="authRegPass">Fjalëkalimi</label><input type="password" id="regPass" /></div><button class="buy-btn" onclick="buyerRegister()" data-l="authRegBtn">REGJISTROHU</button></div></div></div>
-
-<!-- Chat Modal -->
-<div class="modal-overlay" id="chatModal"><div class="modal" style="max-width:600px;height:70vh;display:flex;flex-direction:column;padding:0;"><div style="display:flex;align-items:center;justify-content:space-between;padding:1.25rem 1.5rem;border-bottom:1px solid var(--border);flex-shrink:0;"><div><div id="chatHeaderName" style="font-weight:800;font-size:1rem;"></div><div id="chatHeaderPart" style="font-size:0.75rem;color:var(--chrome);"></div></div><button class="modal-x" onclick="closeChat()" style="position:static;">✕</button></div><div id="chatMessages" style="flex:1;overflow-y:auto;padding:1rem 1.5rem;display:flex;flex-direction:column;gap:0.75rem;"></div><div style="display:flex;gap:0.5rem;padding:1rem 1.5rem;border-top:1px solid var(--border);flex-shrink:0;"><input type="text" id="chatInput" data-l-placeholder="chatPlaceholder" placeholder="Shkruaj mesazhin..." style="flex:1;background:var(--panel);border:1px solid var(--border);border-radius:8px;color:var(--white);padding:10px 14px;font-family:'Nunito',sans-serif;font-size:0.9rem;outline:none;" onkeypress="if(event.key==='Enter')sendMessage()" /><button onclick="sendMessage()" style="background:var(--red);color:white;border:none;border-radius:8px;padding:10px 20px;font-weight:800;cursor:pointer;" data-l="chatSend">Dërgo</button></div></div></div>
-
-<!-- Chat Inbox Modal -->
-<div class="modal-overlay" id="chatInboxModal"><div class="modal" style="max-width:550px;max-height:80vh;overflow-y:auto;"><button class="modal-x" onclick="closeModal('chatInboxModal')">✕</button><h3 data-l="chatTitle" style="font-family:'Bebas Neue',sans-serif;letter-spacing:2px;">💬 Mesazhe</h3><div id="chatInboxList"></div></div></div>
 
 <div class="toast" id="toast"></div>
 <div id="installBanner" style="display:none;position:fixed;bottom:0;left:0;right:0;background:var(--card);border-top:2px solid var(--red);padding:1rem;z-index:400;text-align:center;"><p style="margin-bottom:0.75rem;font-weight:700;" data-l="installTitle">📲 Instalo Cardeals.al</p><button class="buy-btn" style="width:auto;padding:8px 24px;" onclick="installApp()" data-l="installBtn">INSTALO</button></div>
@@ -284,19 +260,239 @@ firebase.initializeApp({apiKey:"AIzaSyAU8hVTqury1MbC0Sx-CXGY1YQrr5VJhyE",authDom
 const db=firebase.firestore(),auth=firebase.auth(),PLATFORM_FEE=0.08;
 let allParts=[],currentLang='sq',currentFilter='all',currentCondition='all',selectedPart=null,currentBuyer=null;
 let currentCarMake='',currentCarModel='';
-let chatReceiverId=null,chatReceiverName='',chatReceiverType='',chatPartId=null,chatPartName='',chatListener=null,unreadCount=0;
 
 // ════════════════════════════════════
 //  FULL TRANSLATIONS — SQ / EN
 // ════════════════════════════════════
-const L={sq:{pageTitle:'Cardeals.al — Gjej & Krahaso Pjesë Këmbimi në Shqipëri',metaDesc:'Platforma #1 e pjesëve të këmbimit në Shqipëri. Gjej dhe krahaso çmime për pjesë auto nga shitës të verifikuar. Bli online ose rezervo falas.',metaKeys:'pjesë këmbimi, pjesë auto, pjesë makine, frena, alternator, amortizator, Shqipëri, Tiranë, online, krahaso çmime',ogTitle:'Cardeals.al — Gjej & Krahaso Pjesë Këmbimi',ogDesc:'Platforma #1 e pjesëve të këmbimit në Shqipëri. Krahaso çmimet dhe bli direkt.',twitterTitle:'Cardeals.al — Pjesë Këmbimi në Shqipëri',twitterDesc:'Gjej dhe krahaso çmime për pjesë auto nga shitës të verifikuar.',cookieText:'🍪 Ky website përdor cookies. Duke vazhduar, ju pranoni <a href="privacy.html">politikën tonë të cookies</a>.',cookieSettings:'⚙️ Cilësimet',cookieAccept:'✅ Pranoj',flagRibbon:'🦅 &nbsp; Platforma #1 e Pjesëve të Këmbimit në Shqipëri &nbsp;·&nbsp; Albania\'s #1 Auto Parts Marketplace &nbsp; 🦅',navBrowse:'Shfleto',navHow:'Si Funksionon',navContact:'Kontakt',navSell:'Shit Këtu',account:'Llogaria',register:'✨ Regjistrohu',myOrders:'📦 Porositë e Mia',savedSearches:'🔍 Kërkimet e Ruajtura',profile:'⚙️ Profili',logout:'🚪 Dil',heroBadge:'🔧 Pjesë të Reja & të Përdorura · Çmimet më të Mira',heroLine1:'Gjej Çdo',heroLine2:'Krahaso Çdo Çmim.',heroSub:'Zgjidh makinën tënde dhe shiko të gjitha pjesët e përputhshme menjëherë.',selectMake:'Zgjidh Markën',modelPlaceholder:'Modeli (p.sh. Golf)',searchPartsBtn:'KËRKO PJESËT',searchPlaceholder:'Ose kërko me fjalë kyçe...',condAll:'Të gjitha',condNew:'Vetëm të Reja',condUsed:'Vetëm të Përdorura',searchBtn:'KËRKO',advFilters:'⚙️ Filtrat e Avancuar',filterCity:'Qyteti',filterAll:'Të gjitha',filterMaxPrice:'Çmimi max (Lekë)',filterSort:'Rendit sipas',sortNewest:'Më të rejat',sortPriceAsc:'Çmimi: i ulët → i lartë',sortPriceDesc:'Çmimi: i lartë → i ulët',sortDiscount:'Zbritja më e madhe',applyFilters:'APLIKO FILTRAT',resetFilters:'Rivendos',saveSearch:'💾 Ruaj Kërkimin',catAll:'Të gjitha',catEngine:'Motor',catBrakes:'Frena',catElectrical:'Elektrik',catSuspension:'Amortizatorë',catBody:'Karroceri',catAC:'Klimë',statActiveParts:'Pjesë Aktive',statSellers:'Shitës të Verifikuar',statFree:'0 L',statFreeReg:'Regjistrim Falas',statCoverage:'Mbulim Kombëtar',partsTitle1:'🔍 Pjesë',partsTitle2:'të Listuara',partsSub:'Çmimet nga biznese të verifikuara — tarifa jonë 8% është e përfshirë',loadingParts:'Duke ngarkuar pjesët...',noPartsFound:'Nuk u gjet asnjë pjesë.',seoTitle:'Pjesë Këmbimi për Çdo Makinë në Shqipëri',seoDesc:'Cardeals.al është platforma më e madhe online për <strong>pjesë këmbimi automjetesh</strong> në Shqipëri.',condNewBadge:'E RE',condUsedBadge:'E PËRDORUR',promoBadge:'PROMOVUAR',stockOut:'Jashtë stokut',stockLow:'copë',stockOk:'copë',priceLabel:'Çmimi shitësit',priceDiscountLabel:'Çmimi',feeLabel:'+ Tarifa (8%)',totalLabel:'Totali',buyBtn:'BLI TANI —',buyBtnOut:'Jashtë stokut',fitsLabel:'🚗',sellerLabel:'🏪',stockLabel:'📦 Stoku:',daysLeft:'ditë',hoursLeft:'orë',howTitle1:'⚡ Si Funksionon',howTitle2:'Cardeals.al',howStep1Title:'Zgjidh Makinën',howStep1Desc:'Zgjidh markën dhe modelin.',howStep2Title:'Krahaso',howStep2Desc:'Shiko çmimet dhe vlerësimet.',howStep3Title:'Bli',howStep3Desc:'Paguaj online ose rezervo falas.',howStep4Title:'Vlerëso',howStep4Desc:'Lër vlerësimin tënd.',bizCtaTitle1:'Je një',bizCtaTitle2:'Biznes',bizCtaTitle3:'Pjesësh?',bizCtaDesc:'Listo inventarin tënd në Cardeals.al dhe arrij mijëra blerës.',bizFeat1:'Regjistrim falas',bizFeat2:'Listo të reja & të përdorura',bizFeat3:'Panel shitjesh live',bizFeat4:'Komision vetëm kur shet',bizCtaBtn:'REGJISTRO BIZNESIN TËND →',contactTitle1:'📬 Na',contactTitle2:'Kontaktoni',contactSub:'Pyetje? Probleme? Jemi këtu për ju.',contactNameLabel:'Emri Juaj',contactEmailLabel:'Email',contactMsgLabel:'Mesazhi',contactSendBtn:'DËRGO MESAZHIN',footerTagline:'Mënyra e zgjuar për të gjetur dhe blerë pjesë këmbimi në Shqipëri.',footerAbout:'Rreth Nesh',footerHow:'Si Funksionon',footerSell:'Shit Me Ne',footerContact:'Kontakt',footerPrivacy:'Politika e Privatësisë',modalQty:'Sasia:',modalBasePrice:'Çmimi shitësit',modalFee:'Tarifa Cardeals (8%)',modalTotal:'Totali',payOnline:'💳 Paguo Online',payPickup:'🤝 Paguo në Marrje',onlineFill:'Plotëso të dhënat.',onlineName:'Emri i Plotë *',onlinePhone:'Telefon *',onlineEmail:'Email *',onlineBtn:'💳 VAZHDO ME PAGESËN',pickupFill:'Rezervo falas.',pickupName:'Emri i Plotë *',pickupPhone:'Telefon *',pickupBtn:'🤝 REZERVO FALAS',modalStockOut:'⚠️ Jashtë stokut',modalStockLow:'⚠️ Mbeten vetëm',modalStockLow2:'copë!',modalStockOk:'✓',modalStockOk2:'copë në stok',authLogin:'🔑 Hyr',authRegister:'✨ Regjistrohu',authPass:'Fjalëkalimi',authLoginBtn:'HYR',authRegBenefits:'✅ Ruaj kërkimet ✅ Ndjek porositë',authRegName:'Emri i Plotë',authRegPass:'Fjalëkalimi',authRegBtn:'REGJISTROHU',installTitle:'📲 Instalo Cardeals.al',installBtn:'INSTALO',toastLoginOk:'✅ Mirë se vini!',toastRegOk:'✅ Llogaria u krijua!',toastContactOk:'✅ Mesazhi u dërgua!',toastOrderOk:'✅ Porosia u regjistrua!',toastReserveOk:'✅ Rezervuar!',toastFillFields:'⚠️ Plotëso fushat',toastPassShort:'⚠️ Fjalëkalimi duhet 6+ karaktere',toastStockLow:'⚠️ Stok i pamjaftueshëm',toastFillNamePhone:'⚠️ Plotëso emrin dhe telefonin',toastError:'❌ Gabim',catNames:{brakes:'FRENA',engine:'MOTOR',electrical:'ELEKTRIK',suspension:'AMORTIZATORË',body:'KARROCERI',ac:'KLIMË',other:'PJESË'},
-// Chat translations
-chatTitle:'💬 Mesazhe',chatNoMessages:'Asnjë mesazh. Dërgo një mesazh për të filluar bisedën!',chatPlaceholder:'Shkruaj mesazhin...',chatSend:'Dërgo',chatNewMessage:'Mesazh i ri',chatUnread:'Mesazhe të reja',chatFrom:'Nga',chatAbout:'Rreth',msgSeller:'💬 Mesazho Shitësin',msgBack:'← Kthehu',msgYou:'Ti',msgJustNow:'tani',msgMinAgo:'min më parë',msgHoursAgo:'orë më parë',msgDaysAgo:'ditë më parë',chatEmpty:'Nuk keni mesazhe.',
-},en:{pageTitle:'Cardeals.al — Find & Compare Auto Parts in Albania',metaDesc:'The #1 auto parts marketplace in Albania. Find and compare prices for car parts from verified sellers. Buy online or reserve for free.',metaKeys:'auto parts, car parts, brakes, alternator, shock absorber, Albania, Tirana, online, compare prices',ogTitle:'Cardeals.al — Find & Compare Auto Parts',ogDesc:'The #1 auto parts marketplace in Albania. Compare prices and buy directly.',twitterTitle:'Cardeals.al — Auto Parts in Albania',twitterDesc:'Find and compare prices for auto parts from verified sellers.',cookieText:'🍪 This website uses cookies. By continuing, you accept our <a href="privacy.html">cookie policy</a>.',cookieSettings:'⚙️ Settings',cookieAccept:'✅ Accept',flagRibbon:'🦅 &nbsp; Albania\'s #1 Auto Parts Marketplace &nbsp;·&nbsp; Platforma #1 e Pjesëve të Këmbimit në Shqipëri &nbsp; 🦅',navBrowse:'Browse',navHow:'How It Works',navContact:'Contact',navSell:'Sell Here',account:'Account',register:'✨ Sign Up',myOrders:'📦 My Orders',savedSearches:'🔍 Saved Searches',profile:'⚙️ Profile',logout:'🚪 Sign Out',heroBadge:'🔧 New & Used Parts · Best Prices',heroLine1:'Find Every',heroLine2:'Compare Every Price.',heroSub:'Select your car and see all compatible parts instantly.',selectMake:'Select Brand',modelPlaceholder:'Model (e.g. Golf)',searchPartsBtn:'SEARCH PARTS',searchPlaceholder:'Or search by keyword...',condAll:'All',condNew:'New Only',condUsed:'Used Only',searchBtn:'SEARCH',advFilters:'⚙️ Advanced Filters',filterCity:'City',filterAll:'All',filterMaxPrice:'Max Price (ALL)',filterSort:'Sort by',sortNewest:'Newest first',sortPriceAsc:'Price: Low → High',sortPriceDesc:'Price: High → Low',sortDiscount:'Biggest discount',applyFilters:'APPLY FILTERS',resetFilters:'Reset',saveSearch:'💾 Save Search',catAll:'All',catEngine:'Engine',catBrakes:'Brakes',catElectrical:'Electrical',catSuspension:'Suspension',catBody:'Body',catAC:'AC & Heat',statActiveParts:'Active Parts',statSellers:'Verified Sellers',statFree:'0 ALL',statFreeReg:'Free Registration',statCoverage:'Nationwide',partsTitle1:'🔍 Listed',partsTitle2:'Parts',partsSub:'Prices from verified businesses — our 8% fee is included',loadingParts:'Loading parts...',noPartsFound:'No parts found.',seoTitle:'Auto Parts for Every Car in Albania',seoDesc:'Cardeals.al is the largest online marketplace for <strong>auto parts</strong> in Albania.',condNewBadge:'NEW',condUsedBadge:'USED',promoBadge:'PROMOTED',stockOut:'Out of stock',stockLow:'pcs',stockOk:'pcs',priceLabel:'Seller price',priceDiscountLabel:'Price',feeLabel:'+ Fee (8%)',totalLabel:'Total',buyBtn:'BUY NOW —',buyBtnOut:'Out of stock',fitsLabel:'🚗',sellerLabel:'🏪',stockLabel:'📦 Stock:',daysLeft:'days',hoursLeft:'hours',howTitle1:'⚡ How',howTitle2:'Cardeals.al Works',howStep1Title:'Select Car',howStep1Desc:'Choose the brand and model.',howStep2Title:'Compare',howStep2Desc:'View prices and ratings.',howStep3Title:'Buy',howStep3Desc:'Pay online or reserve free.',howStep4Title:'Rate',howStep4Desc:'Leave your review.',bizCtaTitle1:'Are You a',bizCtaTitle2:'Parts',bizCtaTitle3:'Business?',bizCtaDesc:'List your inventory on Cardeals.al and reach thousands of buyers.',bizFeat1:'Free registration',bizFeat2:'List new & used',bizFeat3:'Live sales panel',bizFeat4:'Commission only when you sell',bizCtaBtn:'REGISTER YOUR BUSINESS →',contactTitle1:'📬 Contact',contactTitle2:'Us',contactSub:'Questions? Issues? We\'re here for you.',contactNameLabel:'Your Name',contactEmailLabel:'Email',contactMsgLabel:'Message',contactSendBtn:'SEND MESSAGE',footerTagline:'The smart way to find and buy auto parts in Albania.',footerAbout:'About Us',footerHow:'How It Works',footerSell:'Sell With Us',footerContact:'Contact',footerPrivacy:'Privacy Policy',modalQty:'Quantity:',modalBasePrice:'Seller price',modalFee:'Cardeals Fee (8%)',modalTotal:'Total',payOnline:'💳 Pay Online',payPickup:'🤝 Pay on Pickup',onlineFill:'Fill in your details.',onlineName:'Full Name *',onlinePhone:'Phone *',onlineEmail:'Email *',onlineBtn:'💳 PROCEED TO PAYMENT',pickupFill:'Reserve for free.',pickupName:'Full Name *',pickupPhone:'Phone *',pickupBtn:'🤝 RESERVE FREE',modalStockOut:'⚠️ Out of stock',modalStockLow:'⚠️ Only',modalStockLow2:'left!',modalStockOk:'✓',modalStockOk2:'in stock',authLogin:'🔑 Sign In',authRegister:'✨ Sign Up',authPass:'Password',authLoginBtn:'SIGN IN',authRegBenefits:'✅ Save searches ✅ Track orders',authRegName:'Full Name',authRegPass:'Password',authRegBtn:'SIGN UP',installTitle:'📲 Install Cardeals.al',installBtn:'INSTALL',toastLoginOk:'✅ Welcome!',toastRegOk:'✅ Account created!',toastContactOk:'✅ Message sent!',toastOrderOk:'✅ Order placed!',toastReserveOk:'✅ Reserved!',toastFillFields:'⚠️ Fill all fields',toastPassShort:'⚠️ Password must be 6+ characters',toastStockLow:'⚠️ Insufficient stock',toastFillNamePhone:'⚠️ Fill in name and phone',toastError:'❌ Error',catNames:{brakes:'BRAKES',engine:'ENGINE',electrical:'ELECTRICAL',suspension:'SUSPENSION',body:'BODY',ac:'AC & HEAT',other:'PART'},
-chatTitle:'💬 Messages',chatNoMessages:'No messages. Send a message to start the conversation!',chatPlaceholder:'Type a message...',chatSend:'Send',chatNewMessage:'New message',chatUnread:'New messages',chatFrom:'From',chatAbout:'About',msgSeller:'💬 Message Seller',msgBack:'← Back',msgYou:'You',msgJustNow:'just now',msgMinAgo:'min ago',msgHoursAgo:'hours ago',msgDaysAgo:'days ago',chatEmpty:'No messages.',
-}};
+const L={
+  sq:{
+    // Meta
+    pageTitle:'Cardeals.al — Gjej & Krahaso Pjesë Këmbimi në Shqipëri',
+    metaDesc:'Platforma #1 e pjesëve të këmbimit në Shqipëri. Gjej dhe krahaso çmime për pjesë auto nga shitës të verifikuar. Bli online ose rezervo falas.',
+    metaKeys:'pjesë këmbimi, pjesë auto, pjesë makine, frena, alternator, amortizator, Shqipëri, Tiranë, online, krahaso çmime',
+    ogTitle:'Cardeals.al — Gjej & Krahaso Pjesë Këmbimi',
+    ogDesc:'Platforma #1 e pjesëve të këmbimit në Shqipëri. Krahaso çmimet dhe bli direkt.',
+    twitterTitle:'Cardeals.al — Pjesë Këmbimi në Shqipëri',
+    twitterDesc:'Gjej dhe krahaso çmime për pjesë auto nga shitës të verifikuar.',
 
-function l(k){return L[currentLang][k]||k;}
+    // Cookie
+    cookieText:'🍪 Ky website përdor cookies. Duke vazhduar, ju pranoni <a href="privacy.html">politikën tonë të cookies</a>.',
+    cookieSettings:'⚙️ Cilësimet',
+    cookieAccept:'✅ Pranoj',
+
+    // Flag
+    flagRibbon:'🦅 &nbsp; Platforma #1 e Pjesëve të Këmbimit në Shqipëri &nbsp;·&nbsp; Albania\'s #1 Auto Parts Marketplace &nbsp; 🦅',
+
+    // Nav
+    navBrowse:'Shfleto',navHow:'Si Funksionon',navContact:'Kontakt',navSell:'Shit Këtu',
+    account:'Llogaria',register:'✨ Regjistrohu',
+    myOrders:'📦 Porositë e Mia',savedSearches:'🔍 Kërkimet e Ruajtura',profile:'⚙️ Profili',logout:'🚪 Dil',
+
+    // Hero
+    heroBadge:'🔧 Pjesë të Reja & të Përdorura · Çmimet më të Mira',
+    heroLine1:'Gjej Çdo',heroLine2:'Krahaso Çdo Çmim.',
+    heroSub:'Zgjidh makinën tënde dhe shiko të gjitha pjesët e përputhshme menjëherë.',
+    selectMake:'Zgjidh Markën',modelPlaceholder:'Modeli (p.sh. Golf)',
+    searchPartsBtn:'KËRKO PJESËT',
+    searchPlaceholder:'Ose kërko me fjalë kyçe...',
+    condAll:'Të gjitha',condNew:'Vetëm të Reja',condUsed:'Vetëm të Përdorura',
+    searchBtn:'KËRKO',
+    advFilters:'⚙️ Filtrat e Avancuar',
+    filterCity:'Qyteti',filterAll:'Të gjitha',filterMaxPrice:'Çmimi max (Lekë)',
+    filterSort:'Rendit sipas',
+    sortNewest:'Më të rejat',sortPriceAsc:'Çmimi: i ulët → i lartë',
+    sortPriceDesc:'Çmimi: i lartë → i ulët',sortDiscount:'Zbritja më e madhe',
+    applyFilters:'APLIKO FILTRAT',resetFilters:'Rivendos',saveSearch:'💾 Ruaj Kërkimin',
+    catAll:'Të gjitha',catEngine:'Motor',catBrakes:'Frena',catElectrical:'Elektrik',
+    catSuspension:'Amortizatorë',catBody:'Karroceri',catAC:'Klimë',
+
+    // Stats
+    statActiveParts:'Pjesë Aktive',statSellers:'Shitës të Verifikuar',
+    statFree:'0 L',statFreeReg:'Regjistrim Falas',statCoverage:'Mbulim Kombëtar',
+
+    // Parts section
+    partsTitle1:'🔍 Pjesë',partsTitle2:'të Listuara',
+    partsSub:'Çmimet nga biznese të verifikuara — tarifa jonë 8% është e përfshirë',
+    loadingParts:'Duke ngarkuar pjesët...',
+    noPartsFound:'Nuk u gjet asnjë pjesë.',
+    seoTitle:'Pjesë Këmbimi për Çdo Makinë në Shqipëri',
+    seoDesc:'Cardeals.al është platforma më e madhe online për <strong>pjesë këmbimi automjetesh</strong> në Shqipëri.',
+
+    // Part card
+    condNewBadge:'E RE',condUsedBadge:'E PËRDORUR',
+    promoBadge:'PROMOVUAR',
+    stockOut:'Jashtë stokut',stockLow:'copë',stockOk:'copë',
+    priceLabel:'Çmimi shitësit',priceDiscountLabel:'Çmimi',
+    feeLabel:'+ Tarifa (8%)',totalLabel:'Totali',
+    buyBtn:'BLI TANI —',buyBtnOut:'Jashtë stokut',
+    fitsLabel:'🚗',sellerLabel:'🏪',stockLabel:'📦 Stoku:',
+    daysLeft:'ditë',hoursLeft:'orë',
+
+    // How it works
+    howTitle1:'⚡ Si Funksionon',howTitle2:'Cardeals.al',
+    howStep1Title:'Zgjidh Makinën',howStep1Desc:'Zgjidh markën dhe modelin.',
+    howStep2Title:'Krahaso',howStep2Desc:'Shiko çmimet dhe vlerësimet.',
+    howStep3Title:'Bli',howStep3Desc:'Paguaj online ose rezervo falas.',
+    howStep4Title:'Vlerëso',howStep4Desc:'Lër vlerësimin tënd.',
+
+    // Biz CTA
+    bizCtaTitle1:'Je një',bizCtaTitle2:'Biznes',bizCtaTitle3:'Pjesësh?',
+    bizCtaDesc:'Listo inventarin tënd në Cardeals.al dhe arrij mijëra blerës.',
+    bizFeat1:'Regjistrim falas',bizFeat2:'Listo të reja & të përdorura',
+    bizFeat3:'Panel shitjesh live',bizFeat4:'Komision vetëm kur shet',
+    bizCtaBtn:'REGJISTRO BIZNESIN TËND →',
+
+    // Contact
+    contactTitle1:'📬 Na',contactTitle2:'Kontaktoni',
+    contactSub:'Pyetje? Probleme? Jemi këtu për ju.',
+    contactNameLabel:'Emri Juaj',contactEmailLabel:'Email',contactMsgLabel:'Mesazhi',
+    contactSendBtn:'DËRGO MESAZHIN',
+
+    // Footer
+    footerTagline:'Mënyra e zgjuar për të gjetur dhe blerë pjesë këmbimi në Shqipëri.',
+    footerAbout:'Rreth Nesh',footerHow:'Si Funksionon',footerSell:'Shit Me Ne',
+    footerContact:'Kontakt',footerPrivacy:'Politika e Privatësisë',
+
+    // Buy modal
+    modalQty:'Sasia:',modalBasePrice:'Çmimi shitësit',
+    modalFee:'Tarifa Cardeals (8%)',modalTotal:'Totali',
+    payOnline:'💳 Paguo Online',payPickup:'🤝 Paguo në Marrje',
+    onlineFill:'Plotëso të dhënat.',
+    onlineName:'Emri i Plotë *',onlinePhone:'Telefon *',onlineEmail:'Email *',
+    onlineBtn:'💳 VAZHDO ME PAGESËN',
+    pickupFill:'Rezervo falas.',
+    pickupName:'Emri i Plotë *',pickupPhone:'Telefon *',
+    pickupBtn:'🤝 REZERVO FALAS',
+    modalStockOut:'⚠️ Jashtë stokut',modalStockLow:'⚠️ Mbeten vetëm',modalStockLow2:'copë!',
+    modalStockOk:'✓',modalStockOk2:'copë në stok',
+
+    // Auth modal
+    authLogin:'🔑 Hyr',authRegister:'✨ Regjistrohu',
+    authPass:'Fjalëkalimi',authLoginBtn:'HYR',
+    authRegBenefits:'✅ Ruaj kërkimet ✅ Ndjek porositë',
+    authRegName:'Emri i Plotë',authRegPass:'Fjalëkalimi',authRegBtn:'REGJISTROHU',
+
+    // Install
+    installTitle:'📲 Instalo Cardeals.al',installBtn:'INSTALO',
+
+    // Toasts
+    toastLoginOk:'✅ Mirë se vini!',toastRegOk:'✅ Llogaria u krijua!',
+    toastContactOk:'✅ Mesazhi u dërgua!',
+    toastOrderOk:'✅ Porosia u regjistrua!',toastReserveOk:'✅ Rezervuar!',
+    toastFillFields:'⚠️ Plotëso fushat',toastPassShort:'⚠️ Fjalëkalimi duhet 6+ karaktere',
+    toastStockLow:'⚠️ Stok i pamjaftueshëm',
+    toastFillNamePhone:'⚠️ Plotëso emrin dhe telefonin',
+    toastError:'❌ Gabim',
+
+    // Categories
+    catNames:{brakes:'FRENA',engine:'MOTOR',electrical:'ELEKTRIK',suspension:'AMORTIZATORË',body:'KARROCERI',ac:'KLIMË',other:'PJESË'}
+  },
+  en:{
+    pageTitle:'Cardeals.al — Find & Compare Auto Parts in Albania',
+    metaDesc:'The #1 auto parts marketplace in Albania. Find and compare prices for car parts from verified sellers. Buy online or reserve for free.',
+    metaKeys:'auto parts, car parts, brakes, alternator, shock absorber, Albania, Tirana, online, compare prices',
+    ogTitle:'Cardeals.al — Find & Compare Auto Parts',
+    ogDesc:'The #1 auto parts marketplace in Albania. Compare prices and buy directly.',
+    twitterTitle:'Cardeals.al — Auto Parts in Albania',
+    twitterDesc:'Find and compare prices for auto parts from verified sellers.',
+
+    cookieText:'🍪 This website uses cookies. By continuing, you accept our <a href="privacy.html">cookie policy</a>.',
+    cookieSettings:'⚙️ Settings',cookieAccept:'✅ Accept',
+
+    flagRibbon:'🦅 &nbsp; Albania\'s #1 Auto Parts Marketplace &nbsp;·&nbsp; Platforma #1 e Pjesëve të Këmbimit në Shqipëri &nbsp; 🦅',
+
+    navBrowse:'Browse',navHow:'How It Works',navContact:'Contact',navSell:'Sell Here',
+    account:'Account',register:'✨ Sign Up',
+    myOrders:'📦 My Orders',savedSearches:'🔍 Saved Searches',profile:'⚙️ Profile',logout:'🚪 Sign Out',
+
+    heroBadge:'🔧 New & Used Parts · Best Prices',
+    heroLine1:'Find Every',heroLine2:'Compare Every Price.',
+    heroSub:'Select your car and see all compatible parts instantly.',
+    selectMake:'Select Brand',modelPlaceholder:'Model (e.g. Golf)',
+    searchPartsBtn:'SEARCH PARTS',
+    searchPlaceholder:'Or search by keyword...',
+    condAll:'All',condNew:'New Only',condUsed:'Used Only',
+    searchBtn:'SEARCH',
+    advFilters:'⚙️ Advanced Filters',
+    filterCity:'City',filterAll:'All',filterMaxPrice:'Max Price (ALL)',
+    filterSort:'Sort by',
+    sortNewest:'Newest first',sortPriceAsc:'Price: Low → High',
+    sortPriceDesc:'Price: High → Low',sortDiscount:'Biggest discount',
+    applyFilters:'APPLY FILTERS',resetFilters:'Reset',saveSearch:'💾 Save Search',
+    catAll:'All',catEngine:'Engine',catBrakes:'Brakes',catElectrical:'Electrical',
+    catSuspension:'Suspension',catBody:'Body',catAC:'AC & Heat',
+
+    statActiveParts:'Active Parts',statSellers:'Verified Sellers',
+    statFree:'0 ALL',statFreeReg:'Free Registration',statCoverage:'Nationwide',
+
+    partsTitle1:'🔍 Listed',partsTitle2:'Parts',
+    partsSub:'Prices from verified businesses — our 8% fee is included',
+    loadingParts:'Loading parts...',
+    noPartsFound:'No parts found.',
+    seoTitle:'Auto Parts for Every Car in Albania',
+    seoDesc:'Cardeals.al is the largest online marketplace for <strong>auto parts</strong> in Albania.',
+
+    condNewBadge:'NEW',condUsedBadge:'USED',
+    promoBadge:'PROMOTED',
+    stockOut:'Out of stock',stockLow:'pcs',stockOk:'pcs',
+    priceLabel:'Seller price',priceDiscountLabel:'Price',
+    feeLabel:'+ Fee (8%)',totalLabel:'Total',
+    buyBtn:'BUY NOW —',buyBtnOut:'Out of stock',
+    fitsLabel:'🚗',sellerLabel:'🏪',stockLabel:'📦 Stock:',
+    daysLeft:'days',hoursLeft:'hours',
+
+    howTitle1:'⚡ How',howTitle2:'Cardeals.al Works',
+    howStep1Title:'Select Car',howStep1Desc:'Choose the brand and model.',
+    howStep2Title:'Compare',howStep2Desc:'View prices and ratings.',
+    howStep3Title:'Buy',howStep3Desc:'Pay online or reserve free.',
+    howStep4Title:'Rate',howStep4Desc:'Leave your review.',
+
+    bizCtaTitle1:'Are You a',bizCtaTitle2:'Parts',bizCtaTitle3:'Business?',
+    bizCtaDesc:'List your inventory on Cardeals.al and reach thousands of buyers.',
+    bizFeat1:'Free registration',bizFeat2:'List new & used',
+    bizFeat3:'Live sales panel',bizFeat4:'Commission only when you sell',
+    bizCtaBtn:'REGISTER YOUR BUSINESS →',
+
+    contactTitle1:'📬 Contact',contactTitle2:'Us',
+    contactSub:'Questions? Issues? We\'re here for you.',
+    contactNameLabel:'Your Name',contactEmailLabel:'Email',contactMsgLabel:'Message',
+    contactSendBtn:'SEND MESSAGE',
+
+    footerTagline:'The smart way to find and buy auto parts in Albania.',
+    footerAbout:'About Us',footerHow:'How It Works',footerSell:'Sell With Us',
+    footerContact:'Contact',footerPrivacy:'Privacy Policy',
+
+    modalQty:'Quantity:',modalBasePrice:'Seller price',
+    modalFee:'Cardeals Fee (8%)',modalTotal:'Total',
+    payOnline:'💳 Pay Online',payPickup:'🤝 Pay on Pickup',
+    onlineFill:'Fill in your details.',
+    onlineName:'Full Name *',onlinePhone:'Phone *',onlineEmail:'Email *',
+    onlineBtn:'💳 PROCEED TO PAYMENT',
+    pickupFill:'Reserve for free.',
+    pickupName:'Full Name *',pickupPhone:'Phone *',
+    pickupBtn:'🤝 RESERVE FREE',
+    modalStockOut:'⚠️ Out of stock',modalStockLow:'⚠️ Only',modalStockLow2:'left!',
+    modalStockOk:'✓',modalStockOk2:'in stock',
+
+    authLogin:'🔑 Sign In',authRegister:'✨ Sign Up',
+    authPass:'Password',authLoginBtn:'SIGN IN',
+    authRegBenefits:'✅ Save searches ✅ Track orders',
+    authRegName:'Full Name',authRegPass:'Password',authRegBtn:'SIGN UP',
+
+    installTitle:'📲 Install Cardeals.al',installBtn:'INSTALL',
+
+    toastLoginOk:'✅ Welcome!',toastRegOk:'✅ Account created!',
+    toastContactOk:'✅ Message sent!',
+    toastOrderOk:'✅ Order placed!',toastReserveOk:'✅ Reserved!',
+    toastFillFields:'⚠️ Fill all fields',toastPassShort:'⚠️ Password must be 6+ characters',
+    toastStockLow:'⚠️ Insufficient stock',
+    toastFillNamePhone:'⚠️ Fill in name and phone',
+    toastError:'❌ Error',
+
+    catNames:{brakes:'BRAKES',engine:'ENGINE',electrical:'ELECTRICAL',suspension:'SUSPENSION',body:'BODY',ac:'AC & HEAT',other:'PART'}
+  }
+};
+
 function g(id){return document.getElementById(id);}
 function showToast(msg,isErr){const t=g('toast');if(!t)return;t.textContent=msg;t.style.background=isErr?'#e02020':'#22c55e';t.classList.add('show');setTimeout(()=>t.classList.remove('show'),4000);}
 function closeModal(id){if(id)document.getElementById(id).classList.remove('open');else document.querySelectorAll('.modal-overlay.open').forEach(m=>m.classList.remove('open'));}
@@ -306,108 +502,119 @@ function openRegisterModal(){g('authModal').classList.add('open');showAuthTab('r
 function toggleAdvancedFilters(){g('advancedFilters').classList.toggle('open');}
 function resetAdvancedFilters(){g('filterCity').value='';g('filterMaxPrice').value='';g('filterSort').value='newest';renderParts();}
 
-auth.onAuthStateChanged(user=>{currentBuyer=user;g('userDisplay').textContent=user?user.email.split('@')[0]:l('account');const sb=g('saveSearchBtn');if(sb)sb.style.display=user?'inline-block':'none';const rb=g('registerBtn');if(rb)rb.style.display=user?'none':'inline-block';if(user){prefillBuyerFields();listenForUnreadMessages();}});
+auth.onAuthStateChanged(user=>{currentBuyer=user;g('userDisplay').textContent=user?user.email.split('@')[0]:L[currentLang].account;const sb=g('saveSearchBtn');if(sb)sb.style.display=user?'inline-block':'none';const rb=g('registerBtn');if(rb)rb.style.display=user?'none':'inline-block';if(user)prefillBuyerFields();});
 function showAuthTab(tab){const lb=g('tabLogin'),rb=g('tabRegister'),lf=g('authLoginForm'),rf=g('authRegisterForm');if(tab==='login'){lb.style.background='var(--red)';lb.style.color='white';rb.style.background='transparent';rb.style.color='var(--chrome)';lf.style.display='block';rf.style.display='none';}else{rb.style.background='var(--red)';rb.style.color='white';lb.style.background='transparent';lb.style.color='var(--chrome)';rf.style.display='block';lf.style.display='none';}}
 function toggleUserMenu(){g('userDropdown').classList.toggle('open');}
-function buyerLogin(){const e=g('authEmail').value.trim(),p=g('authPass').value;if(!e||!p){showToast(l('toastFillFields'),true);return;}auth.signInWithEmailAndPassword(e,p).then(()=>{closeModal('authModal');showToast(l('toastLoginOk'));}).catch(err=>showToast(l('toastError')+': '+err.message,true));}
-function buyerRegister(){const n=g('regName').value.trim(),e=g('regEmail').value.trim(),p=g('regPass').value;if(!n||!e||!p){showToast(l('toastFillFields'),true);return;}if(p.length<6){showToast(l('toastPassShort'),true);return;}auth.createUserWithEmailAndPassword(e,p).then(cred=>db.collection('buyers').doc(cred.user.uid).set({name:n,email:e,phone:'',createdAt:firebase.firestore.FieldValue.serverTimestamp()})).then(()=>{closeModal('authModal');showToast(l('toastRegOk'));}).catch(err=>showToast(l('toastError')+': '+err.message,true));}
+function buyerLogin(){const e=g('authEmail').value.trim(),p=g('authPass').value;if(!e||!p){showToast(L[currentLang].toastFillFields,true);return;}auth.signInWithEmailAndPassword(e,p).then(()=>{closeModal('authModal');showToast(L[currentLang].toastLoginOk);}).catch(err=>showToast(L[currentLang].toastError+': '+err.message,true));}
+function buyerRegister(){const n=g('regName').value.trim(),e=g('regEmail').value.trim(),p=g('regPass').value;if(!n||!e||!p){showToast(L[currentLang].toastFillFields,true);return;}if(p.length<6){showToast(L[currentLang].toastPassShort,true);return;}auth.createUserWithEmailAndPassword(e,p).then(cred=>db.collection('buyers').doc(cred.user.uid).set({name:n,email:e,phone:'',createdAt:firebase.firestore.FieldValue.serverTimestamp()})).then(()=>{closeModal('authModal');showToast(L[currentLang].toastRegOk);}).catch(err=>showToast(L[currentLang].toastError+': '+err.message,true));}
 function buyerLogout(){auth.signOut();g('userDropdown').classList.remove('open');}
 function prefillBuyerFields(){if(!currentBuyer)return;db.collection('buyers').doc(currentBuyer.uid).get().then(doc=>{if(doc.exists){const d=doc.data();if(d.name){g('onlineName').value=d.name;g('pickupName').value=d.name;}if(d.phone){g('onlinePhone').value=d.phone;g('pickupPhone').value=d.phone;}if(d.email){g('onlineEmail').value=d.email;}}});}
 
-// ════════════════════════════════════
-//  IN-APP MESSAGING SYSTEM
-// ════════════════════════════════════
-function listenForUnreadMessages(){if(!currentBuyer)return;db.collection("conversations").where("participants","array-contains",currentBuyer.uid).onSnapshot(snap=>{unreadCount=0;snap.docs.forEach(d=>{const data=d.data();const uc=data['unreadCount_'+currentBuyer.uid]||0;unreadCount+=uc;});updateChatBadge();});}
-function updateChatBadge(){const badge=document.getElementById('chatBadge');if(badge){badge.textContent=unreadCount;badge.style.display=unreadCount>0?'inline-block':'none';}}
-
-window.openChat=async function(partId,partName,sellerUid,sellerName){
-  if(!currentBuyer){openRegisterModal();showToast(l('toastFillFields'),true);return;}
-  chatReceiverId=sellerUid||'';chatReceiverName=sellerName||'';chatReceiverType='seller';chatPartId=partId||null;chatPartName=partName||'';
-  const participants=[currentBuyer.uid,chatReceiverId].sort();const convId=participants.join('_');const convRef=db.collection("conversations").doc(convId);const convDoc=await convRef.get();
-  if(!convDoc.exists){await convRef.set({participants:participants,participantNames:{[currentBuyer.uid]:currentBuyer.email?.split('@')[0]||'Buyer',[chatReceiverId]:chatReceiverName},partId:chatPartId,partName:chatPartName,lastMessage:'',lastMessageTime:firebase.firestore.FieldValue.serverTimestamp(),['unreadCount_'+currentBuyer.uid]:0,['unreadCount_'+chatReceiverId]:0,createdAt:firebase.firestore.FieldValue.serverTimestamp()});}
-  else{await convRef.update({['unreadCount_'+currentBuyer.uid]:0});}
-  document.getElementById('chatHeaderName').textContent=chatReceiverName;
-  document.getElementById('chatHeaderPart').textContent=chatPartName?l('chatAbout')+': '+chatPartName:'';
-  if(chatListener)chatListener();
-  chatListener=db.collection("messages").where("conversationId","==",convId).orderBy("createdAt","asc").onSnapshot(snap=>{renderChatMessages(snap.docs.map(d=>({id:d.id,...d.data()})));});
-  document.getElementById('chatInput').value='';document.getElementById('chatModal').classList.add('open');
-  setTimeout(()=>document.getElementById('chatInput').focus(),300);
-};
-
-function renderChatMessages(messages){const container=document.getElementById('chatMessages');if(!messages.length){container.innerHTML=`<div style="text-align:center;color:var(--chrome);padding:2rem;">${l('chatNoMessages')}</div>`;return;}container.innerHTML=messages.map(m=>{const isSent=m.senderId===currentBuyer?.uid;const time=m.createdAt?.toDate?formatTimeAgo(m.createdAt.toDate()):'';return `<div class="chat-bubble ${isSent?'sent':'received'}"><div>${m.text}</div><div class="chat-time ${isSent?'':'received'}">${time}</div></div>`;}).join('');container.scrollTop=container.scrollHeight;}
-
-function formatTimeAgo(date){const now=new Date();const diff=Math.floor((now-date)/1000);if(diff<60)return l('msgJustNow');if(diff<3600)return Math.floor(diff/60)+' '+l('msgMinAgo');if(diff<86400)return Math.floor(diff/3600)+' '+l('msgHoursAgo');return Math.floor(diff/86400)+' '+l('msgDaysAgo');}
-
-window.sendMessage=async function(){const text=document.getElementById('chatInput')?.value.trim();if(!text||!currentBuyer||!chatReceiverId)return;const participants=[currentBuyer.uid,chatReceiverId].sort();const convId=participants.join('_');const msgData={conversationId:convId,senderId:currentBuyer.uid,senderName:currentBuyer.email?.split('@')[0]||'Buyer',senderType:'buyer',receiverId:chatReceiverId,receiverName:chatReceiverName,receiverType:chatReceiverType,partId:chatPartId,partName:chatPartName,text:text,read:false,createdAt:firebase.firestore.FieldValue.serverTimestamp()};try{await db.collection("messages").add(msgData);await db.collection("conversations").doc(convId).update({lastMessage:text,lastMessageTime:firebase.firestore.FieldValue.serverTimestamp(),['unreadCount_'+chatReceiverId]:firebase.firestore.FieldValue.increment(1)});document.getElementById('chatInput').value='';}catch(e){showToast(l('toastError')+': '+e.message,true);}};
-
-window.openChatInbox=async function(){if(!currentBuyer){openRegisterModal();return;}const container=document.getElementById('chatInboxList');container.innerHTML='<div style="text-align:center;padding:2rem;color:var(--chrome);"><div class="spinner"></div></div>';document.getElementById('chatInboxModal').classList.add('open');db.collection("conversations").where("participants","array-contains",currentBuyer.uid).orderBy("lastMessageTime","desc").get().then(snap=>{if(!snap.docs.length){container.innerHTML=`<div style="text-align:center;padding:2rem;color:var(--chrome);">${l('chatEmpty')}</div>`;return;}container.innerHTML=snap.docs.map(d=>{const data=d.data();const otherUid=data.participants.find(p=>p!==currentBuyer.uid);const otherName=data.participantNames?.[otherUid]||'User';const unreadMsg=data['unreadCount_'+currentBuyer.uid]||0;const time=data.lastMessageTime?.toDate?formatTimeAgo(data.lastMessageTime.toDate()):'';return `<div class="chat-inbox-item" onclick="openChatFromInbox('${otherUid}','${otherName.replace(/'/g,"\\'")}','seller','${data.partId||''}','${(data.partName||'').replace(/'/g,"\\'")}')"><div class="chat-inbox-avatar">👤</div><div class="chat-inbox-info"><div class="chat-inbox-name">${otherName}${unreadMsg>0?` <span class="chat-inbox-badge">${unreadMsg}</span>`:''}</div><div class="chat-inbox-last">${data.lastMessage||''}</div></div><div class="chat-inbox-meta"><div class="chat-inbox-time">${time}</div></div></div>`;}).join('');});};
-window.openChatFromInbox=function(receiverId,receiverName,receiverType,partId,partName){closeModal('chatInboxModal');openChat(partId,partName,receiverId,receiverName);};
-window.closeChat=function(){if(chatListener){chatListener();chatListener=null;}closeModal('chatModal');};
-
-// ════════════════════════════════════
-//  CAR SELECTOR & PARTS
-// ════════════════════════════════════
 const carBrands=['Volkswagen','Audi','BMW','Mercedes-Benz','Opel','Ford','Toyota','Honda','Fiat','Renault','Peugeot','Citroën','Nissan','Hyundai','Kia','Mazda','Skoda','Seat','Dacia','Suzuki','Mitsubishi','Volvo','Land Rover','Jeep','Chevrolet','Alfa Romeo'];
 const carModels={Volkswagen:['Golf','Polo','Passat','Tiguan'],Audi:['A3','A4','A6','Q5'],BMW:['3 Series','5 Series','X3','X5'],'Mercedes-Benz':['C-Class','E-Class','A-Class'],Opel:['Astra','Corsa','Insignia'],Ford:['Focus','Fiesta','Mondeo'],Toyota:['Corolla','Yaris','RAV4'],Fiat:['Punto','500','Tipo'],Renault:['Clio','Megane','Captur'],Peugeot:['208','308','3008'],Citroën:['C3','C4'],Nissan:['Qashqai','Juke','Micra'],Hyundai:['i20','i30','Tucson'],Kia:['Rio','Ceed','Sportage'],Mazda:['3','6','CX-5'],Skoda:['Octavia','Fabia'],Seat:['Ibiza','Leon'],Dacia:['Logan','Duster'],Suzuki:['Swift','Vitara'],Mitsubishi:['Lancer','Outlander'],Volvo:['V40','XC60'],'Land Rover':['Range Rover','Discovery'],Jeep:['Wrangler','Grand Cherokee'],Chevrolet:['Spark','Cruze'],'Alfa Romeo':['Giulietta','Giulia']};
 function populateCarMakes(){const sel=g('carMakeSelect');carBrands.forEach(b=>{const o=document.createElement('option');o.value=b;o.textContent=b;sel.appendChild(o);});}
 function onCarMakeChange(){const make=g('carMakeSelect').value,mi=g('carModelInput'),dl=g('carModelList');dl.innerHTML='';if(make&&carModels[make]){mi.disabled=false;carModels[make].forEach(m=>{const o=document.createElement('option');o.value=m;dl.appendChild(o);});}else{mi.disabled=true;mi.value='';}}
 function searchByCar(){currentCarMake=g('carMakeSelect').value;currentCarModel=g('carModelInput').value.trim();g('searchInput').value='';renderParts();}
 
-function getStockImage(cat){const cats={brakes:'🔘',engine:'⚙️',electrical:'⚡',suspension:'🔩',body:'🚗',ac:'🌡️',other:'🔧'};return{emoji:cats[cat]||cats.other,label:l('catNames')[cat]||l('catNames').other};}
+function getStockImage(cat){const cats={brakes:'🔘',engine:'⚙️',electrical:'⚡',suspension:'🔩',body:'🚗',ac:'🌡️',other:'🔧'};return {emoji:cats[cat]||cats.other,label:L[currentLang].catNames[cat]||L[currentLang].catNames.other};}
 
-async function refreshPromotionsIfNeeded(parts){const now=new Date();let boosted=0;const updates=[];for(const part of parts){if(!part.weeklyPromo||!part.promoRefreshInterval)continue;if(!part.promoExpiresAt)continue;const expiresAt=part.promoExpiresAt.toDate?part.promoExpiresAt.toDate():new Date(part.promoExpiresAt);if(now>=expiresAt)continue;const lastBoosted=part.promoLastBoostedAt?.toDate?part.promoLastBoostedAt.toDate():(part.promoActivatedAt?.toDate?part.promoActivatedAt.toDate():new Date(0));const intervalMs=part.promoRefreshInterval*60*60*1000;const nextBoostTime=new Date(lastBoosted.getTime()+intervalMs);if(now>=nextBoostTime){updates.push({id:part.id,newActivatedAt:now,newLastBoostedAt:now});boosted++;}}for(const u of updates){try{await db.collection("parts").doc(u.id).update({promoActivatedAt:u.newActivatedAt,promoLastBoostedAt:u.newLastBoostedAt});}catch(e){}}if(boosted>0)console.log('🔄 '+boosted+' promotion(s) re-boosted');}
+async function refreshPromotionsIfNeeded(parts){
+  const now=new Date();let boosted=0;const updates=[];
+  for(const part of parts){
+    if(!part.weeklyPromo||!part.promoRefreshInterval)continue;
+    if(!part.promoExpiresAt)continue;
+    const expiresAt=part.promoExpiresAt.toDate?part.promoExpiresAt.toDate():new Date(part.promoExpiresAt);
+    if(now>=expiresAt)continue;
+    const lastBoosted=part.promoLastBoostedAt?.toDate?part.promoLastBoostedAt.toDate():(part.promoActivatedAt?.toDate?part.promoActivatedAt.toDate():new Date(0));
+    const intervalMs=part.promoRefreshInterval*60*60*1000;
+    const nextBoostTime=new Date(lastBoosted.getTime()+intervalMs);
+    if(now>=nextBoostTime){updates.push({id:part.id,newActivatedAt:now,newLastBoostedAt:now});boosted++;}
+  }
+  for(const u of updates){try{await db.collection("parts").doc(u.id).update({promoActivatedAt:u.newActivatedAt,promoLastBoostedAt:u.newLastBoostedAt});}catch(e){}}
+  if(boosted>0)console.log(`🔄 ${boosted} promotion(s) re-boosted`);
+}
 
 function loadParts(){db.collection('parts').where('status','==','active').onSnapshot(async snap=>{allParts=snap.docs.map(d=>({id:d.id,...d.data()}));allParts.sort((a,b)=>(b.createdAt?.toMillis?.()||0)-(a.createdAt?.toMillis?.()||0));await refreshPromotionsIfNeeded(allParts);renderParts();updateStats();populateFilters();},err=>{console.error(err);});}
 function updateStats(){g('statParts').textContent=allParts.length+'+';g('statSellers').textContent=new Set(allParts.map(p=>p.sellerName)).size+'+';}
-function populateFilters(){const cs=g('filterCity');cs.innerHTML='<option value="">'+l('filterAll')+'</option>';const cities=new Set(allParts.map(p=>p.sellerCity).filter(Boolean));cities.forEach(c=>{const o=document.createElement('option');o.value=c;o.textContent=c;cs.appendChild(o);});}
+function populateFilters(){const cs=g('filterCity');cs.innerHTML='<option value="">'+L[currentLang].filterAll+'</option>';const cities=new Set(allParts.map(p=>p.sellerCity).filter(Boolean));cities.forEach(c=>{const o=document.createElement('option');o.value=c;o.textContent=c;cs.appendChild(o);});}
 function filterCat(el,cat){currentFilter=cat;document.querySelectorAll('.tag').forEach(t=>t.classList.remove('active'));el.classList.add('active');renderParts();}
 function filterCond(val){currentCondition=val;renderParts();}
 function isPromoActive(p){if(!p.weeklyPromo||!p.promoExpiresAt)return false;const exp=p.promoExpiresAt.toDate?p.promoExpiresAt.toDate():new Date(p.promoExpiresAt);return new Date()<exp;}
 
 function renderPartCard(p){
+  const l=L[currentLang];
   const name=typeof p.name==='object'?(p.name[currentLang]||p.name.sq):p.name;
   const discount=p.discount||0,dp=discount>0?Math.round((p.basePrice||0)*(1-discount/100)):(p.basePrice||0);
   const fee=Math.round(dp*PLATFORM_FEE),fin=dp+fee,stk=p.stock||0,isOut=stk===0;
-  const stock=getStockImage(p.category);const mainImage=p.images?.length?p.images[0]:null;
-  const promoted=isPromoActive(p);const tierIcons={basic:'🥉',standard:'🥈',premium:'🥇',ultimate:'💎'};
+  const stock=getStockImage(p.category);
+  const mainImage=p.images?.length?p.images[0]:null;
+  const promoted=isPromoActive(p);
+  const tierIcons={basic:'🥉',standard:'🥈',premium:'🥇',ultimate:'💎'};
   let countdownHTML='';
-  if(promoted){const exp=p.promoExpiresAt.toDate?p.promoExpiresAt.toDate():new Date(p.promoExpiresAt);const daysLeft=Math.ceil((exp-new Date())/(1000*60*60*24));const hoursLeft=Math.ceil((exp-new Date())/(1000*60*60));const refreshInfo=p.promoRefreshInterval?` · 🔄 ${p.promoRefreshInterval}h`:'';countdownHTML=`<div class="promo-countdown"><span style="font-weight:800;color:#f5c518;">${tierIcons[p.promoTier]||'🔥'} ${l('promoBadge')}${refreshInfo}</span> <span style="font-size:0.7rem;color:${daysLeft<=1?'#e02020':'#f5c518'};">⏳ ${daysLeft>0?daysLeft+' '+l('daysLeft'):hoursLeft+' '+l('hoursLeft')}</span></div>`;}
-  let priceHTML=discount>0?`<div class="pr"><span class="pr-lbl">${l('priceDiscountLabel')}</span><span><span class="price-original">${(p.basePrice||0).toLocaleString()} L</span> <span class="price-discounted">${dp.toLocaleString()} L</span></span></div>`:`<div class="pr"><span class="pr-lbl">${l('priceLabel')}</span><span>${(p.basePrice||0).toLocaleString()} L</span></div>`;
-  return `<div class="part-card ${promoted?'promoted-card':''}" onclick="openModal('${p.id}')"><div class="part-img">${mainImage?`<img src="${mainImage}" alt="${name}" loading="lazy" />`:`<span class="part-img-icon">${stock.emoji}</span>`}<span class="part-img-cat">${stock.label}</span></div><div class="cond-badge" style="background:${p.condition==='new'?'#22c55e':'#f59e0b'}">${p.condition==='new'?l('condNewBadge'):l('condUsedBadge')}</div>${promoted?`<div class="promo-badge-top">${tierIcons[p.promoTier]||'🔥'} ${l('promoBadge')}</div>`:''}<div class="part-body">${countdownHTML}<div class="rating-row"><span class="stars">⭐</span><span class="review-count">(${p.reviewCount||0})</span></div><div class="part-name">${name}</div><div class="part-fits">${l('fitsLabel')} ${p.fits||''}</div><div class="part-seller">${l('sellerLabel')} ${p.sellerName||''} · ${p.sellerCity||''}</div><div class="part-stock">${l('stockLabel')} ${isOut?`<span style="color:#e02020;">${l('stockOut')}</span>`:stk<=3?`<span style="color:#f59e0b;">⚠️ ${stk} ${l('stockLow')}</span>`:`<span style="color:#22c55e;">✓ ${stk} ${l('stockOk')}</span>`}</div><div class="price-box">${priceHTML}<div class="pr pr-fee"><span>${l('feeLabel')}</span><span style="color:#e02020">+${fee.toLocaleString()} L</span></div><div class="pr pr-total"><span>${l('totalLabel')}</span><span class="pr-total-val">${fin.toLocaleString()} L</span></div></div><button class="buy-btn" onclick="event.stopPropagation();openModal('${p.id}')" ${isOut?'disabled':''}>${isOut?l('buyBtnOut'):l('buyBtn')+' '+fin.toLocaleString()+' L'}</button><button class="msg-btn" onclick="event.stopPropagation();openChat('${p.id}','${name.replace(/'/g,"\\'")}','${p.uid||''}','${(p.sellerName||'').replace(/'/g,"\\'")}')">${l('msgSeller')}</button></div></div>`;
+  if(promoted){
+    const exp=p.promoExpiresAt.toDate?p.promoExpiresAt.toDate():new Date(p.promoExpiresAt);
+    const daysLeft=Math.ceil((exp-new Date())/(1000*60*60*24));
+    const hoursLeft=Math.ceil((exp-new Date())/(1000*60*60));
+    const refreshInfo=p.promoRefreshInterval?` · 🔄 ${p.promoRefreshInterval}h`:'';
+    countdownHTML=`<div class="promo-countdown"><span style="font-weight:800;color:#f5c518;">${tierIcons[p.promoTier]||'🔥'} ${l.promoBadge}${refreshInfo}</span> <span style="font-size:0.7rem;color:${daysLeft<=1?'#e02020':'#f5c518'};">⏳ ${daysLeft>0?daysLeft+' '+l.daysLeft:hoursLeft+' '+l.hoursLeft}</span></div>`;
+  }
+  let priceHTML=discount>0?`<div class="pr"><span class="pr-lbl">${l.priceDiscountLabel}</span><span><span class="price-original">${(p.basePrice||0).toLocaleString()} L</span> <span class="price-discounted">${dp.toLocaleString()} L</span></span></div>`:`<div class="pr"><span class="pr-lbl">${l.priceLabel}</span><span>${(p.basePrice||0).toLocaleString()} L</span></div>`;
+  return `<div class="part-card ${promoted?'promoted-card':''}" onclick="openModal('${p.id}')"><div class="part-img">${mainImage?`<img src="${mainImage}" alt="${name}" loading="lazy" />`:`<span class="part-img-icon">${stock.emoji}</span>`}<span class="part-img-cat">${stock.label}</span></div><div class="cond-badge" style="background:${p.condition==='new'?'#22c55e':'#f59e0b'}">${p.condition==='new'?l.condNewBadge:l.condUsedBadge}</div>${promoted?`<div class="promo-badge-top">${tierIcons[p.promoTier]||'🔥'} ${l.promoBadge}</div>`:''}<div class="part-body">${countdownHTML}<div class="rating-row"><span class="stars">⭐</span><span class="review-count">(${p.reviewCount||0})</span></div><div class="part-name">${name}</div><div class="part-fits">${l.fitsLabel} ${p.fits||''}</div><div class="part-seller">${l.sellerLabel} ${p.sellerName||''} · ${p.sellerCity||''}</div><div class="part-stock">${l.stockLabel} ${isOut?`<span style="color:#e02020;">${l.stockOut}</span>`:stk<=3?`<span style="color:#f59e0b;">⚠️ ${stk} ${l.stockLow}</span>`:`<span style="color:#22c55e;">✓ ${stk} ${l.stockOk}</span>`}</div><div class="price-box">${priceHTML}<div class="pr pr-fee"><span>${l.feeLabel}</span><span style="color:#e02020">+${fee.toLocaleString()} L</span></div><div class="pr pr-total"><span>${l.totalLabel}</span><span class="pr-total-val">${fin.toLocaleString()} L</span></div></div><button class="buy-btn" onclick="event.stopPropagation();openModal('${p.id}')" ${isOut?'disabled':''}>${isOut?l.buyBtnOut:l.buyBtn+' '+fin.toLocaleString()+' L'}</button></div></div>`;
 }
 
 function renderParts(){
+  const l=L[currentLang];
   const search=g('searchInput').value.toLowerCase(),brand=currentCarMake,model=currentCarModel.toLowerCase(),city=g('filterCity').value,maxPrice=parseFloat(g('filterMaxPrice').value)||Infinity,sort=g('filterSort').value;
   let filtered=allParts.filter(p=>{const name=typeof p.name==='object'?(p.name[currentLang]||p.name.sq||''):(p.name||''),fits=(p.fits||'').toLowerCase();if(currentFilter!=='all'&&p.category!==currentFilter)return false;if(currentCondition!=='all'&&p.condition!==currentCondition)return false;if(search&&!name.toLowerCase().includes(search)&&!fits.includes(search)&&!(p.sellerCity||'').toLowerCase().includes(search))return false;if(brand&&fits.indexOf(brand.toLowerCase())===-1)return false;if(model&&fits.indexOf(model)===-1)return false;if(city&&p.sellerCity!==city)return false;if((p.basePrice||0)>maxPrice)return false;return true;});
-  filtered.sort((a,b)=>{const aP=isPromoActive(a),bP=isPromoActive(b);if(aP&&!bP)return-1;if(!aP&&bP)return 1;if(aP&&bP){const aT=a.promoActivatedAt?.toDate?a.promoActivatedAt.toDate().getTime():0;const bT=b.promoActivatedAt?.toDate?b.promoActivatedAt.toDate().getTime():0;return bT-aT;}if(sort==='price_asc')return(a.basePrice||0)-(b.basePrice||0);if(sort==='price_desc')return(b.basePrice||0)-(a.basePrice||0);if(sort==='discount')return(b.discount||0)-(a.discount||0);return 0;});
-  const grid=g('partsGrid');if(!filtered.length){grid.innerHTML=`<div style="grid-column:1/-1;text-align:center;padding:4rem;color:#8892a4;"><div style="font-size:3rem;">🔍</div><p>${l('noPartsFound')}</p></div>`;return;}grid.innerHTML=filtered.map(p=>renderPartCard(p)).join('');
+  filtered.sort((a,b)=>{const aP=isPromoActive(a),bP=isPromoActive(b);if(aP&&!bP)return -1;if(!aP&&bP)return 1;if(aP&&bP){const aT=a.promoActivatedAt?.toDate?a.promoActivatedAt.toDate().getTime():0;const bT=b.promoActivatedAt?.toDate?b.promoActivatedAt.toDate().getTime():0;return bT-aT;}if(sort==='price_asc')return(a.basePrice||0)-(b.basePrice||0);if(sort==='price_desc')return(b.basePrice||0)-(a.basePrice||0);if(sort==='discount')return(b.discount||0)-(a.discount||0);return 0;});
+  const grid=g('partsGrid');if(!filtered.length){grid.innerHTML=`<div style="grid-column:1/-1;text-align:center;padding:4rem;color:#8892a4;"><div style="font-size:3rem;">🔍</div><p>${l.noPartsFound}</p></div>`;return;}
+  grid.innerHTML=filtered.map(p=>renderPartCard(p)).join('');
 }
 
-function openModal(id){selectedPart=allParts.find(p=>p.id===id);if(!selectedPart)return;const name=typeof selectedPart.name==='object'?(selectedPart.name[currentLang]||selectedPart.name.sq):selectedPart.name,stock=selectedPart.stock||0;g('mQty').value=1;g('mQty').max=Math.max(1,stock);g('mStockInfo').innerHTML=stock===0?`<span style="color:#e02020;">${l('modalStockOut')}</span>`:stock<=3?`<span style="color:#f59e0b;">${l('modalStockLow')} ${stock} ${l('modalStockLow2')}</span>`:`<span style="color:#22c55e;">${l('modalStockOk')} ${stock} ${l('modalStockOk2')}</span>`;g('mEmoji').textContent=getStockImage(selectedPart.category).emoji;g('mName').textContent=name;g('mSeller').textContent=l('sellerLabel')+' '+(selectedPart.sellerName||'')+' · '+(selectedPart.sellerCity||'');updateModalTotal();g('buyModal').classList.add('open');const oos=stock===0;g('btnOnlinePay').disabled=oos;g('btnReserve').disabled=oos;selectPay('online');}
+function openModal(id){selectedPart=allParts.find(p=>p.id===id);if(!selectedPart)return;const l=L[currentLang];const name=typeof selectedPart.name==='object'?(selectedPart.name[currentLang]||selectedPart.name.sq):selectedPart.name,stock=selectedPart.stock||0;g('mQty').value=1;g('mQty').max=Math.max(1,stock);g('mStockInfo').innerHTML=stock===0?`<span style="color:#e02020;">${l.modalStockOut}</span>`:stock<=3?`<span style="color:#f59e0b;">${l.modalStockLow} ${stock} ${l.modalStockLow2}</span>`:`<span style="color:#22c55e;">${l.modalStockOk} ${stock} ${l.modalStockOk2}</span>`;g('mEmoji').textContent=getStockImage(selectedPart.category).emoji;g('mName').textContent=name;g('mSeller').textContent=l.sellerLabel+' '+(selectedPart.sellerName||'')+' · '+(selectedPart.sellerCity||'');updateModalTotal();g('buyModal').classList.add('open');const oos=stock===0;g('btnOnlinePay').disabled=oos;g('btnReserve').disabled=oos;selectPay('online');}
 function updateModalTotal(){if(!selectedPart)return;const qty=parseInt(g('mQty')?.value)||1;const discount=selectedPart.discount||0,dp=discount>0?Math.round((selectedPart.basePrice||0)*(1-discount/100)):(selectedPart.basePrice||0);const fee=Math.round(dp*PLATFORM_FEE);g('mBase').textContent=dp.toLocaleString()+' L × '+qty;if(discount>0)g('mBase').innerHTML=`<span style="text-decoration:line-through;color:#e02020;">${(selectedPart.basePrice||0).toLocaleString()} L</span> <span style="color:#22c55e;">${dp.toLocaleString()} L (-${discount}%)</span> × ${qty}`;g('mFee').textContent='+'+(fee*qty).toLocaleString()+' L';g('mTotal').textContent=((dp+fee)*qty).toLocaleString()+' L';}
 function changeQty(d){const el=g('mQty');if(!el)return;const max=selectedPart?Math.max(1,selectedPart.stock||99):99;el.value=Math.min(max,Math.max(1,(parseInt(el.value)||1)+d));updateModalTotal();}
 function selectPay(m){g('btnOnline').classList.toggle('active',m==='online');g('btnPickup').classList.toggle('active',m==='pickup');g('secOnline').style.display=m==='online'?'block':'none';g('secPickup').style.display=m==='pickup'?'block':'none';}
-function confirmOnline(){const n=g('onlineName').value.trim(),p=g('onlinePhone').value.trim(),e=g('onlineEmail').value.trim(),qty=parseInt(g('mQty')?.value)||1;if(!n||!p||!e){showToast(l('toastFillFields'),true);return;}if(!selectedPart)return;if(qty>(selectedPart.stock||0)){showToast(l('toastStockLow'),true);return;}const btn=g('btnOnlinePay');btn.textContent='Processing...';btn.disabled=true;const discount=selectedPart.discount||0,dp=discount>0?Math.round((selectedPart.basePrice||0)*(1-discount/100)):(selectedPart.basePrice||0);const fee=Math.round(dp*PLATFORM_FEE),total=(dp+fee)*qty,partName=typeof selectedPart.name==='object'?selectedPart.name.sq||selectedPart.name.en:selectedPart.name;db.collection('orders').add({partId:selectedPart.id,partName,partEmoji:getStockImage(selectedPart.category).emoji,buyerName:n,buyerPhone:p,buyerEmail:e,buyerUid:currentBuyer?.uid||null,sellerUid:selectedPart.uid||'',sellerName:selectedPart.sellerName||'',sellerCity:selectedPart.sellerCity||'',basePrice:dp,quantity:qty,platformFee:fee*qty,totalPrice:total,payMethod:'online',status:'pending',createdAt:firebase.firestore.FieldValue.serverTimestamp()}).then(()=>{reducePartStock(selectedPart.id,qty);closeModal('buyModal');showToast(l('toastOrderOk'));btn.textContent=l('onlineBtn');btn.disabled=false;g('onlineName').value='';g('onlinePhone').value='';g('onlineEmail').value='';});}
-function confirmPickup(){const n=g('pickupName').value.trim(),p=g('pickupPhone').value.trim(),e=g('pickupEmail').value.trim(),qty=parseInt(g('mQty')?.value)||1;if(!n||!p){showToast(l('toastFillNamePhone'),true);return;}if(!selectedPart)return;if(qty>(selectedPart.stock||0)){showToast(l('toastStockLow'),true);return;}const btn=g('btnReserve');btn.textContent='Processing...';btn.disabled=true;const discount=selectedPart.discount||0,dp=discount>0?Math.round((selectedPart.basePrice||0)*(1-discount/100)):(selectedPart.basePrice||0);const fee=Math.round(dp*PLATFORM_FEE),total=(dp+fee)*qty,partName=typeof selectedPart.name==='object'?selectedPart.name.sq||selectedPart.name.en:selectedPart.name;db.collection('orders').add({partId:selectedPart.id,partName,partEmoji:getStockImage(selectedPart.category).emoji,buyerName:n,buyerPhone:p,buyerEmail:e,buyerUid:currentBuyer?.uid||null,sellerUid:selectedPart.uid||'',sellerName:selectedPart.sellerName||'',sellerCity:selectedPart.sellerCity||'',basePrice:dp,quantity:qty,platformFee:fee*qty,totalPrice:total,payMethod:'pickup',status:'pending',createdAt:firebase.firestore.FieldValue.serverTimestamp()}).then(()=>{reducePartStock(selectedPart.id,qty);closeModal('buyModal');showToast(l('toastReserveOk'));btn.textContent=l('pickupBtn');btn.disabled=false;g('pickupName').value='';g('pickupPhone').value='';g('pickupEmail').value='';});}
-function submitContact(){const n=g('contactName').value.trim(),e=g('contactEmail').value.trim(),m=g('contactMsg').value.trim();if(!n||!e||!m){showToast(l('toastFillFields'),true);return;}db.collection('contact_messages').add({name:n,email:e,message:m,status:'unread',createdAt:firebase.firestore.FieldValue.serverTimestamp()}).then(()=>{showToast(l('toastContactOk'));g('contactName').value='';g('contactEmail').value='';g('contactMsg').value='';}).catch(err=>showToast(l('toastError')+': '+err.message,true));}
+function confirmOnline(){const l=L[currentLang];const n=g('onlineName').value.trim(),p=g('onlinePhone').value.trim(),e=g('onlineEmail').value.trim(),qty=parseInt(g('mQty')?.value)||1;if(!n||!p||!e){showToast(l.toastFillFields,true);return;}if(!selectedPart)return;if(qty>(selectedPart.stock||0)){showToast(l.toastStockLow,true);return;}const btn=g('btnOnlinePay');btn.textContent='Duke procesuar...';btn.disabled=true;const discount=selectedPart.discount||0,dp=discount>0?Math.round((selectedPart.basePrice||0)*(1-discount/100)):(selectedPart.basePrice||0);const fee=Math.round(dp*PLATFORM_FEE),total=(dp+fee)*qty,partName=typeof selectedPart.name==='object'?selectedPart.name.sq||selectedPart.name.en:selectedPart.name;db.collection('orders').add({partId:selectedPart.id,partName,partEmoji:getStockImage(selectedPart.category).emoji,buyerName:n,buyerPhone:p,buyerEmail:e,buyerUid:currentBuyer?.uid||null,sellerUid:selectedPart.uid||'',sellerName:selectedPart.sellerName||'',sellerCity:selectedPart.sellerCity||'',basePrice:dp,quantity:qty,platformFee:fee*qty,totalPrice:total,payMethod:'online',status:'pending',createdAt:firebase.firestore.FieldValue.serverTimestamp()}).then(()=>{reducePartStock(selectedPart.id,qty);closeModal('buyModal');showToast(l.toastOrderOk);btn.textContent=l.onlineBtn;btn.disabled=false;g('onlineName').value='';g('onlinePhone').value='';g('onlineEmail').value='';});}
+function confirmPickup(){const l=L[currentLang];const n=g('pickupName').value.trim(),p=g('pickupPhone').value.trim(),e=g('pickupEmail').value.trim(),qty=parseInt(g('mQty')?.value)||1;if(!n||!p){showToast(l.toastFillNamePhone,true);return;}if(!selectedPart)return;if(qty>(selectedPart.stock||0)){showToast(l.toastStockLow,true);return;}const btn=g('btnReserve');btn.textContent='Duke rezervuar...';btn.disabled=true;const discount=selectedPart.discount||0,dp=discount>0?Math.round((selectedPart.basePrice||0)*(1-discount/100)):(selectedPart.basePrice||0);const fee=Math.round(dp*PLATFORM_FEE),total=(dp+fee)*qty,partName=typeof selectedPart.name==='object'?selectedPart.name.sq||selectedPart.name.en:selectedPart.name;db.collection('orders').add({partId:selectedPart.id,partName,partEmoji:getStockImage(selectedPart.category).emoji,buyerName:n,buyerPhone:p,buyerEmail:e,buyerUid:currentBuyer?.uid||null,sellerUid:selectedPart.uid||'',sellerName:selectedPart.sellerName||'',sellerCity:selectedPart.sellerCity||'',basePrice:dp,quantity:qty,platformFee:fee*qty,totalPrice:total,payMethod:'pickup',status:'pending',createdAt:firebase.firestore.FieldValue.serverTimestamp()}).then(()=>{reducePartStock(selectedPart.id,qty);closeModal('buyModal');showToast(l.toastReserveOk);btn.textContent=l.pickupBtn;btn.disabled=false;g('pickupName').value='';g('pickupPhone').value='';g('pickupEmail').value='';});}
+function submitContact(){const l=L[currentLang];const n=g('contactName').value.trim(),e=g('contactEmail').value.trim(),m=g('contactMsg').value.trim();if(!n||!e||!m){showToast(l.toastFillFields,true);return;}db.collection('contact_messages').add({name:n,email:e,message:m,status:'unread',createdAt:firebase.firestore.FieldValue.serverTimestamp()}).then(()=>{showToast(l.toastContactOk);g('contactName').value='';g('contactEmail').value='';g('contactMsg').value='';}).catch(err=>showToast(l.toastError+': '+err.message,true));}
 
-function setLang(lang){currentLang=lang;document.querySelectorAll('.lang-btn').forEach(b=>b.classList.toggle('active',(lang==='sq'&&b.textContent.includes('SQ'))||(lang==='en'&&b.textContent.includes('EN'))));applyLang();renderParts();}
+function setLang(lang){
+  currentLang=lang;
+  document.querySelectorAll('.lang-btn').forEach(b=>b.classList.toggle('active',(lang==='sq'&&b.textContent.includes('SQ'))||(lang==='en'&&b.textContent.includes('EN'))));
+  applyLang();
+  renderParts();
+}
+
 function applyLang(){
-  document.title=l('pageTitle');
-  document.querySelector('meta[name="description"]')?.setAttribute('content',l('metaDesc'));
-  document.querySelector('meta[name="keywords"]')?.setAttribute('content',l('metaKeys'));
-  document.querySelector('meta[property="og:title"]')?.setAttribute('content',l('ogTitle'));
-  document.querySelector('meta[property="og:description"]')?.setAttribute('content',l('ogDesc'));
-  document.querySelector('meta[name="twitter:title"]')?.setAttribute('content',l('twitterTitle'));
-  document.querySelector('meta[name="twitter:description"]')?.setAttribute('content',l('twitterDesc'));
+  const l=L[currentLang];
+  // Meta
+  document.title=l.pageTitle;
+  document.querySelector('meta[name="description"]')?.setAttribute('content',l.metaDesc);
+  document.querySelector('meta[name="keywords"]')?.setAttribute('content',l.metaKeys);
+  document.querySelector('meta[property="og:title"]')?.setAttribute('content',l.ogTitle);
+  document.querySelector('meta[property="og:description"]')?.setAttribute('content',l.ogDesc);
+  document.querySelector('meta[name="twitter:title"]')?.setAttribute('content',l.twitterTitle);
+  document.querySelector('meta[name="twitter:description"]')?.setAttribute('content',l.twitterDesc);
+  document.querySelector('meta[property="og:site_name"]')?.setAttribute('content','Cardeals.al');
+  // JSON-LD
   const ld=document.querySelector('script[type="application/ld+json"]');
-  if(ld)ld.textContent=JSON.stringify({"@context":"https://schema.org","@type":"WebApplication","name":"Cardeals.al","url":"https://cardeals.al","description":l('metaDesc'),"applicationCategory":"Marketplace","operatingSystem":"All"});
-  document.querySelectorAll('[data-l]').forEach(el=>{const key=el.dataset.l;if(L[currentLang][key]!==undefined)el.innerHTML=L[currentLang][key];});
-  document.querySelectorAll('[data-l-placeholder]').forEach(el=>{const key=el.dataset.lPlaceholder;if(L[currentLang][key]!==undefined)el.placeholder=L[currentLang][key];});
-  if(!currentBuyer)g('userDisplay').textContent=l('account');
-  const sel=g('carMakeSelect');if(sel&&sel.options[0])sel.options[0].textContent=l('selectMake');
-  const cf=g('condFilter');if(cf){cf.options[0].textContent=l('condAll');cf.options[1].textContent=l('condNew');cf.options[2].textContent=l('condUsed');}
-  const sf=g('filterSort');if(sf){sf.options[0].textContent=l('sortNewest');sf.options[1].textContent=l('sortPriceAsc');sf.options[2].textContent=l('sortPriceDesc');sf.options[3].textContent=l('sortDiscount');}
+  if(ld)ld.textContent=JSON.stringify({"@context":"https://schema.org","@type":"WebApplication","name":"Cardeals.al","url":"https://cardeals.al","description":l.metaDesc,"applicationCategory":"Marketplace","operatingSystem":"All"});
+  // All data-l elements
+  document.querySelectorAll('[data-l]').forEach(el=>{const key=el.dataset.l;if(l[key]!==undefined)el.innerHTML=l[key];});
+  // Placeholders
+  document.querySelectorAll('[data-l-placeholder]').forEach(el=>{const key=el.dataset.lPlaceholder;if(l[key]!==undefined)el.placeholder=l[key];});
+  // User display & select option
+  if(!currentBuyer)g('userDisplay').textContent=l.account;
+  const sel=g('carMakeSelect');if(sel&&sel.options[0])sel.options[0].textContent=l.selectMake;
+  // Cond filter
+  const cf=g('condFilter');if(cf){cf.options[0].textContent=l.condAll;cf.options[1].textContent=l.condNew;cf.options[2].textContent=l.condUsed;}
+  // Sort filter
+  const sf=g('filterSort');if(sf){sf.options[0].textContent=l.sortNewest;sf.options[1].textContent=l.sortPriceAsc;sf.options[2].textContent=l.sortPriceDesc;sf.options[3].textContent=l.sortDiscount;}
+  // Auth modal buttons
+  const tabLogin=g('tabLogin'),tabRegister=g('tabRegister');
+  if(tabLogin)tabLogin.textContent=l.authLogin;
+  if(tabRegister)tabRegister.textContent=l.authRegister;
 }
 
 function getCookie(n){const v=`; ${document.cookie}`;const p=v.split(`; ${n}=`);if(p.length===2)return p.pop().split(';').shift();return null;}
