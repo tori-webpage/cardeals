@@ -338,8 +338,45 @@ function confirmOnline(){const n=g('onlineName').value.trim(),p=g('onlinePhone')
 
 function confirmPickup(){const n=g('pickupName').value.trim(),p=g('pickupPhone').value.trim(),e=g('pickupEmail').value.trim(),qty=parseInt(g('mQty')?.value)||1;if(!n||!p){showToast(l('toastFillNamePhone'),true);return;}if(!selectedPart)return;if(qty>(selectedPart.stock||0)){showToast(l('toastStockLow'),true);return;}const btn=g('btnReserve');btn.textContent='Duke rezervuar...';btn.disabled=true;const discount=selectedPart.discount||0,dp=discount>0?Math.round((selectedPart.basePrice||0)*(1-discount/100)):(selectedPart.basePrice||0);const fee=Math.round(dp*PLATFORM_FEE),total=(dp+fee)*qty,partName=typeof selectedPart.name==='object'?selectedPart.name.sq||selectedPart.name.en:selectedPart.name;db.collection('orders').add({partId:selectedPart.id,partName,partEmoji:getStockImage(selectedPart.category).emoji,buyerName:n,buyerPhone:p,buyerEmail:e,buyerUid:currentBuyer?.uid||null,sellerUid:selectedPart.uid||'',sellerName:selectedPart.sellerName||'',sellerCity:selectedPart.sellerCity||'',basePrice:dp,quantity:qty,platformFee:fee*qty,totalPrice:total,payMethod:'pickup',status:'pending',createdAt:firebase.firestore.FieldValue.serverTimestamp()}).then(()=>{reducePartStock(selectedPart.id,qty);closeModal('buyModal');showToast(l('toastReserveOk'));showWhatsAppContact(selectedPart);btn.textContent=l('pickupBtn');btn.disabled=false;g('pickupName').value='';g('pickupPhone').value='';g('pickupEmail').value='';}).catch(err=>{showToast(l('toastError'),true);btn.textContent=l('pickupBtn');btn.disabled=false;});}
 
-function showWhatsAppContact(part){const sellerUid=part.uid;if(!sellerUid)return;db.collection("businesses").doc(sellerUid).get().then(doc=>{if(!doc.exists)return;const biz=doc.data();const phone=(biz.whatsappPhone||biz.phone||'').replace(/\D/g,'');if(!phone)return;db.collection("orders").where("partId","==",part.id).where("buyerUid","==",(currentBuyer?.uid||'guest')).orderBy("createdAt","desc").limit(1).get().then(snap=>{if(snap.empty)return;const orderId=snap.docs[0].id.slice(-6).toUpperCase();const partName=typeof part.name==='object'?(part.name.sq||part.name.en):part.name;const msg=encodeURIComponent("Pershendetje! Bera nje porosi ne Cardeals.al per pjesen \""+partName+"\". Numri i porosise: #"+orderId+". Mund te koordinohemi per detajet?");const url="https://wa.me/"+phone+"?text="+msg;g('whatsappContactInfo').innerHTML='<div style="text-align:center;padding:1.5rem;"><div style="font-size:3rem;margin-bottom:1rem;">📞</div><h3 style="margin-bottom:0.5rem;">Porosia u regjistrua!</h3><p style="color:var(--chrome);margin-bottom:1rem;">Kontakto shitësin në WhatsApp për të koordinuar marrjen.</p><a href="'+url+'" target="_blank" class="buy-btn" style="display:inline-block;width:auto;padding:12px 2rem;text-decoration:none;background:#25D366;margin-bottom:0.5rem;">💬 WhatsApp</a><br><small style="color:var(--chrome);">'+phone+'</small></div>';g('whatsappModal').classList.add('open');});});}
-
+function showWhatsAppContact(part){
+  var sellerUid=part.uid;
+  if(!sellerUid)return;
+  
+  db.collection("businesses").doc(sellerUid).get().then(function(doc){
+    var phone='';
+    if(doc.exists){
+      var biz=doc.data();
+      phone=(biz.whatsappPhone||biz.phone||'').replace(/\D/g,'');
+    }
+    
+    // Always show the modal, even if no WhatsApp (fallback to phone)
+    var partName=typeof part.name==='object'?(part.name.sq||part.name.en):part.name;
+    var sellerName=part.sellerName||'';
+    
+    db.collection("orders").where("partId","==",part.id).orderBy("createdAt","desc").limit(1).get().then(function(snap){
+      var orderId=snap.empty?'':snap.docs[0].id.slice(-6).toUpperCase();
+      
+      var html='<div style="text-align:center;padding:1.5rem;">';
+      html+='<div style="font-size:3rem;margin-bottom:1rem;">✅</div>';
+      html+='<h3 style="margin-bottom:0.5rem;">Porosia u regjistrua!</h3>';
+      html+='<p style="color:var(--chrome);margin-bottom:0.5rem;">Pjesa: '+partName+'</p>';
+      html+='<p style="color:var(--chrome);margin-bottom:0.5rem;">Shitësi: '+sellerName+'</p>';
+      
+      if(phone){
+        var msg=encodeURIComponent("Pershendetje! Bera nje porosi ne Cardeals.al per pjesen \""+partName+"\". Numri i porosise: #"+orderId+". Mund te koordinohemi per detajet?");
+        var url="https://wa.me/"+phone+"?text="+msg;
+        html+='<a href="'+url+'" target="_blank" class="buy-btn" style="display:inline-block;width:auto;padding:12px 2rem;text-decoration:none;background:#25D366;margin-bottom:0.5rem;margin-top:1rem;">💬 WhatsApp</a>';
+        html+='<br><small style="color:var(--chrome);">'+phone+'</small>';
+      }else{
+        html+='<p style="color:#f59e0b;margin-top:1rem;">Shitësi nuk ka numër WhatsApp.</p>';
+      }
+      
+      html+='</div>';
+      document.getElementById('whatsappContactInfo').innerHTML=html;
+      document.getElementById('whatsappModal').classList.add('open');
+    });
+  });
+}
 function submitContact(){const n=g('contactName').value.trim(),e=g('contactEmail').value.trim(),m=g('contactMsg').value.trim();if(!n||!e||!m){showToast(l('toastFillFields'),true);return;}db.collection('contact_messages').add({name:n,email:e,message:m,status:'unread',createdAt:firebase.firestore.FieldValue.serverTimestamp()}).then(()=>{showToast(l('toastContactOk'));g('contactName').value='';g('contactEmail').value='';g('contactMsg').value='';}).catch(err=>showToast(l('toastError')+': '+err.message,true));}
 
 function setLang(lang){currentLang=lang;document.querySelectorAll('.lang-btn').forEach(b=>b.classList.toggle('active',(lang==='sq'&&b.textContent.includes('SQ'))||(lang==='en'&&b.textContent.includes('EN'))));applyLang();renderParts();}
