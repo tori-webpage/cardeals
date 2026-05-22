@@ -27,7 +27,14 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
 <style>
-:root{--bg:#f0f7f9;--panel:#ffffff;--card:#ffffff;--border:#d4e4e8;--red:#0d9488;--red-dark:#0f766e;--chrome:#5e7a80;--white:#1a2e33;--yellow:#f59e0b;--green:#10b981;--radius:14px;}.logo small{font-size:0.65rem;color:var(--chrome);font-family:'Nunito',sans-serif;font-weight:800;letter-spacing:1px;}
+:root{--bg:#0a0c10;--panel:#111420;--card:#181d2a;--border:#232840;--red:#e02020;--red-dark:#b01515;--chrome:#8892a4;--white:#eef0f5;--yellow:#f5c518;--green:#22c55e;--radius:14px;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--white);min-height:100vh;}
+.flag-ribbon{background:linear-gradient(90deg,#c0000f,#e41e20);text-align:center;padding:7px;font-size:0.78rem;font-weight:800;letter-spacing:2px;color:white;}
+nav{background:var(--panel);border-bottom:3px solid var(--red);display:flex;align-items:center;justify-content:space-between;padding:0 2rem;height:64px;position:sticky;top:0;z-index:100;box-shadow:0 4px 24px rgba(0,0,0,0.5);}
+.logo{font-family:'Bebas Neue',sans-serif;font-size:1.9rem;letter-spacing:2px;color:var(--white);text-decoration:none;display:flex;align-items:center;gap:6px;}
+.logo span{color:var(--red);}
+.logo small{font-size:0.65rem;color:var(--chrome);font-family:'Nunito',sans-serif;font-weight:800;letter-spacing:1px;}
 .nav-right{display:flex;gap:1rem;align-items:center;}
 .nav-links{display:flex;gap:1.5rem;align-items:center;}
 .nav-links a{color:var(--chrome);text-decoration:none;font-weight:700;font-size:0.85rem;text-transform:uppercase;letter-spacing:1px;transition:color 0.2s;}
