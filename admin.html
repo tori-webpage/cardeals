@@ -35,8 +35,11 @@ function loadBusinesses(){db.collection("businesses").onSnapshot(snap=>{allBusin
 function loadAllParts(){db.collection("parts").onSnapshot(snap=>{allParts=snap.docs.map(d=>({id:d.id,...d.data()}));renderAllParts();updateDashboard();});}
 function loadAllOrders(){db.collection("orders").onSnapshot(snap=>{allOrders=snap.docs.map(d=>({id:d.id,...d.data()}));renderAllOrders();renderEarnings();updateDashboard();});}
 function loadMessages(){db.collection("contact_messages").orderBy("createdAt","desc").onSnapshot(snap=>{allMessages=snap.docs.map(d=>({id:d.id,...d.data()}));renderMessages();updateMessageBadge();});}
-function loadPlanRequests(){db.collection("plan_requests").orderBy("createdAt","desc").onSnapshot(snap=>{allPlanRequests=snap.docs.map(d=>({id:d.id,...d.data()}));renderPlanRequests();});}
-function loadWeeklyPromos(){db.collection("weekly_promotions").orderBy("createdAt","desc").onSnapshot(snap=>{allWeeklyPromos=snap.docs.map(d=>({id:d.id,...d.data()}));renderWeeklyPromos();});}
+function loadPlanRequests(){db.collection("plan_requests").orderBy("createdAt","desc").onSnapshot(snap=>{allPlanRequests=snap.docs.map(d=>({id:d.id,...d.data()}));renderPlanRequests();updatePlansBadge();});}
+function loadWeeklyPromos(){db.collection("weekly_promotions").orderBy("createdAt","desc").onSnapshot(snap=>{allWeeklyPromos=snap.docs.map(d=>({id:d.id,...d.data()}));renderWeeklyPromos();updatePromoBadge();});}
+
+function updatePromoBadge(){var pending=allWeeklyPromos.filter(function(p){return p.status==='pending';}).length;var badge=document.getElementById('promoBadge');if(badge){badge.textContent=pending;badge.style.display=pending>0?'inline-block':'none';}}
+function updatePlansBadge(){var pending=allPlanRequests.filter(function(p){return p.status==='pending';}).length;var badge=document.getElementById('plansBadge');if(badge){badge.textContent=pending;badge.style.display=pending>0?'inline-block':'none';}}
 
 function updateDashboard(){
   const sold=allOrders.filter(o=>o.status==='sold');
@@ -181,10 +184,10 @@ tbody td{padding:0.8rem 1.25rem;font-size:0.83rem;}
       <a class="nav-item" onclick="showPage('orders')" id="nav-orders"><span>📦</span> <span data-l="navOrders">Të Gjitha Porositë</span></a>
       <a class="nav-item" onclick="showPage('messages')" id="nav-messages"><span>📬</span> <span data-l="navMessages">Mesazhet e Kontaktit</span> <span class="nav-badge" id="msgBadge">0</span></a>
       <div class="nav-section" data-l="secPromotions">PROMOCIONE</div>
-      <a class="nav-item" onclick="showPage('weeklyPromos')" id="nav-weeklyPromos"><span>🚀</span> <span data-l="navWeeklyPromos">Promocione Javore</span></a>
+      <a class="nav-item" onclick="showPage('weeklyPromos')" id="nav-weeklyPromos"><span>🚀</span> <span data-l="navWeeklyPromos">Promocione Javore</span> <span id="promoBadge" style="background:var(--red);color:white;font-size:0.6rem;padding:2px 7px;border-radius:10px;margin-left:auto;display:none;">0</span></a>
       <div class="nav-section" data-l="secFinances">FINANCAT</div>
       <a class="nav-item" onclick="showPage('earnings')" id="nav-earnings"><span>💰</span> <span data-l="navEarnings">Fitimet e Platformës</span></a>
-      <a class="nav-item" onclick="showPage('plans')" id="nav-plans"><span>⭐</span> <span data-l="navPlans">Kërkesat për Plane</span></a>
+      <a class="nav-item" onclick="showPage('plans')" id="nav-plans"><span>⭐</span> <span data-l="navPlans">Kërkesat për Plane</span> <span id="plansBadge" style="background:var(--red);color:white;font-size:0.6rem;padding:2px 7px;border-radius:10px;margin-left:auto;display:none;">0</span></a>
     </nav>
     <div class="sidebar-bottom">
       <div class="admin-info"><div class="ai-label" id="adminIdentified" data-l="adminIdentified">🔐 Identifikuar si Admin</div><div class="ai-email" id="adminEmail">—</div></div>
