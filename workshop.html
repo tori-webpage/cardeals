@@ -47,21 +47,52 @@ window.doLogin=async function(){
 };
 
 window.doRegister=async function(){
-  var name=g('regName').value.trim(),email=g('regEmail').value.trim(),phone=g('regPhone').value.trim(),city=g('regCity').value.trim();
-  var pass=g('regPass').value,pass2=g('regPass2').value,btn=g('regBtn');
-  if(!name||!email||!phone||!pass){showToast('Plotëso fushat',true);return;}
-  if(pass!==pass2){showToast('Fjalëkalimet nuk përputhen',true);return;}
-  btn.textContent='Duke u regjistruar...';btn.disabled=true;
+  var name=document.getElementById('regName').value.trim();
+  var email=document.getElementById('regEmail').value.trim();
+  var phone=document.getElementById('regPhone').value.trim();
+  var city=document.getElementById('regCity').value.trim();
+  var pass=document.getElementById('regPass').value;
+  var pass2=document.getElementById('regPass2').value;
+  var btn=document.getElementById('regBtn');
+  
+  if(!name||!email||!phone||!pass){
+    showToast('Plotëso të gjitha fushat!',true);
+    return;
+  }
+  if(pass!==pass2){
+    showToast('Fjalëkalimet nuk përputhen!',true);
+    return;
+  }
+  if(pass.length<6){
+    showToast('Fjalëkalimi duhet të ketë të paktën 6 karaktere!',true);
+    return;
+  }
+  
+  btn.textContent='Duke u regjistruar...';
+  btn.disabled=true;
+  
   try{
     var cred=await auth.createUserWithEmailAndPassword(email,pass);
     await db.collection("workshops").doc(cred.user.uid).set({
-      name:name,email:email,phone:phone,city:city,
-      creditBalance:0,totalPurchases:0,
-      currentPeriodStart:new Date(),currentPeriodTotal:0,
-      lastPayout:null,createdAt:firebase.firestore.FieldValue.serverTimestamp()
+      name:name,
+      email:email,
+      phone:phone,
+      city:city,
+      creditBalance:0,
+      totalPurchases:0,
+      currentPeriodStart:new Date(),
+      currentPeriodTotal:0,
+      lastPayout:null,
+      createdAt:firebase.firestore.FieldValue.serverTimestamp()
     });
-    showToast('✅ Llogaria u krijua!');
-  }catch(err){showToast('❌ '+err.message,true);btn.textContent='REGJISTROHU →';btn.disabled=false;}
+    showToast('✅ Llogaria u krijua me sukses!');
+    // Auto login after register
+  }catch(err){
+    console.error('Registration error:',err);
+    showToast('❌ Gabim: '+err.message,true);
+    btn.textContent='REGJISTROHU →';
+    btn.disabled=false;
+  }
 };
 
 window.doLogout=async()=>{await auth.signOut();};
