@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="sq">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cardeals.al — Paneli i Pikës së Shërbimit</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script>
+firebase.initializeApp({apiKey:"AIzaSyAU8hVTqury1MbC0Sx-CXGY1YQrr5VJhyE",authDomain:"cardeals-al.firebaseapp.com",projectId:"cardeals-al",storageBucket:"cardeals-al.firebasestorage.app",messagingSenderId:"839953227675",appId:"1:839953227675:web:6fb6aa9350bd3bd507cb3e"});
+const auth=firebase.auth(),db=firebase.firestore();
+
+let currentUser=null,currentWorkshop=null,myOrders=[],currentPage='dashboard';
+
+function g(id){return document.getElementById(id);}
+function showToast(msg,isErr){const t=g('toast');t.textContent=msg;t.style.background=isErr?'#e02020':'#22c55e';t.classList.add('show');setTimeout(()=>t.classList.remove('show'),4000);}
+
+auth.onAuthStateChanged(async user=>{
+  if(user){
+    currentUser=user;
+    // Check if user is registered as workshop
+    var doc=await db.collection("workshops").doc(user.uid).get();
+    if(doc.exists){
+      currentWorkshop=doc.data();
+      currentWorkshop.id=user.uid;
+      showApp();
+    }else{
+      // Not a workshop - show register option
+      showRegister();
+    }
+  }else{
+    currentUser=null;currentWorkshop=null;showLogin();
+  }
+});
+
+function showLogin(){g('loginScreen').style.display='flex';g('app').style.display='none';g('registerScreen').style.display='none';}
+function showRegister(){g('loginScreen').style.display='none';g('app').style.display='none';g('registerScreen').style.display='flex';}
+function showApp(){g('loginScreen').style.display='none';g('registerScreen').style.display='none';g('app').style.display='flex';g('workshopName').textContent=currentWorkshop?.name||'Pikë Shërbimi';loadMyOrders();showPage('dashboard');}
+
+window.doLogin=async function(){
+  var e=g('loginEmail').value.trim(),p=g('loginPass').value,btn=g('loginBtn');
+  if(!e||!p){showToast('Plotëso fushat',true);return;}
+  btn.textContent='Duke hyrë...';btn.disabled=true;
+  try{await auth.signInWithEmailAndPassword(e,p);}catch(err){showToast('❌ '+err.message,true);btn.textContent='HYRJA →';btn.disabled=false;}
+};
+
+window.doRegister=async function(){
+  var name=g('regName').value.trim(),email=g('regEmail').value.trim(),phone=g('regPhone').value.trim(),city=g('regCity').value.trim();
+  var pass=g('regPass').value,pass2=g('regPass2').value,btn=g('regBtn');
+  if(!name||!email||!phone||!pass){showToast('Plotëso fushat',true);return;}
+  if(pass!==pass2){showToast('Fjalëkalimet nuk përputhen',true);return;}
+  btn.textContent='Duke u regjistruar...';btn.disabled=true;
+  try{
+    var cred=await auth.createUserWithEmailAndPassword(email,pass);
+    await db.collection("workshops").doc(cred.user.uid).set({
+      name:name,email:email,phone:phone,city:city,
+      creditBalance:0,totalPurchases:0,
+      currentPeriodStart:new Date(),currentPeriodTotal:0,
+      lastPayout:null,createdAt:firebase.firestore.FieldValue.serverTimestamp()
+    });
+    showToast('✅ Llogaria u krijua!');
+  }catch(err){showToast('❌ '+err.message,true);btn.textContent='REGJISTROHU →';btn.disabled=false;}
+};
+
+window.doLogout=async()=>{await auth.signOut();};
+
+async function loadMyOrders(){
+  if(!currentUser)return;
+  db.collection("orders").where("buyerUid","==",currentUser.uid).orderBy("createdAt","desc").onSnapshot(snap=>{
+    myOrders=snap.docs.map(d=>({id:d.id,...d.data()}));
+    if(currentPage==='dashboard')updateDashboard();
+    if(currentPage==='orders')renderAllOrders();
+    if(currentPage==='cashback')renderCashback();
+  });
+}
+
+function updateDashboard(){
+  var total=myOrders.reduce(function(s,o){return s+(o.totalPrice||0);},0);
+  var thisMonth=myOrders.filter(function(o){
+    var d=o.createdAt?.toDate?o.createdAt.toDate():new Date();
+    var now=new Date();
+    return d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear();
+  });
+  var monthTotal=thisMonth.reduce(function(s,o){return s+(o.totalPrice||0);},0);
+  var cashback=Math.round(monthTotal*0.02);
+  
+  g('statTotal').textContent=total.toLocaleString()+' L';
+  g('statOrders').textContent=myOrders.length;
+  g('statMonth').textContent=monthTotal.toLocaleString()+' L';
+  g('statCashback').textContent=cashback.toLocaleString()+' L';
+  g('statBalance').textContent=(currentWorkshop?.creditBalance||0).toLocaleString()+' L';
+  
+  // Recent orders
+  var recent=myOrders.slice(0,5);
+  var tbody=g('recentOrdersBody');
+  tbody.innerHTML=recent.length?recent.map(function(o){
+    var date=o.createdAt?.toDate?o.createdAt.toDate().toLocaleDateString('sq-AL'):'—';
+    var status=o.status==='sold'?'<span style="color:#22c55e;">Shitur</span>':o.status==='pending'?'<span style="color:#f59e0b;">Në Pritje</span>':'<span style="color:#e02020;">Anuluar</span>';
+    return '<tr><td>'+(o.partEmoji||'🔩')+' '+o.partName+'</td><td>'+(o.totalPrice||0).toLocaleString()+' L</td><td>'+status+'</td><td>'+date+'</td></tr>';
+  }).join(''):'<tr><td colspan="4">Ende nuk keni blerje.</td></tr>';
+}
+
+function renderAllOrders(){
+  var tbody=g('allOrdersBody');
+  tbody.innerHTML=myOrders.length?myOrders.map(function(o){
+    var date=o.createdAt?.toDate?o.createdAt.toDate().toLocaleDateString('sq-AL'):'—';
+    var cashback=Math.round((o.totalPrice||0)*0.02);
+    var status=o.status==='sold'?'<span style="color:#22c55e;">Shitur</span>':o.status==='pending'?'<span style="color:#f59e0b;">Në Pritje</span>':'<span style="color:#e02020;">Anuluar</span>';
+    return '<tr><td style="color:#e02020;font-weight:800;">#'+(o.id||'').slice(-6).toUpperCase()+'</td><td>'+(o.partEmoji||'🔩')+' '+o.partName+'</td><td>'+(o.sellerName||'—')+'</td><td style="font-weight:800;">'+(o.totalPrice||0).toLocaleString()+' L</td><td style="color:#22c55e;">+'+cashback.toLocaleString()+' L</td><td>'+status+'</td><td>'+date+'</td></tr>';
+  }).join(''):'<tr><td colspan="7">Ende nuk keni blerje.</td></tr>';
+  g('totalOrdersCount').textContent=myOrders.length+' blerje';
+}
+
+function renderCashback(){
+  // Current 30-day period
+  var periodStart=currentWorkshop?.currentPeriodStart?.toDate?currentWorkshop.currentPeriodStart.toDate():new Date();
+  var now=new Date();
+  var daysLeft=30-Math.floor((now-periodStart)/(1000*60*60*24));
+  if(daysLeft<0)daysLeft=0;
+  
+  var periodOrders=myOrders.filter(function(o){
+    var d=o.createdAt?.toDate?o.createdAt.toDate():new Date();
+    return d>=periodStart;
+  });
+  var periodTotal=periodOrders.reduce(function(s,o){return s+(o.totalPrice||0);},0);
+  var projectedCashback=Math.round(periodTotal*0.02);
+  
+  g('periodStart').textContent=periodStart.toLocaleDateString('sq-AL');
+  g('daysLeft').textContent=daysLeft+' ditë';
+  g('periodTotal').textContent=periodTotal.toLocaleString()+' L';
+  g('periodCashback').textContent=projectedCashback.toLocaleString()+' L';
+  g('currentBalance').textContent=(currentWorkshop?.creditBalance||0).toLocaleString()+' L';
+}
+
+window.showPage=function(page){
+  currentPage=page;
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  g('page-'+page).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  g('nav-'+page).classList.add('active');
+  if(page==='dashboard')updateDashboard();
+  if(page==='orders')renderAllOrders();
+  if(page==='cashback')renderCashback();
+  if(window.innerWidth<=768)g('sidebar')?.classList.remove('open');
+};
+window.toggleSidebar=function(){g('sidebar')?.classList.toggle('open');};
+</script>
+<style>
+:root{--bg:#0a0c10;--panel:#111420;--card:#181d2a;--border:#232840;--red:#e02020;--red-dark:#b01515;--red-glow:rgba(224,32,32,0.12);--chrome:#8892a4;--white:#eef0f5;--yellow:#f5c518;--green:#22c55e;--green-dim:rgba(34,197,94,0.12);--blue:#3b82f6;--orange:#f59e0b;--radius:14px;--sw:240px;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--white);min-height:100vh;}
+::-webkit-scrollbar{width:5px;}::-webkit-scrollbar-track{background:var(--panel);}::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}::-webkit-scrollbar-thumb:hover{background:var(--red);}
+.login-screen{position:fixed;inset:0;background:var(--bg);z-index:1000;display:flex;align-items:center;justify-content:center;}
+.login-box{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:2.5rem;width:100%;max-width:420px;}
+.login-logo{font-family:'Bebas Neue',sans-serif;font-size:2rem;letter-spacing:3px;margin-bottom:1.5rem;text-align:center;}.login-logo span{color:var(--red);}
+.login-sub{text-align:center;color:var(--chrome);font-size:0.85rem;margin-bottom:1.5rem;}
+.inp-group{margin-bottom:1rem;}
+.inp-group label{display:block;font-size:0.75rem;font-weight:800;color:var(--chrome);margin-bottom:5px;text-transform:uppercase;letter-spacing:1px;}
+.inp-group input{width:100%;background:var(--panel);border:1px solid var(--border);border-radius:8px;color:var(--white);padding:11px 14px;font-family:'Nunito',sans-serif;font-size:0.9rem;outline:none;}
+.inp-group input:focus{border-color:var(--red);}
+.inp-row{display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;}
+.auth-btn{width:100%;background:var(--red);color:white;border:none;border-radius:10px;padding:13px;font-family:'Bebas Neue',sans-serif;font-size:1.2rem;letter-spacing:3px;cursor:pointer;}.auth-btn:hover{background:var(--red-dark);}
+#app{display:none;min-height:100vh;}
+.sidebar{width:var(--sw);background:var(--panel);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100vh;z-index:50;transition:transform 0.3s;}
+.sidebar-logo{padding:1.25rem 1.5rem;border-bottom:1px solid var(--border);font-family:'Bebas Neue',sans-serif;font-size:1.4rem;letter-spacing:2px;}.sidebar-logo span{color:var(--red);}
+.sidebar-logo small{display:block;font-family:'Nunito',sans-serif;font-size:0.65rem;font-weight:800;color:var(--chrome);letter-spacing:1px;margin-top:2px;}
+.sidebar-nav{flex:1;padding:0.75rem 0;overflow-y:auto;}
+.nav-section{padding:0.5rem 1.5rem;font-size:0.65rem;font-weight:800;color:#444;text-transform:uppercase;letter-spacing:2px;margin-top:0.5rem;}
+.nav-item{display:flex;align-items:center;gap:0.75rem;padding:0.7rem 1.5rem;cursor:pointer;transition:all 0.2s;font-weight:700;font-size:0.85rem;color:var(--chrome);border-left:3px solid transparent;text-decoration:none;}
+.nav-item:hover{color:var(--white);background:rgba(255,255,255,0.04);}.nav-item.active{color:var(--red);border-left-color:var(--red);background:var(--red-glow);}
+.nav-item .ico{font-size:1rem;width:20px;text-align:center;}
+.sidebar-bottom{padding:1.25rem;border-top:1px solid var(--border);}
+.workshop-badge{background:var(--red-glow);border:1px solid rgba(224,32,32,0.3);border-radius:10px;padding:0.75rem;margin-bottom:0.75rem;}
+.workshop-badge .ws-name{font-weight:800;font-size:0.88rem;}
+.workshop-badge .ws-role{font-size:0.7rem;color:var(--red);font-weight:700;text-transform:uppercase;letter-spacing:1px;}
+.logout-btn{width:100%;background:transparent;border:1px solid var(--border);color:var(--chrome);border-radius:8px;padding:8px;font-family:'Nunito',sans-serif;font-weight:700;font-size:0.8rem;cursor:pointer;}.logout-btn:hover{border-color:var(--red);color:var(--red);}
+.main{margin-left:var(--sw);flex:1;display:flex;flex-direction:column;min-height:100vh;}
+.topbar{background:var(--panel);border-bottom:1px solid var(--border);padding:0 2rem;height:58px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:40;}
+.topbar-title{font-family:'Bebas Neue',sans-serif;font-size:1.3rem;letter-spacing:2px;}
+.sidebar-toggle{display:none;background:none;border:none;color:var(--white);font-size:1.3rem;cursor:pointer;}
+.page{padding:1.75rem;display:none;}.page.active{display:block;}
+.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1.25rem;margin-bottom:1.75rem;}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem;position:relative;overflow:hidden;}.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;}
+.green::before{background:var(--green);}.red::before{background:var(--red);}.blue::before{background:var(--blue);}.orange::before{background:var(--orange);}
+.stat-ico{font-size:1.4rem;margin-bottom:0.5rem;}.stat-val{font-family:'Bebas Neue',sans-serif;font-size:1.6rem;letter-spacing:2px;margin-bottom:0.2rem;}
+.stat-lbl{font-size:0.72rem;color:var(--chrome);text-transform:uppercase;letter-spacing:1px;}
+.info-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:1.5rem;margin-bottom:1.5rem;}
+.info-card h3{font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:2px;margin-bottom:1rem;}
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
+.info-item{background:var(--bg);border-radius:10px;padding:1rem;text-align:center;}
+.info-val{font-family:'Bebas Neue',sans-serif;font-size:1.5rem;color:var(--green);}
+.info-lbl{font-size:0.7rem;color:var(--chrome);margin-top:4px;}
+.table-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:1.5rem;}
+.table-header{padding:1rem 1.5rem;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);}
+.table-header h3{font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:2px;}
+table{width:100%;border-collapse:collapse;}
+thead th{padding:0.65rem 1.25rem;text-align:left;font-size:0.7rem;font-weight:800;color:var(--chrome);text-transform:uppercase;letter-spacing:1px;background:rgba(255,255,255,0.02);}
+tbody tr{border-top:1px solid var(--border);}tbody tr:hover{background:rgba(255,255,255,0.03);}
+tbody td{padding:0.8rem 1.25rem;font-size:0.83rem;}
+.toast{position:fixed;bottom:2rem;right:2rem;color:white;padding:1rem 1.5rem;border-radius:10px;font-weight:800;font-size:0.85rem;display:none;z-index:300;box-shadow:0 8px 24px rgba(0,0,0,0.4);}.toast.show{display:block;animation:sIn 0.3s ease;}
+@keyframes sIn{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
+@media(max-width:768px){.sidebar{transform:translateX(-100%);}.sidebar.open{transform:translateX(0);}.main{margin-left:0;}.sidebar-toggle{display:block;}.info-grid{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+
+<!-- Login Screen -->
+<div class="login-screen" id="loginScreen">
+  <div class="login-box">
+    <div class="login-logo">Car<span>deals</span>.al</div>
+    <div class="login-sub">🔧 Paneli i Pikës së Shërbimit</div>
+    <div class="inp-group"><label>EMAIL</label><input type="email" id="loginEmail" /></div>
+    <div class="inp-group"><label>FJALËKALIMI</label><input type="password" id="loginPass" /></div>
+    <button class="auth-btn" id="loginBtn" onclick="doLogin()">HYRJA →</button>
+    <p style="text-align:center;margin-top:1rem;color:var(--chrome);font-size:0.8rem;">Nuk keni llogari? <a href="#" onclick="showRegister()" style="color:var(--red);">Regjistrohu</a></p>
+  </div>
+</div>
+
+<!-- Register Screen -->
+<div class="login-screen" id="registerScreen" style="display:none;">
+  <div class="login-box">
+    <div class="login-logo">Car<span>deals</span>.al</div>
+    <div class="login-sub">🔧 Regjistro Pikën e Shërbimit</div>
+    <div class="inp-group"><label>EMRI I PIKËS SË SHËRBIMIT *</label><input type="text" id="regName" placeholder="p.sh. Auto Servis Tirana" /></div>
+    <div class="inp-row"><div class="inp-group"><label>EMAIL *</label><input type="email" id="regEmail" /></div><div class="inp-group"><label>TELEFON *</label><input type="text" id="regPhone" /></div></div>
+    <div class="inp-group"><label>QYTETI</label><input type="text" id="regCity" placeholder="Tiranë" /></div>
+    <div class="inp-row"><div class="inp-group"><label>FJALËKALIMI *</label><input type="password" id="regPass" /></div><div class="inp-group"><label>KONFIRMO *</label><input type="password" id="regPass2" /></div></div>
+    <button class="auth-btn" id="regBtn" onclick="doRegister()">REGJISTROHU →</button>
+    <p style="text-align:center;margin-top:1rem;color:var(--chrome);font-size:0.8rem;">Keni llogari? <a href="#" onclick="showLogin()" style="color:var(--red);">Hyr</a></p>
+  </div>
+</div>
+
+<!-- App -->
+<div id="app" style="display:none;">
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">Car<span>deals</span>.al<small>PIKA E SHËRBIMIT</small></div>
+    <nav class="sidebar-nav">
+      <div class="nav-section">PANELI</div>
+      <a class="nav-item active" onclick="showPage('dashboard')" id="nav-dashboard"><span class="ico">📊</span> Pasqyra</a>
+      <a class="nav-item" onclick="showPage('orders')" id="nav-orders"><span class="ico">📦</span> Blerjet e Mia</a>
+      <a class="nav-item" onclick="showPage('cashback')" id="nav-cashback"><span class="ico">💰</span> Cashback</a>
+    </nav>
+    <div class="sidebar-bottom">
+      <div class="workshop-badge"><div class="ws-name" id="workshopName">—</div><div class="ws-role">PIKË SHËRBIMI · 2% CASHBACK</div></div>
+      <a href="index.html" class="logout-btn" style="display:block;text-align:center;margin-bottom:0.5rem;text-decoration:none;">🌐 Cardeals.al ↗</a>
+      <button class="logout-btn" onclick="doLogout()">Dil nga Llogaria</button>
+    </div>
+  </aside>
+
+  <div class="main">
+    <div class="topbar"><div style="display:flex;align-items:center;gap:1rem;"><button class="sidebar-toggle" onclick="toggleSidebar()">☰</button><div class="topbar-title">PANELI I PIKËS SË SHËRBIMIT</div></div></div>
+
+    <!-- Dashboard -->
+    <div class="page active" id="page-dashboard">
+      <div class="stats-row">
+        <div class="stat-card blue"><div class="stat-ico">💰</div><div class="stat-val" id="statTotal">0 L</div><div class="stat-lbl">Total Blerjeve</div></div>
+        <div class="stat-card red"><div class="stat-ico">📦</div><div class="stat-val" id="statOrders">0</div><div class="stat-lbl">Blerje Gjithsej</div></div>
+        <div class="stat-card orange"><div class="stat-ico">📅</div><div class="stat-val" id="statMonth">0 L</div><div class="stat-lbl">Këtë Muaj</div></div>
+        <div class="stat-card green"><div class="stat-ico">💵</div><div class="stat-val" id="statCashback">0 L</div><div class="stat-lbl">Cashback i Pritshëm</div></div>
+      </div>
+      <div class="info-card" style="background:var(--red-glow);border-color:rgba(224,32,32,0.3);">
+        <h3>💳 BALANCI I KREDISË</h3>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:2rem;color:var(--green);" id="statBalance">0 L</div>
+        <div style="color:var(--chrome);font-size:0.8rem;">Kredit i disponueshëm për blerjet e ardhshme</div>
+      </div>
+      <div class="table-card"><div class="table-header"><h3>🛒 BLERJET E FUNDIT</h3></div><table><thead><tr><th>Pjesa</th><th>Çmimi</th><th>Statusi</th><th>Data</th></tr></thead><tbody id="recentOrdersBody"></tbody></table></div>
+    </div>
+
+    <!-- Orders -->
+    <div class="page" id="page-orders">
+      <div class="table-card"><div class="table-header"><h3>📦 TË GJITHA BLERJET</h3><span id="totalOrdersCount" style="color:var(--chrome);font-size:0.8rem;"></span></div><table><thead><tr><th>#</th><th>Pjesa</th><th>Shitësi</th><th>Çmimi</th><th>Cashback</th><th>Statusi</th><th>Data</th></tr></thead><tbody id="allOrdersBody"></tbody></table></div>
+    </div>
+
+    <!-- Cashback -->
+    <div class="page" id="page-cashback">
+      <div class="info-card"><h3>📅 PERIUDHA AKTUALE (30 DITË)</h3>
+        <div class="info-grid">
+          <div class="info-item"><div class="info-val" id="periodStart">—</div><div class="info-lbl">Fillimi i Periudhës</div></div>
+          <div class="info-item"><div class="info-val" id="daysLeft">—</div><div class="info-lbl">Ditë të Mbetura</div></div>
+          <div class="info-item"><div class="info-val" id="periodTotal">0 L</div><div class="info-lbl">Total Blerjeve</div></div>
+          <div class="info-item"><div class="info-val" id="periodCashback">0 L</div><div class="info-lbl">Cashback i Pritshëm (2%)</div></div>
+        </div>
+      </div>
+      <div class="info-card" style="background:var(--red-glow);border-color:rgba(224,32,32,0.3);">
+        <h3>💳 BALANCI AKTUAL I KREDISË</h3>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:2.5rem;color:var(--green);" id="currentBalance">0 L</div>
+        <div style="color:var(--chrome);font-size:0.85rem;margin-top:0.5rem;">Përdoreni këtë kredit për blerjet e ardhshme. Krediti llogaritet çdo 30 ditë.</div>
+      </div>
+      <div class="info-card">
+        <h3>❓ SI FUNKSIONON CASHBACK</h3>
+        <div style="color:var(--chrome);font-size:0.85rem;line-height:1.8;">
+          <p>✅ Bleni pjesë përmes llogarisë suaj</p>
+          <p>✅ Çdo blerje ju jep <strong style="color:var(--green);">2% cashback</strong></p>
+          <p>✅ Cashback-u llogaritet çdo <strong style="color:var(--yellow);">30 ditë</strong></p>
+          <p>✅ Krediti shtohet në bilancin tuaj</p>
+          <p>✅ Përdoreni kreditin për blerjet e ardhshme</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+</body>
+</html>
