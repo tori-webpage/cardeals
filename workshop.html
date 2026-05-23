@@ -47,45 +47,47 @@ window.doLogin=async function(){
 };
 
 // REGISTER
-window.doRegister=async function(){
-  var name=g('regName').value.trim();
-  var email=g('regEmail').value.trim();
-  var phone=g('regPhone').value.trim();
-  var city=g('regCity').value.trim();
-  var pass=g('regPass').value;
-  var pass2=g('regPass2').value;
-  var btn=g('regBtn');
+window.doRegister=function(){
+  alert('Button clicked!');
+  var email=document.getElementById('regEmail').value;
+  var pass=document.getElementById('regPass').value;
+  alert('Email: '+email+' Pass: '+pass);
   
-  if(!name||!email||!phone||!pass){showToast('Plotëso të gjitha fushat!',true);return;}
-  if(pass!==pass2){showToast('Fjalëkalimet nuk përputhen!',true);return;}
-  if(pass.length<6){showToast('Fjalëkalimi duhet 6+ karaktere!',true);return;}
+  if(!email||!pass){
+    showToast('Plotëso fushat!',true);
+    return;
+  }
   
-  btn.textContent='Duke u regjistruar...';btn.disabled=true;
+  var btn=document.getElementById('regBtn');
+  btn.textContent='Duke u regjistruar...';
+  btn.disabled=true;
   
-  try{
-    // Sign out first if somehow logged in
-    if(auth.currentUser){await auth.signOut();}
-    
-    var cred=await auth.createUserWithEmailAndPassword(email,pass);
-    
-    // Create workshop doc
-    await db.collection("workshops").doc(cred.user.uid).set({
-      name:name,email:email,phone:phone,city:city,
+  auth.createUserWithEmailAndPassword(email,pass)
+  .then(function(cred){
+    alert('Auth success! UID: '+cred.user.uid);
+    return db.collection("workshops").doc(cred.user.uid).set({
+      name:document.getElementById('regName').value,
+      email:email,
+      phone:document.getElementById('regPhone').value,
+      city:document.getElementById('regCity').value,
       creditBalance:0,totalPurchases:0,
       currentPeriodStart:new Date(),currentPeriodTotal:0,
       lastPayout:null,createdAt:firebase.firestore.FieldValue.serverTimestamp()
     });
-    
-    // Sign out and tell user to login
-    await auth.signOut();
-    showToast('✅ Llogaria u krijua! Tani mund të hyni.');
-    showTab('login');
-    btn.textContent='REGJISTROHU →';btn.disabled=false;
-  }catch(err){
+  })
+  .then(function(){
+    alert('Workshop doc created!');
+    showToast('✅ Llogaria u krijua!');
+    btn.textContent='REGJISTROHU →';
+    btn.disabled=false;
+  })
+  .catch(function(err){
+    alert('Error: '+err.message);
     console.error(err);
     showToast('❌ '+err.message,true);
-    btn.textContent='REGJISTROHU →';btn.disabled=false;
-  }
+    btn.textContent='REGJISTROHU →';
+    btn.disabled=false;
+  });
 };
 
 window.doLogout=async()=>{await auth.signOut();};
