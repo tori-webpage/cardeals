@@ -63,14 +63,24 @@ window.doRegister=async function(){
   btn.textContent='Duke u regjistruar...';btn.disabled=true;
   
   try{
+    // Sign out first if somehow logged in
+    if(auth.currentUser){await auth.signOut();}
+    
     var cred=await auth.createUserWithEmailAndPassword(email,pass);
+    
+    // Create workshop doc
     await db.collection("workshops").doc(cred.user.uid).set({
       name:name,email:email,phone:phone,city:city,
       creditBalance:0,totalPurchases:0,
       currentPeriodStart:new Date(),currentPeriodTotal:0,
       lastPayout:null,createdAt:firebase.firestore.FieldValue.serverTimestamp()
     });
-    showToast('✅ Llogaria u krijua!');
+    
+    // Sign out and tell user to login
+    await auth.signOut();
+    showToast('✅ Llogaria u krijua! Tani mund të hyni.');
+    showTab('login');
+    btn.textContent='REGJISTROHU →';btn.disabled=false;
   }catch(err){
     console.error(err);
     showToast('❌ '+err.message,true);
