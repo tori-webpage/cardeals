@@ -20,15 +20,19 @@ function showToast(msg,isErr){const t=g('toast');if(!t)return;t.textContent=msg;
 auth.onAuthStateChanged(async user=>{
   if(user){
     currentUser=user;
-    var doc=await db.collection("workshops").doc(user.uid).get();
-    if(doc.exists){
-      currentWorkshop=doc.data();
-      currentWorkshop.id=user.uid;
-      showApp();
-    }else{
-      // User exists in Auth but not in workshops - log them out
-      await auth.signOut();
-      showToast('Kjo llogari nuk është e regjistruar si Pikë Shërbimi.',true);
+    try{
+      var doc=await db.collection("workshops").doc(user.uid).get();
+      if(doc.exists){
+        currentWorkshop=doc.data();
+        currentWorkshop.id=user.uid;
+        showApp();
+      }else{
+        await auth.signOut();
+        showToast('Kjo llogari nuk është Pikë Shërbimi. Regjistrohu!',true);
+      }
+    }catch(e){
+      console.error('Workshop lookup error:',e);
+      showToast('Gabim: '+e.message,true);
     }
   }else{
     currentUser=null;currentWorkshop=null;
