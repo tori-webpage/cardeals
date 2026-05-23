@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="sq">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dyqani — Cardeals.al</title>
+<meta name="description" content="Shiko të gjitha pjesët e këtij shitësi në Cardeals.al" />
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<style>
+:root{--bg:#0a0c10;--panel:#111420;--card:#181d2a;--border:#232840;--red:#e02020;--chrome:#8892a4;--white:#eef0f5;--yellow:#f5c518;--green:#22c55e;--radius:14px;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--white);min-height:100vh;}
+nav{background:var(--panel);border-bottom:3px solid var(--red);display:flex;align-items:center;justify-content:space-between;padding:0 2rem;height:64px;}
+.logo{font-family:'Bebas Neue',sans-serif;font-size:1.9rem;letter-spacing:2px;color:var(--white);text-decoration:none;}
+.logo span{color:var(--red);}
+.container{max-width:1200px;margin:0 auto;padding:2rem;}
+.store-header{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:2rem;margin-bottom:2rem;display:flex;align-items:center;gap:1.5rem;flex-wrap:wrap;}
+.store-avatar{width:80px;height:80px;border-radius:50%;background:var(--red);display:flex;align-items:center;justify-content:center;font-size:2.5rem;flex-shrink:0;}
+.store-info{flex:1;}
+.store-name{font-family:'Bebas Neue',sans-serif;font-size:2rem;letter-spacing:2px;}
+.store-city{color:var(--chrome);font-size:0.9rem;margin-top:0.25rem;}
+.store-contact{margin-top:0.75rem;}
+.store-contact a{display:inline-block;background:#25D366;color:white;padding:8px 18px;border-radius:8px;text-decoration:none;font-weight:700;font-size:0.85rem;}
+.store-stats{display:flex;gap:2rem;margin-top:1rem;}
+.store-stat{text-align:center;}
+.store-stat-num{font-family:'Bebas Neue',sans-serif;font-size:1.5rem;color:var(--red);}
+.store-stat-lbl{font-size:0.7rem;color:var(--chrome);text-transform:uppercase;}
+.parts-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1.5rem;}
+.part-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;transition:transform 0.2s,box-shadow 0.2s;}
+.part-card:hover{transform:translateY(-4px);box-shadow:0 8px 24px rgba(224,32,32,0.15);border-color:var(--red);}
+.part-img{width:100%;height:160px;display:flex;align-items:center;justify-content:center;font-size:4rem;background:linear-gradient(135deg,#1a1a2e,#2d3748);}
+.part-img img{width:100%;height:100%;object-fit:cover;}
+.part-body{padding:1rem;}
+.part-name{font-weight:800;font-size:0.95rem;margin-bottom:0.25rem;}
+.part-fits{font-size:0.78rem;color:var(--chrome);margin-bottom:0.5rem;}
+.part-price{font-weight:800;color:var(--green);font-size:1rem;}
+.cond-badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:0.65rem;font-weight:800;margin-bottom:0.5rem;}
+.cond-new{background:rgba(34,197,94,0.15);color:#22c55e;}
+.cond-used{background:rgba(245,158,11,0.15);color:#f59e0b;}
+.spinner{width:40px;height:40px;border:3px solid var(--border);border-top-color:var(--red);border-radius:50%;animation:spin 0.6s linear infinite;margin:2rem auto;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.not-found{text-align:center;padding:4rem;color:var(--chrome);}
+.back-link{display:inline-block;color:var(--chrome);text-decoration:none;margin-bottom:2rem;font-weight:700;}
+.back-link:hover{color:var(--red);}
+@media(max-width:640px){.store-header{text-align:center;justify-content:center;}}
+</style>
+</head>
+<body>
+
+<nav><a class="logo" href="index.html">Car<span>deals</span>.al</a><div></div></nav>
+
+<div class="container" id="content">
+  <a href="index.html" class="back-link">← Kthehu te Cardeals.al</a>
+  <div class="spinner"></div>
+</div>
+
+<script>
+firebase.initializeApp({apiKey:"AIzaSyAU8hVTqury1MbC0Sx-CXGY1YQrr5VJhyE",authDomain:"cardeals-al.firebaseapp.com",projectId:"cardeals-al",storageBucket:"cardeals-al.firebasestorage.app",messagingSenderId:"839953227675",appId:"1:839953227675:web:6fb6aa9350bd3bd507cb3e"});
+const db=firebase.firestore();
+
+var params=new URLSearchParams(window.location.search);
+var sellerId=params.get('id');
+
+if(!sellerId){
+  document.getElementById('content').innerHTML='<div class="not-found"><h2>Dyqani nuk u gjet</h2><p>Mungon ID e shitësit.</p></div>';
+}else{
+  loadStore(sellerId);
+}
+
+async function loadStore(sellerId){
+  try{
+    var bizDoc=await db.collection("businesses").doc(sellerId).get();
+    if(!bizDoc.exists){
+      document.getElementById('content').innerHTML='<div class="not-found"><h2>Dyqani nuk u gjet</h2><p>Ky shitës nuk ekziston.</p></div>';
+      return;
+    }
+    
+    var biz=bizDoc.data();
+    var partsSnap=await db.collection("parts").where("uid","==",sellerId).where("status","==","active").orderBy("createdAt","desc").get();
+    var parts=partsSnap.docs.map(d=>({id:d.id,...d.data()}));
+    
+    document.title=biz.businessName+' — Cardeals.al';
+    var phone=(biz.whatsappPhone||biz.phone||'').replace(/\D/g,'');
+    var whatsappLink=phone?'<a href="https://wa.me/'+phone+'" target="_blank">💬 WhatsApp</a>':'';
+    
+    var html='<a href="index.html" class="back-link">← Kthehu te Cardeals.al</a>';
+    html+='<div class="store-header">';
+    html+='<div class="store-avatar">🏪</div>';
+    html+='<div class="store-info">';
+    html+='<div class="store-name">'+(biz.businessName||biz.name||'Dyqan')+'</div>';
+    html+='<div class="store-city">📍 '+(biz.city||'Shqipëri')+'</div>';
+    html+='<div class="store-stats"><div class="store-stat"><div class="store-stat-num">'+parts.length+'</div><div class="store-stat-lbl">Pjesë</div></div></div>';
+    html+='<div class="store-contact">'+whatsappLink+'</div>';
+    html+='</div></div>';
+    
+    if(parts.length===0){
+      html+='<div class="not-found"><p>Ky shitës nuk ka pjesë aktive.</p></div>';
+    }else{
+      html+='<div class="parts-grid">';
+      parts.forEach(function(p){
+        var name=typeof p.name==='object'?(p.name.sq||p.name.en):p.name;
+        var thumb=p.images?.length?'<img src="'+p.images[0]+'" alt="'+name+'" />':'🔩';
+        var discount=p.discount||0;
+        var dp=discount>0?Math.round((p.basePrice||0)*(1-discount/100)):(p.basePrice||0);
+        var fee=Math.round(dp*0.08);
+        var fin=dp+fee;
+        html+='<div class="part-card" onclick="window.open(\'index.html\',\'_blank\')">';
+        html+='<div class="part-img">'+thumb+'</div>';
+        html+='<div class="part-body">';
+        html+='<span class="cond-badge '+(p.condition==='new'?'cond-new':'cond-used')+'">'+(p.condition==='new'?'E RE':'E PËRDORUR')+'</span>';
+        html+='<div class="part-name">'+name+'</div>';
+        html+='<div class="part-fits">🚗 '+(p.fits||'')+'</div>';
+        html+='<div class="part-price">'+fin.toLocaleString()+' L</div>';
+        html+='</div></div>';
+      });
+      html+='</div>';
+    }
+    
+    document.getElementById('content').innerHTML=html;
+  }catch(e){
+    document.getElementById('content').innerHTML='<div class="not-found"><h2>Gabim</h2><p>'+e.message+'</p></div>';
+  }
+}
+</script>
+</body>
+</html>
