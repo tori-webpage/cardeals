@@ -287,8 +287,29 @@ function toggleUserMenu(){g('userDropdown').classList.toggle('open');}
 function buyerLogin(){const e=g('authEmail').value.trim(),p=g('authPass').value;if(!e||!p){showToast('Plotëso fushat',true);return;}auth.signInWithEmailAndPassword(e,p).then(()=>{closeModal('authModal');showToast('✅ Mirë se vini!');}).catch(err=>showToast('❌ '+err.message,true));}
 function buyerRegister(){const n=g('regName').value.trim(),e=g('regEmail').value.trim(),p=g('regPass').value;if(!n||!e||!p){showToast('Plotëso fushat',true);return;}if(p.length<6){showToast('Fjalëkalimi duhet 6+ karaktere',true);return;}auth.createUserWithEmailAndPassword(e,p).then(cred=>db.collection('buyers').doc(cred.user.uid).set({name:n,email:e,phone:'',createdAt:firebase.firestore.FieldValue.serverTimestamp()})).then(()=>{closeModal('authModal');showToast('✅ Llogaria u krijua!');}).catch(err=>showToast('❌ '+err.message,true));}
 function buyerLogout(){auth.signOut();g('userDropdown').classList.remove('open');}
-function prefillBuyerFields(){if(!currentBuyer)return;db.collection('buyers').doc(currentBuyer.uid).get().then(doc=>{if(doc.exists){const d=doc.data();if(d.name){g('onlineName').value=d.name;g('pickupName').value=d.name;}if(d.phone){g('onlinePhone').value=d.phone;g('pickupPhone').value=d.phone;}if(d.email){g('onlineEmail').value=d.email;}}});}
-
+function function prefillBuyerFields(){
+  if(!currentBuyer)return;
+  
+  // Try buyers collection first
+  db.collection('buyers').doc(currentBuyer.uid).get().then(doc=>{
+    if(doc.exists){
+      const d=doc.data();
+      if(d.name){g('onlineName').value=d.name;g('pickupName').value=d.name;}
+      if(d.phone){g('onlinePhone').value=d.phone;g('pickupPhone').value=d.phone;}
+      if(d.email){g('onlineEmail').value=d.email;}
+    }
+  });
+  
+  // Also check workshops collection
+  db.collection('workshops').doc(currentBuyer.uid).get().then(doc=>{
+    if(doc.exists){
+      const d=doc.data();
+      if(d.name){g('onlineName').value=d.name;g('pickupName').value=d.name;}
+      if(d.phone){g('onlinePhone').value=d.phone;g('pickupPhone').value=d.phone;}
+      if(d.email){g('onlineEmail').value=d.email;}
+    }
+  });
+}
 function showMyOrders(){if(!currentBuyer){openRegisterModal();return;}g('userDropdown').classList.remove('open');var container=g('myOrdersContent');container.innerHTML='<div style="text-align:center;padding:2rem;color:var(--chrome);"><div class="spinner"></div></div>';g('myOrdersModal').classList.add('open');db.collection("orders").where("buyerUid","==",currentBuyer.uid).orderBy("createdAt","desc").get().then(snap=>{if(snap.empty){container.innerHTML='<div style="text-align:center;padding:3rem;color:var(--chrome);">📦 Nuk keni porosi.</div>';return;}var html='<table class="myorders-table"><thead><tr><th>#</th><th>Pjesa</th><th>Shitësi</th><th>Çmimi</th><th>Statusi</th><th>Data</th></tr></thead><tbody>';snap.docs.forEach(d=>{var o=d.data();o.id=d.id;var statusBg=o.status==='sold'?'#22c55e':o.status==='pending'?'#f59e0b':'#e02020';var statusText=o.status==='sold'?'Shitur':o.status==='pending'?'Në Pritje':'Anuluar';var date=o.createdAt?.toDate?o.createdAt.toDate().toLocaleDateString('sq-AL'):'—';html+='<tr><td style="color:#e02020;font-weight:800;">#'+o.id.slice(-6).toUpperCase()+'</td><td>'+(o.partEmoji||'🔩')+' '+o.partName+'</td><td>'+o.sellerName+'</td><td style="font-weight:800;">'+(o.totalPrice||0).toLocaleString()+' L</td><td><span style="color:'+statusBg+';font-weight:700;">'+statusText+'</span></td><td style="font-size:0.8rem;color:var(--chrome);">'+date+'</td></tr>';});html+='</tbody></table>';container.innerHTML=html;}).catch(err=>{container.innerHTML='<div style="text-align:center;padding:2rem;color:#e02020;">Gabim: '+err.message+'</div>';});}
 function showSavedSearches(){if(!currentBuyer){openRegisterModal();return;}g('userDropdown').classList.remove('open');showToast('🔍 Funksioni do te vije se shpejti!',false);}
 function saveCurrentSearch(){if(!currentBuyer){openRegisterModal();return;}var searchData={search:g('searchInput').value,make:currentCarMake,model:currentCarModel,city:g('filterCity').value,seller:g('filterSeller').value,maxPrice:g('filterMaxPrice').value,sort:g('filterSort').value,condition:currentCondition,category:currentFilter,buyerUid:currentBuyer.uid,createdAt:firebase.firestore.FieldValue.serverTimestamp()};db.collection("savedSearches").add(searchData).then(()=>{showToast('✅ Kërkimi u ruajt!');}).catch(err=>{showToast('❌ Gabim',true);});}
