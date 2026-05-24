@@ -39,7 +39,7 @@ auth.onAuthStateChanged(async user=>{
   }
 });
 
-function showApp(){g('app').style.display='flex';g('workshopName').textContent=currentWorkshop?.name||'Pikë Shërbimi';loadMyOrders();showPage('dashboard');}
+function showApp(){g('loginScreen').style.display='none';g('app').style.display='flex';g('workshopName').textContent=currentWorkshop?.name||'Pikë Shërbimi';loadMyOrders();showPage('dashboard');}
 
 // LOGIN
 window.doLogin=async function(){
@@ -52,13 +52,21 @@ window.doLogin=async function(){
 
 // REGISTER
 window.doRegister=function(){
-  alert('Button clicked!');
-  var email=document.getElementById('regEmail').value;
+  var email=document.getElementById('regEmail').value.trim();
   var pass=document.getElementById('regPass').value;
-  alert('Email: '+email+' Pass: '+pass);
+  var pass2=document.getElementById('regPass2').value;
+  var name=document.getElementById('regName').value.trim();
   
-  if(!email||!pass){
-    showToast('Plotëso fushat!',true);
+  if(!name||!email||!pass||!pass2){
+    showToast('Plotëso të gjitha fushat!',true);
+    return;
+  }
+  if(pass!==pass2){
+    showToast('❌ Fjalëkalimet nuk përputhen!',true);
+    return;
+  }
+  if(pass.length<6){
+    showToast('❌ Fjalëkalimi duhet të jetë së paku 6 karaktere!',true);
     return;
   }
   
@@ -68,7 +76,6 @@ window.doRegister=function(){
   
   auth.createUserWithEmailAndPassword(email,pass)
   .then(function(cred){
-    alert('Auth success! UID: '+cred.user.uid);
     return db.collection("workshops").doc(cred.user.uid).set({
       name:document.getElementById('regName').value,
       email:email,
@@ -80,13 +87,11 @@ window.doRegister=function(){
     });
   })
   .then(function(){
-    alert('Workshop doc created!');
     showToast('✅ Llogaria u krijua!');
     btn.textContent='REGJISTROHU →';
     btn.disabled=false;
   })
   .catch(function(err){
-    alert('Error: '+err.message);
     console.error(err);
     showToast('❌ '+err.message,true);
     btn.textContent='REGJISTROHU →';
