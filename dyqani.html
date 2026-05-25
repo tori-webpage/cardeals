@@ -8,16 +8,17 @@
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
 <style>
-:root{--bg:#fef7f0;--panel:#ffffff;--card:#ffffff;--border:#f0e0d0;--red:#d97706;--chrome:#8a7a6a;--white:#2d1f10;--yellow:#f59e0b;--green:#65a30d;--radius:14px;}
+:root{--bg:#fef7f0;--panel:#ffffff;--card:#ffffff;--border:#f0e0d0;--red:#d97706;--red-dark:#b45309;--chrome:#8a7a6a;--white:#2d1f10;--yellow:#f59e0b;--green:#65a30d;--radius:14px;}
 *{margin:0;padding:0;box-sizing:border-box;}
 body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--white);min-height:100vh;}
-nav{background:var(--panel);border-bottom:3px solid var(--red);display:flex;align-items:center;justify-content:space-between;padding:0 2rem;height:64px;}
+nav{background:var(--panel);border-bottom:3px solid var(--red);display:flex;align-items:center;justify-content:space-between;padding:0 2rem;height:64px;box-shadow:0 1px 3px rgba(0,0,0,0.06);}
 .logo{font-family:'Bebas Neue',sans-serif;font-size:1.9rem;letter-spacing:2px;color:var(--white);text-decoration:none;}
 .logo span{color:var(--red);}
 .container{max-width:1200px;margin:0 auto;padding:2rem;}
-.store-header{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:2rem;margin-bottom:1.5rem;display:flex;align-items:center;gap:1.5rem;flex-wrap:wrap;}
-.store-avatar{width:80px;height:80px;border-radius:50%;background:var(--red);display:flex;align-items:center;justify-content:center;font-size:2.5rem;flex-shrink:0;}
+.store-header{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:2rem;margin-bottom:1.5rem;display:flex;align-items:center;gap:1.5rem;flex-wrap:wrap;box-shadow:0 1px 3px rgba(0,0,0,0.04);}
+.store-avatar{width:80px;height:80px;border-radius:50%;background:var(--red);display:flex;align-items:center;justify-content:center;font-size:2.5rem;flex-shrink:0;color:white;}
 .store-info{flex:1;min-width:200px;}
 .store-name{font-family:'Bebas Neue',sans-serif;font-size:2rem;letter-spacing:2px;}
 .store-city{color:var(--chrome);font-size:0.9rem;margin-top:0.25rem;}
@@ -31,27 +32,37 @@ nav{background:var(--panel);border-bottom:3px solid var(--red);display:flex;alig
 .filter-bar input,.filter-bar select{background:var(--card);border:1px solid var(--border);color:var(--white);padding:0.6rem 1rem;border-radius:8px;font-family:'Nunito',sans-serif;font-size:0.85rem;outline:none;}
 .filter-bar input{flex:1;min-width:200px;}
 .filter-bar input:focus,.filter-bar select:focus{border-color:var(--red);}
-.filter-bar input::placeholder{color:#555;}
+.filter-bar input::placeholder{color:var(--chrome);}
 .filter-count{color:var(--chrome);font-size:0.8rem;}
 .parts-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1.5rem;}
-.part-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;transition:transform 0.2s,box-shadow 0.2s;cursor:pointer;}
-.part-card:hover{transform:translateY(-4px);box-shadow:0 8px 24px rgba(224,32,32,0.15);border-color:var(--red);}
-.part-img{width:100%;height:160px;display:flex;align-items:center;justify-content:center;font-size:4rem;background:linear-gradient(135deg,#1a1a2e,#2d3748);}
+.part-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;transition:transform 0.2s,box-shadow 0.2s;box-shadow:0 1px 3px rgba(0,0,0,0.04);}
+.part-card:hover{transform:translateY(-4px);box-shadow:0 8px 24px rgba(0,0,0,0.1);border-color:var(--red);}
+.part-img{width:100%;height:160px;display:flex;align-items:center;justify-content:center;font-size:4rem;background:linear-gradient(135deg,#fef7f0,#f0e0d0);cursor:pointer;}
 .part-img img{width:100%;height:100%;object-fit:cover;}
 .part-body{padding:1rem;}
 .part-name{font-weight:800;font-size:0.95rem;margin-bottom:0.25rem;}
 .part-fits{font-size:0.78rem;color:var(--chrome);margin-bottom:0.5rem;}
-.part-price{font-weight:800;color:var(--green);font-size:1rem;}
+.part-price{font-weight:800;color:var(--green);font-size:1rem;margin-bottom:0.5rem;}
 .cond-badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:0.65rem;font-weight:800;margin-bottom:0.5rem;}
-.cond-new{background:rgba(34,197,94,0.15);color:#22c55e;}
-.cond-used{background:rgba(245,158,11,0.15);color:#f59e0b;}
-.promo-badge{display:inline-block;background:rgba(245,197,24,0.15);color:#f5c518;padding:3px 10px;border-radius:20px;font-size:0.65rem;font-weight:800;margin-left:4px;}
+.cond-new{background:rgba(101,163,13,0.12);color:#65a30d;}
+.cond-used{background:rgba(217,119,6,0.1);color:#d97706;}
+.promo-badge{display:inline-block;background:rgba(245,197,24,0.15);color:#b45309;padding:3px 10px;border-radius:20px;font-size:0.65rem;font-weight:800;margin-left:4px;}
+.buy-btn{width:100%;background:var(--red);color:white;border:none;border-radius:8px;padding:10px;font-weight:700;font-size:0.9rem;cursor:pointer;font-family:'Nunito',sans-serif;transition:background 0.2s;}
+.buy-btn:hover{background:var(--red-dark);}
 .spinner{width:40px;height:40px;border:3px solid var(--border);border-top-color:var(--red);border-radius:50%;animation:spin 0.6s linear infinite;margin:2rem auto;}
 @keyframes spin{to{transform:rotate(360deg)}}
 .not-found{text-align:center;padding:4rem;color:var(--chrome);}
-.back-link{display:inline-block;color:var(--chrome);text-decoration:none;margin-bottom:1.5rem;font-weight:700;}
-.back-link:hover{color:var(--red);}
-@media(max-width:640px){.store-header{text-align:center;justify-content:center;}.filter-bar{flex-direction:column;}.filter-bar input{width:100%;}.container{padding:1rem;}.parts-grid{grid-template-columns:1fr;}}
+.back-link{display:inline-block;color:var(--red);text-decoration:none;margin-bottom:1.5rem;font-weight:700;}
+.back-link:hover{text-decoration:underline;}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:200;align-items:center;justify-content:center;padding:1rem;}
+.modal-overlay.open{display:flex;}
+.modal{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:2rem;max-width:480px;width:100%;position:relative;max-height:90vh;overflow-y:auto;box-shadow:0 12px 32px rgba(0,0,0,0.15);}
+.modal-x{position:absolute;top:1rem;right:1rem;background:none;border:none;color:var(--chrome);font-size:1.3rem;cursor:pointer;}
+.modal-x:hover{color:#dc2626;}
+.toast{position:fixed;bottom:2rem;right:2rem;color:white;padding:1rem 1.5rem;border-radius:10px;font-weight:800;font-size:0.85rem;display:none;z-index:300;box-shadow:0 8px 24px rgba(0,0,0,0.2);}
+.toast.show{display:block;animation:toastIn 0.3s ease;}
+@keyframes toastIn{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
+@media(max-width:640px){.store-header{text-align:center;justify-content:center;}.filter-bar{flex-direction:column;}.filter-bar input{width:100%;}.container{padding:1rem;}.parts-grid{grid-template-columns:1fr;}nav{padding:0 1rem;}}
 </style>
 </head>
 <body>
@@ -63,106 +74,64 @@ nav{background:var(--panel);border-bottom:3px solid var(--red);display:flex;alig
   <div class="spinner"></div>
 </div>
 
+<!-- Buy Modal -->
+<div class="modal-overlay" id="buyModal"><div class="modal"><button class="modal-x" onclick="closeModal('buyModal')">✕</button><div style="text-align:center;font-size:2.5rem;margin-bottom:0.5rem;" id="mEmoji">🔩</div><h3 id="mName" style="font-family:'Bebas Neue',sans-serif;text-align:center;"></h3><p id="mSeller" style="text-align:center;color:var(--chrome);margin-bottom:0.8rem;"></p><div id="mStockInfo" style="margin-bottom:0.8rem;"></div><div style="display:flex;align-items:center;gap:0.8rem;margin-bottom:0.8rem;"><span style="color:var(--chrome);">Sasia:</span><button onclick="changeQty(-1)" style="width:30px;height:30px;border-radius:50%;border:1px solid var(--border);background:var(--bg);color:var(--white);cursor:pointer;font-weight:600;">−</button><input type="number" id="mQty" value="1" min="1" oninput="updateModalTotal()" style="width:48px;text-align:center;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--white);padding:5px;font-family:'Nunito',sans-serif;outline:none;" /><button onclick="changeQty(1)" style="width:30px;height:30px;border-radius:50%;border:1px solid var(--border);background:var(--bg);color:var(--white);cursor:pointer;font-weight:600;">+</button></div><div style="background:var(--bg);border-radius:12px;padding:0.9rem;margin-bottom:0.8rem;"><div style="display:flex;justify-content:space-between;font-size:0.84rem;"><span>Çmimi</span><span id="mBase"></span></div><div style="display:flex;justify-content:space-between;font-size:0.78rem;color:var(--chrome);border-top:1px solid var(--border);padding-top:5px;margin-top:3px;"><span>Tarifa (8%)</span><span id="mFee"></span></div><div style="display:flex;justify-content:space-between;font-weight:600;border-top:1px solid var(--border);padding-top:5px;margin-top:3px;"><span>Totali</span><span id="mTotal" style="color:var(--green);"></span></div></div><div style="display:flex;gap:0.4rem;margin-bottom:0.8rem;"><button onclick="selectPay('online')" id="btnOnline" class="buy-btn" style="flex:1;">💳 Online</button><button onclick="selectPay('pickup')" id="btnPickup" class="buy-btn" style="flex:1;background:var(--bg);border:1px solid var(--border);color:var(--white);">🤝 Marrje</button></div><div id="secOnline"><div style="margin-bottom:0.7rem;"><label style="display:block;font-size:0.72rem;font-weight:700;color:var(--chrome);margin-bottom:3px;">Emri i Plotë *</label><input type="text" id="onlineName" style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--white);padding:8px 12px;font-family:'Nunito',sans-serif;outline:none;" /></div><div style="margin-bottom:0.7rem;"><label style="display:block;font-size:0.72rem;font-weight:700;color:var(--chrome);margin-bottom:3px;">Telefon *</label><input type="text" id="onlinePhone" style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--white);padding:8px 12px;font-family:'Nunito',sans-serif;outline:none;" /></div><div style="margin-bottom:0.7rem;"><label style="display:block;font-size:0.72rem;font-weight:700;color:var(--chrome);margin-bottom:3px;">Email *</label><input type="email" id="onlineEmail" style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--white);padding:8px 12px;font-family:'Nunito',sans-serif;outline:none;" /></div><button class="buy-btn" onclick="confirmOnline()">💳 VAZHDO ME PAGESËN</button></div><div id="secPickup" style="display:none"><div style="margin-bottom:0.7rem;"><label style="display:block;font-size:0.72rem;font-weight:700;color:var(--chrome);margin-bottom:3px;">Emri i Plotë *</label><input type="text" id="pickupName" style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--white);padding:8px 12px;font-family:'Nunito',sans-serif;outline:none;" /></div><div style="margin-bottom:0.7rem;"><label style="display:block;font-size:0.72rem;font-weight:700;color:var(--chrome);margin-bottom:3px;">Telefon *</label><input type="text" id="pickupPhone" style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--white);padding:8px 12px;font-family:'Nunito',sans-serif;outline:none;" /></div><button class="buy-btn" onclick="confirmPickup()">🤝 REZERVO FALAS</button></div></div></div>
+
+<div class="toast" id="toast"></div>
+
 <script>
 firebase.initializeApp({apiKey:"AIzaSyAU8hVTqury1MbC0Sx-CXGY1YQrr5VJhyE",authDomain:"cardeals-al.firebaseapp.com",projectId:"cardeals-al",storageBucket:"cardeals-al.firebasestorage.app",messagingSenderId:"839953227675",appId:"1:839953227675:web:6fb6aa9350bd3bd507cb3e"});
-const db=firebase.firestore();
-
+const db=firebase.firestore(),auth=firebase.auth(),PLATFORM_FEE=0.08;
 var params=new URLSearchParams(window.location.search);
 var sellerId=params.get('id');
-var allParts=[];
+var allParts=[],selectedPart=null;
 
-if(!sellerId){
-  document.getElementById('content').innerHTML='<div class="not-found"><h2>Dyqani nuk u gjet</h2><p>Mungon ID e shitësit.</p></div>';
-}else{
-  loadStore(sellerId);
-}
+function g(id){return document.getElementById(id);}
+function showToast(msg,isErr){const t=g('toast');if(!t)return;t.textContent=msg;t.style.background=isErr?'#dc2626':'#65a30d';t.classList.add('show');setTimeout(()=>t.classList.remove('show'),4000);}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+
+if(!sellerId){document.getElementById('content').innerHTML='<div class="not-found"><h2>Dyqani nuk u gjet</h2><p>Mungon ID e shitësit.</p></div>';}else{loadStore(sellerId);}
 
 async function loadStore(sellerId){
   try{
     var bizDoc=await db.collection("businesses").doc(sellerId).get();
-    if(!bizDoc.exists){
-      document.getElementById('content').innerHTML='<div class="not-found"><h2>Dyqani nuk u gjet</h2><p>Ky shitës nuk ekziston.</p></div>';
-      return;
-    }
-    
+    if(!bizDoc.exists){document.getElementById('content').innerHTML='<div class="not-found"><h2>Dyqani nuk u gjet</h2><p>Ky shitës nuk ekziston.</p></div>';return;}
     var biz=bizDoc.data();
     var partsSnap=await db.collection("parts").where("uid","==",sellerId).where("status","==","active").orderBy("createdAt","desc").get();
     allParts=partsSnap.docs.map(d=>({id:d.id,...d.data()}));
-    
     document.title=biz.businessName+' — Cardeals.al';
     var phone=(biz.whatsappPhone||biz.phone||'').replace(/\D/g,'');
     var whatsappLink=phone?'<a href="https://wa.me/'+phone+'" target="_blank">💬 WhatsApp</a>':'';
-    
     var html='<a href="index.html" class="back-link">← Kthehu te Cardeals.al</a>';
-    html+='<div class="store-header">';
-    html+='<div class="store-avatar">🏪</div>';
-    html+='<div class="store-info">';
-    html+='<div class="store-name">'+(biz.businessName||biz.name||'Dyqan')+'</div>';
-    html+='<div class="store-city">📍 '+(biz.city||'Shqipëri')+'</div>';
-    html+='<div class="store-stats"><div class="store-stat"><div class="store-stat-num">'+allParts.length+'</div><div class="store-stat-lbl">Pjesë</div></div></div>';
-    html+='<div class="store-contact">'+whatsappLink+'</div>';
-    html+='</div></div>';
-    
-    // Filter bar
-    html+='<div class="filter-bar">';
-    html+='<input type="text" id="filterSearch" placeholder="🔍 Kërko pjesë..." oninput="filterParts()" />';
-    html+='<select id="filterCondition" onchange="filterParts()"><option value="all">Të gjitha gjendjet</option><option value="new">Vetëm të Reja</option><option value="used">Vetëm të Përdorura</option></select>';
-    html+='<select id="filterCategory" onchange="filterParts()"><option value="all">Të gjitha kategoritë</option><option value="brakes">Frena</option><option value="engine">Motor</option><option value="electrical">Elektrik</option><option value="suspension">Amortizatorë</option><option value="body">Karroceri</option><option value="ac">Klimë</option></select>';
-    html+='<span class="filter-count" id="filterCount">'+allParts.length+' pjesë</span>';
-    html+='</div>';
-    
+    html+='<div class="store-header"><div class="store-avatar">🏪</div><div class="store-info"><div class="store-name">'+(biz.businessName||biz.name||'Dyqan')+'</div><div class="store-city">📍 '+(biz.city||'Shqipëri')+'</div><div class="store-stats"><div class="store-stat"><div class="store-stat-num">'+allParts.length+'</div><div class="store-stat-lbl">Pjesë</div></div></div><div class="store-contact">'+whatsappLink+'</div></div></div>';
+    html+='<div class="filter-bar"><input type="text" id="filterSearch" placeholder="🔍 Kërko pjesë..." oninput="filterParts()" /><select id="filterCondition" onchange="filterParts()"><option value="all">Të gjitha gjendjet</option><option value="new">Vetëm të Reja</option><option value="used">Vetëm të Përdorura</option></select><select id="filterCategory" onchange="filterParts()"><option value="all">Të gjitha kategoritë</option><option value="brakes">Frena</option><option value="engine">Motor</option><option value="electrical">Elektrik</option><option value="suspension">Amortizatorë</option><option value="body">Karroceri</option><option value="ac">Klimë</option></select><span class="filter-count" id="filterCount">'+allParts.length+' pjesë</span></div>';
     html+='<div class="parts-grid" id="partsGrid"></div>';
-    
     document.getElementById('content').innerHTML=html;
     renderFilteredParts();
-  }catch(e){
-    document.getElementById('content').innerHTML='<div class="not-found"><h2>Gabim</h2><p>'+e.message+'</p></div>';
-  }
+  }catch(e){document.getElementById('content').innerHTML='<div class="not-found"><h2>Gabim</h2><p>'+e.message+'</p></div>';}
 }
 
-function filterParts(){
-  renderFilteredParts();
-}
+function filterParts(){renderFilteredParts();}
 
 function renderFilteredParts(){
   var search=document.getElementById('filterSearch')?.value.toLowerCase()||'';
   var condition=document.getElementById('filterCondition')?.value||'all';
   var category=document.getElementById('filterCategory')?.value||'all';
-  
-  var filtered=allParts.filter(function(p){
-    var name=typeof p.name==='object'?(p.name.sq||p.name.en):(p.name||'');
-    var fits=(p.fits||'').toLowerCase();
-    if(search&&name.toLowerCase().indexOf(search)===-1&&fits.indexOf(search)===-1)return false;
-    if(condition!=='all'&&p.condition!==condition)return false;
-    if(category!=='all'&&p.category!==category)return false;
-    return true;
-  });
-  
+  var filtered=allParts.filter(function(p){var name=typeof p.name==='object'?(p.name.sq||p.name.en):(p.name||'');var fits=(p.fits||'').toLowerCase();if(search&&name.toLowerCase().indexOf(search)===-1&&fits.indexOf(search)===-1)return false;if(condition!=='all'&&p.condition!==condition)return false;if(category!=='all'&&p.category!==category)return false;return true;});
   document.getElementById('filterCount').textContent=filtered.length+' pjesë';
-  
   var grid=document.getElementById('partsGrid');
-  if(!filtered.length){
-    grid.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:3rem;color:var(--chrome);">🔍 Nuk u gjet asnjë pjesë.</div>';
-    return;
-  }
-  
-  grid.innerHTML=filtered.map(function(p){
-    var name=typeof p.name==='object'?(p.name.sq||p.name.en):p.name;
-    var thumb=p.images?.length?'<img src="'+p.images[0]+'" alt="'+name+'" />':'🔩';
-    var dp=p.discount>0?Math.round((p.basePrice||0)*(1-(p.discount||0)/100)):(p.basePrice||0);
-    var fee=Math.round(dp*0.08);
-    var fin=dp+fee;
-    return '<div class="part-card" onclick="window.open(\'index.html\',\'_blank\')">'+
-      '<div class="part-img">'+thumb+'</div>'+
-      '<div class="part-body">'+
-      '<span class="cond-badge '+(p.condition==='new'?'cond-new':'cond-used')+'">'+(p.condition==='new'?'E RE':'E PËRDORUR')+'</span>'+
-      (p.weeklyPromo?'<span class="promo-badge">🔥 PROMO</span>':'')+
-      '<div class="part-name">'+name+'</div>'+
-      '<div class="part-fits">🚗 '+(p.fits||'')+'</div>'+
-      '<div class="part-price">'+fin.toLocaleString()+' L</div>'+
-      '</div></div>';
-  }).join('');
+  if(!filtered.length){grid.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:3rem;color:var(--chrome);">🔍 Nuk u gjet asnjë pjesë.</div>';return;}
+  grid.innerHTML=filtered.map(function(p){var name=typeof p.name==='object'?(p.name.sq||p.name.en):p.name;var thumb=p.images?.length?'<img src="'+p.images[0]+'" alt="'+name+'" />':'🔩';var dp=p.discount>0?Math.round((p.basePrice||0)*(1-(p.discount||0)/100)):(p.basePrice||0);var fee=Math.round(dp*PLATFORM_FEE);var fin=dp+fee;return '<div class="part-card"><div class="part-img">'+thumb+'</div><div class="part-body"><span class="cond-badge '+(p.condition==='new'?'cond-new':'cond-used')+'">'+(p.condition==='new'?'E RE':'E PËRDORUR')+'</span>'+(p.weeklyPromo?'<span class="promo-badge">🔥 PROMO</span>':'')+'<div class="part-name">'+name+'</div><div class="part-fits">🚗 '+(p.fits||'')+'</div><div class="part-price">'+fin.toLocaleString()+' L</div><button class="buy-btn" onclick="openBuyModal(\''+p.id+'\')">BLI TANI — '+fin.toLocaleString()+' L</button></div></div>';}).join('');
 }
+
+function openBuyModal(partId){selectedPart=allParts.find(p=>p.id===partId);if(!selectedPart)return;var name=typeof selectedPart.name==='object'?(selectedPart.name.sq||selectedPart.name.en):selectedPart.name;var stock=selectedPart.stock||0;g('mQty').value=1;g('mName').textContent=name;g('mSeller').textContent='🏪 '+(selectedPart.sellerName||'')+' · '+(selectedPart.sellerCity||'');g('mStockInfo').innerHTML=stock===0?'<span style="color:#dc2626;">⚠️ Jashtë stokut</span>':stock<=3?'<span style="color:#d97706;">⚠️ Mbeten vetëm '+stock+' copë!</span>':'<span style="color:#65a30d;">✓ '+stock+' copë në stok</span>';updateModalTotal();g('buyModal').classList.add('open');selectPay('online');}
+function updateModalTotal(){if(!selectedPart)return;var qty=parseInt(g('mQty')?.value)||1;var discount=selectedPart.discount||0;var dp=discount>0?Math.round((selectedPart.basePrice||0)*(1-discount/100)):(selectedPart.basePrice||0);var fee=Math.round(dp*PLATFORM_FEE);g('mBase').textContent=dp.toLocaleString()+' L × '+qty;g('mFee').textContent='+'+(fee*qty).toLocaleString()+' L';g('mTotal').textContent=((dp+fee)*qty).toLocaleString()+' L';}
+function changeQty(d){var el=g('mQty');if(!el)return;var max=selectedPart?Math.max(1,selectedPart.stock||99):99;el.value=Math.min(max,Math.max(1,(parseInt(el.value)||1)+d));updateModalTotal();}
+function selectPay(m){g('btnOnline').style.background=m==='online'?'var(--red)':'var(--bg)';g('btnOnline').style.color=m==='online'?'white':'var(--white)';g('btnOnline').style.border=m==='online'?'none':'1px solid var(--border)';g('btnPickup').style.background=m==='pickup'?'var(--red)':'var(--bg)';g('btnPickup').style.color=m==='pickup'?'white':'var(--white)';g('btnPickup').style.border=m==='pickup'?'none':'1px solid var(--border)';g('secOnline').style.display=m==='online'?'block':'none';g('secPickup').style.display=m==='pickup'?'block':'none';}
+function confirmOnline(){var n=g('onlineName').value.trim(),p=g('onlinePhone').value.trim(),e=g('onlineEmail').value.trim(),qty=parseInt(g('mQty')?.value)||1;if(!n||!p||!e){showToast('⚠️ Plotëso të gjitha fushat!',true);return;}if(!selectedPart)return;var discount=selectedPart.discount||0;var dp=discount>0?Math.round((selectedPart.basePrice||0)*(1-discount/100)):(selectedPart.basePrice||0);var fee=Math.round(dp*PLATFORM_FEE);var total=(dp+fee)*qty;var partName=typeof selectedPart.name==='object'?(selectedPart.name.sq||selectedPart.name.en):selectedPart.name;db.collection('orders').add({partId:selectedPart.id,partName:partName,buyerName:n,buyerPhone:p,buyerEmail:e,buyerUid:null,sellerUid:selectedPart.uid||'',sellerName:selectedPart.sellerName||'',sellerCity:selectedPart.sellerCity||'',basePrice:dp,quantity:qty,platformFee:fee*qty,totalPrice:total,payMethod:'online',status:'pending',createdAt:firebase.firestore.FieldValue.serverTimestamp()}).then(()=>{closeModal('buyModal');showToast('✅ Porosia u regjistrua!');showWhatsAppContact();}).catch(err=>{showToast('❌ Gabim: '+err.message,true);});}
+function confirmPickup(){var n=g('pickupName').value.trim(),p=g('pickupPhone').value.trim(),qty=parseInt(g('mQty')?.value)||1;if(!n||!p){showToast('⚠️ Plotëso emrin dhe telefonin!',true);return;}if(!selectedPart)return;var discount=selectedPart.discount||0;var dp=discount>0?Math.round((selectedPart.basePrice||0)*(1-discount/100)):(selectedPart.basePrice||0);var fee=Math.round(dp*PLATFORM_FEE);var total=(dp+fee)*qty;var partName=typeof selectedPart.name==='object'?(selectedPart.name.sq||selectedPart.name.en):selectedPart.name;db.collection('orders').add({partId:selectedPart.id,partName:partName,buyerName:n,buyerPhone:p,buyerUid:null,sellerUid:selectedPart.uid||'',sellerName:selectedPart.sellerName||'',sellerCity:selectedPart.sellerCity||'',basePrice:dp,quantity:qty,platformFee:fee*qty,totalPrice:total,payMethod:'pickup',status:'pending',createdAt:firebase.firestore.FieldValue.serverTimestamp()}).then(()=>{closeModal('buyModal');showToast('✅ Rezervuar!');showWhatsAppContact();}).catch(err=>{showToast('❌ Gabim: '+err.message,true);});}
+
+function showWhatsAppContact(){if(!selectedPart||!selectedPart.uid)return;var partName=typeof selectedPart.name==='object'?(selectedPart.name.sq||selectedPart.name.en):(selectedPart.name||'');var sellerName=selectedPart.sellerName||'';db.collection("businesses").doc(selectedPart.uid).get().then(function(doc){if(doc.exists){var phone=(doc.data().whatsappPhone||doc.data().phone||'').replace(/\D/g,'');if(phone){var msg=encodeURIComponent("Pershendetje! Bera nje porosi ne Cardeals.al per pjesen \""+partName+"\". Mund te koordinohemi per detajet?");showToast('📞 Kontakto shitësin: '+phone);window.open('https://wa.me/'+phone+'?text='+msg,'_blank');}}}).catch(function(){});}
 </script>
 </body>
 </html>
