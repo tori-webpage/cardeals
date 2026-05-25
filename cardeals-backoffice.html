@@ -158,7 +158,7 @@ window.importBulkParts=async function(){if(!bulkImportData.length){showToast(l('
 document.addEventListener('DOMContentLoaded',function(){document.querySelectorAll('.modal-overlay').forEach(function(o){o.addEventListener('click',function(e){if(e.target===o)o.classList.remove('open');});});document.addEventListener('keypress',function(e){if(e.key==='Enter'&&document.getElementById('loginScreen').style.display!=='none')doLogin();});});
 </script>
 <style>
-:root{--bg:#0a0c10;--panel:#111420;--card:#181d2a;--border:#232840;--red:#e02020;--red-dark:#b01515;--red-glow:rgba(224,32,32,0.12);--chrome:#8892a4;--white:#eef0f5;--yellow:#f5c518;--green:#22c55e;--green-dim:rgba(34,197,94,0.12);--blue:#3b82f6;--orange:#f59e0b;--radius:14px;--sw:240px;}
+:root{--bg:#fef7f0;--panel:#ffffff;--card:#ffffff;--border:#f0d9c0;--red:#d97706;--red-dark:#b45309;--red-glow:rgba(217,119,6,0.08);--chrome:#8a7a6a;--white:#2d1f10;--yellow:#f59e0b;--green:#65a30d;--green-dim:rgba(101,163,13,0.12);--blue:#2563eb;--orange:#d97706;--radius:14px;--sw:240px;}
 *{margin:0;padding:0;box-sizing:border-box;}
 body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--white);min-height:100vh;}
 ::-webkit-scrollbar{width:5px;}::-webkit-scrollbar-track{background:var(--panel);}::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}::-webkit-scrollbar-thumb:hover{background:var(--red);}
