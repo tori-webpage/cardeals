@@ -117,11 +117,21 @@ const db=firebase.firestore(),auth=firebase.auth(),PLATFORM_FEE=0.08;
 const EUR_TO_LEK = 120;
 const FREE_SHIPPING_THRESHOLD_EUR = 100;
 const SHIPPING_FEE_EUR = 5;
-const FREE_SHIPPING_THRESHOLD_LEK = FREE_SHIPPING_THRESHOLD_EUR * EUR_TO_LEK;
-const SHIPPING_FEE_LEK = SHIPPING_FEE_EUR * EUR_TO_LEK;
+const FREE_SHIPPING_THRESHOLD_LEK = FREE_SHIPPING_THRESHOLD_EUR * EUR_TO_LEK; // 12,000 L
+const SHIPPING_FEE_LEK = SHIPPING_FEE_EUR * EUR_TO_LEK; // 600 L
 
-function calculateShipping(totalLek) {
-  return totalLek >= FREE_SHIPPING_THRESHOLD_LEK ? 0 : SHIPPING_FEE_LEK;
+function calculateShipping(totalLek, payMethod) {
+  // Pickup orders - no shipping fee
+  if (payMethod === 'pickup') return 0;
+  
+  // Free shipping for orders over 100 EUR (12,000 L)
+  if (totalLek >= FREE_SHIPPING_THRESHOLD_LEK) {
+    return 0;
+  }
+  
+  // Otherwise charge shipping fee
+  console.log('Shipping fee applied:', SHIPPING_FEE_LEK, 'L for total:', totalLek, 'L');
+  return SHIPPING_FEE_LEK;
 }
 
 var params=new URLSearchParams(window.location.search);
