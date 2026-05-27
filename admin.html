@@ -9,84 +9,74 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 <style>
-:root{
-  --bg:#f8f9fa;
-  --panel:#ffffff;
-  --card:#ffffff;
-  --border:#e9ecef;
-  --primary:#d97706;
-  --primary-dark:#b45309;
-  --primary-light:#fff3e6;
-  --text-secondary:#6c757d;
-  --text-primary:#212529;
-  --success:#28a745;
-  --warning:#ffc107;
-  --danger:#dc3545;
-  --info:#17a2b8;
-  --radius:8px;
-  --sidebar-width:260px;
-}
 *{margin:0;padding:0;box-sizing:border-box;}
-body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text-primary);min-height:100vh;}
+:root{
+  --bg:#f8f9fa; --panel:#ffffff; --card:#ffffff; --border:#e9ecef;
+  --primary:#d97706; --primary-dark:#b45309; --primary-light:#fff3e6;
+  --text-secondary:#6c757d; --text-primary:#212529; --success:#28a745;
+  --danger:#dc3545; --radius:8px; --sidebar-width:260px;
+}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text-primary);}
 .login-screen{position:fixed;inset:0;background:var(--bg);z-index:1000;display:flex;align-items:center;justify-content:center;}
 .login-box{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:2rem;width:100%;max-width:380px;}
-.login-logo{font-weight:800;font-size:1.5rem;margin-bottom:0.5rem;text-align:center;}.login-logo span{color:var(--primary);}
+.login-logo{font-weight:800;font-size:1.3rem;text-align:center;margin-bottom:1rem;}
+.login-logo span{color:var(--primary);}
 .admin-badge{text-align:center;background:var(--primary-light);border-radius:20px;padding:4px 12px;font-size:0.7rem;font-weight:600;color:var(--primary);width:fit-content;margin:0 auto 1rem;}
 .inp-group{margin-bottom:1rem;}
-.inp-group label{display:block;font-size:0.75rem;font-weight:600;color:var(--text-secondary);margin-bottom:4px;}
-.inp-group input{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:10px 12px;font-family:'Inter',sans-serif;outline:none;}
+.inp-group label{display:block;font-size:0.7rem;font-weight:600;color:var(--text-secondary);margin-bottom:4px;}
+.inp-group input{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:10px 12px;outline:none;}
 .auth-btn{width:100%;background:var(--primary);color:white;border:none;border-radius:6px;padding:12px;font-weight:600;cursor:pointer;}
-.login-error{background:#f8d7da;color:#721c24;border-radius:6px;padding:8px;font-size:0.8rem;margin-top:0.75rem;display:none;}
+.login-error{background:#f8d7da;color:#721c24;border-radius:6px;padding:8px;font-size:0.7rem;margin-top:0.5rem;display:none;}
 #app{display:none;min-height:100vh;}
 .sidebar{width:var(--sidebar-width);background:var(--panel);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100vh;z-index:50;}
-.sidebar-logo{padding:1.25rem 1.5rem;border-bottom:1px solid var(--border);font-weight:800;font-size:1.2rem;}
+.sidebar-logo{padding:1.25rem 1.5rem;border-bottom:1px solid var(--border);font-weight:800;}
 .sidebar-logo span{color:var(--primary);}
-.admin-pill{background:var(--primary);color:white;font-size:0.6rem;font-weight:600;padding:2px 8px;border-radius:10px;display:inline-block;margin-top:4px;}
+.admin-pill{background:var(--primary);color:white;font-size:0.6rem;padding:2px 8px;border-radius:10px;display:inline-block;margin-top:4px;}
 .sidebar-nav{flex:1;padding:0.75rem 0;overflow-y:auto;}
-.nav-section{padding:0.5rem 1.5rem;font-size:0.6rem;font-weight:600;color:var(--text-secondary);text-transform:uppercase;letter-spacing:1px;}
+.nav-section{padding:0.5rem 1.5rem;font-size:0.6rem;font-weight:600;color:var(--text-secondary);text-transform:uppercase;}
 .nav-item{display:flex;align-items:center;gap:0.75rem;padding:0.6rem 1.5rem;cursor:pointer;font-weight:500;font-size:0.85rem;color:var(--text-secondary);border-left:3px solid transparent;}
-.nav-item:hover{background:rgba(0,0,0,0.02);color:var(--text-primary);}
+.nav-item:hover{background:rgba(0,0,0,0.02);}
 .nav-item.active{color:var(--primary);border-left-color:var(--primary);background:var(--primary-light);}
 .nav-badge{background:var(--danger);color:white;font-size:0.6rem;padding:2px 6px;border-radius:10px;margin-left:auto;}
 .sidebar-bottom{padding:1.25rem;border-top:1px solid var(--border);}
 .admin-info{background:var(--primary-light);border-radius:8px;padding:0.75rem;margin-bottom:0.75rem;}
 .admin-info .ai-label{font-weight:600;font-size:0.7rem;color:var(--primary);}
-.admin-info .ai-email{font-size:0.7rem;color:var(--text-secondary);word-break:break-all;}
+.admin-info .ai-email{font-size:0.65rem;color:var(--text-secondary);}
 .back-link{display:block;text-align:center;font-size:0.7rem;color:var(--text-secondary);text-decoration:none;padding:5px;border:1px solid var(--border);border-radius:6px;margin-bottom:0.5rem;}
-.logout-btn{width:100%;background:transparent;border:1px solid var(--border);border-radius:6px;padding:7px;font-weight:500;font-size:0.75rem;cursor:pointer;}
+.logout-btn{width:100%;background:transparent;border:1px solid var(--border);border-radius:6px;padding:7px;font-weight:500;cursor:pointer;}
 .main{margin-left:var(--sidebar-width);flex:1;display:flex;flex-direction:column;min-height:100vh;}
 .topbar{background:var(--panel);border-bottom:1px solid var(--border);padding:0 1.5rem;height:56px;display:flex;align-items:center;justify-content:space-between;}
-.topbar-title{font-weight:700;font-size:1rem;}
-.page{padding:1.5rem;display:none;}.page.active{display:block;}
+.topbar-title{font-weight:700;}
+.page{padding:1.5rem;display:none;}
+.page.active{display:block;}
 .stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:1rem;margin-bottom:1.5rem;}
 .stat-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:1rem;}
-.stat-ico{font-size:1.2rem;margin-bottom:0.5rem;}
-.stat-val{font-weight:800;font-size:1.3rem;}
-.stat-lbl{font-size:0.65rem;color:var(--text-secondary);}
+.stat-card .stat-val{font-weight:800;font-size:1.2rem;}
+.stat-card .stat-lbl{font-size:0.65rem;color:var(--text-secondary);}
 .activity-row{display:flex;align-items:center;gap:1rem;padding:0.75rem 1rem;border-bottom:1px solid var(--border);}
 .table-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);overflow-x:auto;margin-bottom:1.5rem;}
-.table-header{padding:0.75rem 1rem;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:0.5rem;}
-.table-header h3{font-weight:600;font-size:0.85rem;}
-.search-inp{background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:6px 10px;font-size:0.75rem;width:180px;}
+.table-header{padding:0.75rem 1rem;display:flex;justify-content:space-between;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:0.5rem;}
+.table-header h3{font-weight:600;}
+.search-inp{background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:6px 10px;font-size:0.7rem;width:180px;}
 table{width:100%;border-collapse:collapse;min-width:700px;}
 thead th{padding:0.5rem 0.75rem;text-align:left;font-size:0.65rem;font-weight:600;color:var(--text-secondary);border-bottom:1px solid var(--border);}
-tbody td{padding:0.6rem 0.75rem;font-size:0.75rem;border-bottom:1px solid var(--border);}
+tbody td{padding:0.6rem 0.75rem;font-size:0.7rem;border-bottom:1px solid var(--border);}
 .sbadge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:0.6rem;font-weight:600;}
 .s-active{background:#d4edda;color:#155724;}
 .s-pending{background:#fff3cd;color:#856404;}
 .s-sold{background:#cce5ff;color:#004085;}
 .s-suspended{background:#f8d7da;color:#721c24;}
-.icon-btn{background:transparent;border:1px solid var(--border);border-radius:4px;padding:4px 6px;cursor:pointer;font-size:0.7rem;}
-.ot-btn{background:var(--card);border:1px solid var(--border);padding:5px 12px;border-radius:20px;font-size:0.7rem;font-weight:500;cursor:pointer;}
-.ot-btn.active{background:var(--primary);border-color:var(--primary);color:white;}
-.toast{position:fixed;bottom:1.5rem;right:1.5rem;color:white;padding:0.75rem 1.25rem;border-radius:8px;font-weight:500;display:none;z-index:300;}
+.icon-btn{background:transparent;border:1px solid var(--border);border-radius:4px;padding:4px 6px;cursor:pointer;font-size:0.65rem;}
+.ot-btn{background:var(--card);border:1px solid var(--border);padding:5px 12px;border-radius:20px;font-size:0.7rem;cursor:pointer;}
+.ot-btn.active{background:var(--primary);color:white;}
+.toast{position:fixed;bottom:1rem;right:1rem;color:white;padding:0.75rem 1.25rem;border-radius:8px;display:none;z-index:300;}
 .toast.show{display:block;animation:toastIn 0.3s ease;}
 @keyframes toastIn{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
 .spinner{width:28px;height:28px;border:2px solid var(--border);border-top-color:var(--primary);border-radius:50%;animation:spin 0.6s linear infinite;margin:0 auto;}
 @keyframes spin{to{transform:rotate(360deg)}}
 .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:200;align-items:center;justify-content:center;}
 .modal-overlay.open{display:flex;}
-.modal{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.5rem;max-width:450px;width:100%;max-height:90vh;overflow-y:auto;}
+.modal{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.5rem;max-width:450px;width:100%;max-height:90vh;overflow-y:auto;position:relative;}
 .modal-close{position:absolute;top:1rem;right:1rem;background:none;border:none;font-size:1.2rem;cursor:pointer;}
 @media(max-width:768px){.sidebar{transform:translateX(-100%);}.sidebar.open{transform:translateX(0);}.main{margin-left:0;}}
 </style>
@@ -97,8 +87,8 @@ tbody td{padding:0.6rem 0.75rem;font-size:0.75rem;border-bottom:1px solid var(--
   <div class="login-box">
     <div class="login-logo">Car<span>deals</span>.al</div>
     <div class="admin-badge">ADMIN PANEL</div>
-    <div class="inp-group"><label>ADMIN EMAIL</label><input type="email" id="loginEmail" placeholder="admin@cardeals.al" /></div>
-    <div class="inp-group"><label>PASSWORD</label><input type="password" id="loginPass" placeholder="••••••••" /></div>
+    <div class="inp-group"><label>ADMIN EMAIL</label><input type="email" id="loginEmail" /></div>
+    <div class="inp-group"><label>PASSWORD</label><input type="password" id="loginPass" /></div>
     <button class="auth-btn" id="loginBtn" onclick="doLogin()">LOGIN →</button>
     <div class="login-error" id="loginError"></div>
   </div>
@@ -133,27 +123,27 @@ tbody td{padding:0.6rem 0.75rem;font-size:0.75rem;border-bottom:1px solid var(--
 
     <div class="page active" id="page-dashboard">
       <div class="stats-row">
-        <div class="stat-card"><div class="stat-ico">💰</div><div class="stat-val" id="statRevenue">0 L</div><div class="stat-lbl">Platform Earnings</div></div>
-        <div class="stat-card"><div class="stat-ico">📈</div><div class="stat-val" id="statGMV">0 L</div><div class="stat-lbl">Total GMV</div></div>
-        <div class="stat-card"><div class="stat-ico">🏪</div><div class="stat-val" id="statBiz">0</div><div class="stat-lbl">Businesses</div></div>
-        <div class="stat-card"><div class="stat-ico">🔧</div><div class="stat-val" id="statParts">0</div><div class="stat-lbl">Active Parts</div></div>
-        <div class="stat-card"><div class="stat-ico">📦</div><div class="stat-val" id="statOrders">0</div><div class="stat-lbl">Total Orders</div></div>
-        <div class="stat-card"><div class="stat-ico">⏳</div><div class="stat-val" id="statPending">0</div><div class="stat-lbl">Pending Orders</div></div>
+        <div class="stat-card"><div class="stat-val" id="statRevenue">0 L</div><div class="stat-lbl">Platform Earnings</div></div>
+        <div class="stat-card"><div class="stat-val" id="statGMV">0 L</div><div class="stat-lbl">Total GMV</div></div>
+        <div class="stat-card"><div class="stat-val" id="statBiz">0</div><div class="stat-lbl">Businesses</div></div>
+        <div class="stat-card"><div class="stat-val" id="statParts">0</div><div class="stat-lbl">Active Parts</div></div>
+        <div class="stat-card"><div class="stat-val" id="statOrders">0</div><div class="stat-lbl">Total Orders</div></div>
+        <div class="stat-card"><div class="stat-val" id="statPending">0</div><div class="stat-lbl">Pending Orders</div></div>
       </div>
       <div class="table-card"><div class="table-header"><h3>Recent Activity</h3></div><div id="recentActivity"></div></div>
     </div>
 
     <div class="page" id="page-businesses">
-      <div class="table-card"><div class="table-header"><h3>All Businesses</h3><div><button class="icon-btn" onclick="fixBusinessData()">Fix Data</button><input class="search-inp" placeholder="Search business..." oninput="searchBiz(this.value)" /></div></div><table><thead><tr><th>Business</th><th>City</th><th>Plan</th><th>Parts</th><th>Sales</th><th>Earnings</th><th>Status</th><th>Actions</th></tr></thead><tbody id="bizBody"></tbody></table></div>
+      <div class="table-card"><div class="table-header"><h3>All Businesses</h3><div><button class="icon-btn" onclick="fixBusinessData()">Fix Data</button><input class="search-inp" placeholder="Search..." oninput="searchBiz(this.value)" /></div></div><td><thead><tr><th>Business</th><th>City</th><th>Plan</th><th>Parts</th><th>Sales</th><th>Earnings</th><th>Status</th><th>Actions</th></tr></thead><tbody id="bizBody"></tbody></table></div>
     </div>
 
     <div class="page" id="page-parts">
-      <div class="table-card"><div class="table-header"><h3>All Parts</h3><input class="search-inp" placeholder="Search part..." oninput="searchParts(this.value)" /></div><table><thead><tr><th>Part</th><th>Seller</th><th>Condition</th><th>Stock</th><th>Base Price</th><th>Final</th><th>Status</th><th>Action</th></tr></thead><tbody id="allPartsBody"></tbody></table></div>
+      <div class="table-card"><div class="table-header"><h3>All Parts</h3><input class="search-inp" placeholder="Search..." oninput="searchParts(this.value)" /></div><table><thead><tr><th>Part</th><th>Seller</th><th>Condition</th><th>Stock</th><th>Base Price</th><th>Final</th><th>Status</th><th>Action</th></tr></thead><tbody id="allPartsBody"></tbody></table></div>
     </div>
 
     <div class="page" id="page-orders">
       <div style="display:flex;gap:0.5rem;margin-bottom:1rem;"><button class="ot-btn active" onclick="filterOrders('all',this)">All</button><button class="ot-btn" onclick="filterOrders('pending',this)">Pending</button><button class="ot-btn" onclick="filterOrders('sold',this)">Sold</button></div>
-      <div class="table-card"><div class="table-header"><h3>All Orders</h3><span id="ordersCount" style="font-size:0.75rem;color:var(--text-secondary);"></span></div><table><thead><tr><th>#</th><th>Part</th><th>Buyer</th><th>Seller</th><th>Date</th><th>Price</th><th>Profit</th><th>Status</th></tr></thead><tbody id="allOrdersBody"></tbody></td></div>
+      <div class="table-card"><div class="table-header"><h3>All Orders</h3><span id="ordersCount"></span></div><tr><thead><tr><th>#</th><th>Part</th><th>Buyer</th><th>Seller</th><th>Date</th><th>Price</th><th>Profit</th><th>Status</th></tr></thead><tbody id="allOrdersBody"></tbody></table></div>
     </div>
 
     <div class="page" id="page-messages">
@@ -161,18 +151,18 @@ tbody td{padding:0.6rem 0.75rem;font-size:0.75rem;border-bottom:1px solid var(--
     </div>
 
     <div class="page" id="page-weeklyPromos">
-      <div class="table-card"><div class="table-header"><h3>Weekly Promotions</h3></div><table><thead><tr><th>Business</th><th>Part</th><th>Tier</th><th>Cost</th><th>Date</th><th>Expires</th><th>Status</th><th>Action</th></tr></thead><tbody id="weeklyPromosBody"></tbody></table></div>
+      <div class="table-card"><div class="table-header"><h3>Weekly Promotions</h3></div></table><thead><tr><th>Business</th><th>Part</th><th>Tier</th><th>Cost</th><th>Date</th><th>Expires</th><th>Status</th><th>Action</th></tr></thead><tbody id="weeklyPromosBody"></tbody></table></div>
     </div>
 
     <div class="page" id="page-plans">
-      <div class="table-card"><div class="table-header"><h3>Plan Upgrade Requests</h3></div><table><thead><tr><th>Business</th><th>From</th><th>To</th><th>Monthly</th><th>Date</th><th>Status</th><th>Action</th></tr></thead><tbody id="planRequestsBody"></tbody></table></div>
+      <div class="table-card"><div class="table-header"><h3>Plan Upgrade Requests</h3></div><tr><thead><tr><th>Business</th><th>From</th><th>To</th><th>Monthly</th><th>Date</th><th>Status</th><th>Action</th></tr></thead><tbody id="planRequestsBody"></tbody></table></div>
     </div>
 
     <div class="page" id="page-earnings">
       <div class="stats-row">
-        <div class="stat-card"><div class="stat-ico">💰</div><div class="stat-val" id="earnTotalFees">0 L</div><div class="stat-lbl">Platform Earnings (8%)</div></div>
-        <div class="stat-card"><div class="stat-ico">📈</div><div class="stat-val" id="earnTotalGMV">0 L</div><div class="stat-lbl">Total GMV</div></div>
-        <div class="stat-card"><div class="stat-ico">📦</div><div class="stat-val" id="earnTotalOrders">0</div><div class="stat-lbl">Confirmed Sales</div></div>
+        <div class="stat-card"><div class="stat-val" id="earnTotalFees">0 L</div><div class="stat-lbl">Platform Earnings</div></div>
+        <div class="stat-card"><div class="stat-val" id="earnTotalGMV">0 L</div><div class="stat-lbl">Total GMV</div></div>
+        <div class="stat-card"><div class="stat-val" id="earnTotalOrders">0</div><div class="stat-lbl">Confirmed Sales</div></div>
       </div>
       <div class="table-card"><div class="table-header"><h3>Monthly Summary</h3></div><table><thead><tr><th>Month</th><th>Orders</th><th>GMV</th><th>Earnings</th><th>Status</th></tr></thead><tbody id="earningsBody"></tbody></table></div>
     </div>
@@ -189,15 +179,16 @@ firebase.initializeApp({apiKey:"AIzaSyAU8hVTqury1MbC0Sx-CXGY1YQrr5VJhyE",authDom
 const auth=firebase.auth(),db=firebase.firestore();
 const PLANS={basic:{name:'Basic',fee:0.08,monthly:0},silver:{name:'Silver',fee:0.06,monthly:50},gold:{name:'Gold',fee:0.04,monthly:100}};
 const PLATFORM_FEE=0.08;
-let allBusinesses=[],allParts=[],allOrders=[],allMessages=[],allPlanRequests=[],allWeeklyPromos=[],lang='sq',currentPage='dashboard';
+let allBusinesses=[],allParts=[],allOrders=[],allMessages=[],allPlanRequests=[],allWeeklyPromos=[],currentPage='dashboard';
 
-function showToast(msg,isErr){const t=document.getElementById('toast');t.textContent=msg;t.style.background=isErr?'#dc3545':'#28a745';t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000);}
+function showToast(msg,isErr){var t=document.getElementById('toast');t.textContent=msg;t.style.background=isErr?'#dc3545':'#28a745';t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000);}
 function closeModal(id){document.getElementById(id)?.classList.remove('open');}
 
-auth.onAuthStateChanged(async user=>{if(user){if(user.email.toLowerCase()!==ADMIN_EMAIL.toLowerCase()){await auth.signOut();document.getElementById('loginError').textContent='Access denied. Admin only.';document.getElementById('loginError').style.display='block';return;}document.getElementById('adminEmail').textContent=user.email;showApp();loadAllData();}else showLogin();});
+auth.onAuthStateChanged(async user=>{if(user){if(user.email.toLowerCase()!==ADMIN_EMAIL.toLowerCase()){await auth.signOut();document.getElementById('loginError').textContent='Access denied.';document.getElementById('loginError').style.display='block';return;}document.getElementById('adminEmail').textContent=user.email;showApp();loadAllData();}else showLogin();});
 window.doLogin=async function(){var e=document.getElementById('loginEmail').value.trim(),p=document.getElementById('loginPass').value;if(!e||!p){document.getElementById('loginError').textContent='Fill all fields!';document.getElementById('loginError').style.display='block';return;}try{await auth.signInWithEmailAndPassword(e,p);}catch(err){document.getElementById('loginError').textContent='Wrong credentials!';document.getElementById('loginError').style.display='block';}};
 window.doLogout=async()=>{await auth.signOut();};
-
+function showApp(){document.getElementById('loginScreen').style.display='none';document.getElementById('app').style.display='flex';}
+function showLogin(){document.getElementById('loginScreen').style.display='flex';document.getElementById('app').style.display='none';}
 function loadAllData(){loadBusinesses();loadAllParts();loadAllOrders();loadMessages();loadPlanRequests();loadWeeklyPromos();}
 function loadBusinesses(){db.collection("businesses").onSnapshot(snap=>{allBusinesses=snap.docs.map(d=>({id:d.id,...d.data()}));renderBusinesses();updateDashboard();});}
 function loadAllParts(){db.collection("parts").onSnapshot(snap=>{allParts=snap.docs.map(d=>({id:d.id,...d.data()}));renderAllParts();updateDashboard();});}
@@ -205,44 +196,30 @@ function loadAllOrders(){db.collection("orders").onSnapshot(snap=>{allOrders=sna
 function loadMessages(){db.collection("contact_messages").orderBy("createdAt","desc").onSnapshot(snap=>{allMessages=snap.docs.map(d=>({id:d.id,...d.data()}));renderMessages();updateMessageBadge();});}
 function loadPlanRequests(){db.collection("plan_requests").orderBy("createdAt","desc").onSnapshot(snap=>{allPlanRequests=snap.docs.map(d=>({id:d.id,...d.data()}));renderPlanRequests();});}
 function loadWeeklyPromos(){db.collection("weekly_promotions").orderBy("createdAt","desc").onSnapshot(snap=>{allWeeklyPromos=snap.docs.map(d=>({id:d.id,...d.data()}));renderWeeklyPromos();});}
-
-function updateDashboard(){
-  const sold=allOrders.filter(o=>o.status==='sold');
-  document.getElementById('statRevenue').textContent=sold.reduce((s,o)=>s+(o.platformFee||0),0).toLocaleString()+' L';
-  document.getElementById('statGMV').textContent=sold.reduce((s,o)=>s+(o.totalPrice||0),0).toLocaleString()+' L';
-  document.getElementById('statBiz').textContent=allBusinesses.length;
-  document.getElementById('statParts').textContent=allParts.filter(p=>p.status==='active').length;
-  document.getElementById('statOrders').textContent=allOrders.length;
-  document.getElementById('statPending').textContent=allOrders.filter(o=>o.status==='pending').length;
-  const recent=allOrders.slice(0,5);
-  document.getElementById('recentActivity').innerHTML=recent.map(o=>`<div class="activity-row"><div>${o.status==='sold'?'✓':'○'}</div><div><strong>${o.partName}</strong><br>${o.buyerName} · ${o.sellerName}</div><div>${(o.totalPrice||0).toLocaleString()} L</div></div>`).join('')||'<div style="padding:1rem;text-align:center;">No activity</div>';
-}
-
-function renderBusinesses(filter=''){var tbody=document.getElementById('bizBody');var list=filter?allBusinesses.filter(b=>b.businessName?.toLowerCase().includes(filter)):allBusinesses;tbody.innerHTML=list.map(b=>{var plan=PLANS[b.plan||'basic'];return `<tr><td><strong>${b.businessName||'—'}</strong><br><small>${b.email}</small></td><td>${b.city||'—'}</td><td><span style="color:${plan.name==='Gold'?'#f5c518':plan.name==='Silver'?'#94a3b8':'#8892a4'}">${plan.name}</span></td><td>${allParts.filter(p=>p.uid===b.id).length}</td><td>${allOrders.filter(o=>o.sellerUid===b.id&&o.status==='sold').length}</td><td>${allOrders.filter(o=>o.sellerUid===b.id).reduce((s,o)=>s+(o.platformFee||0),0).toLocaleString()} L</td><td><span class="sbadge ${b.status==='suspended'?'s-suspended':'s-active'}">${b.status!=='suspended'?'Active':'Suspended'}</span></td><td><button class="icon-btn" onclick="openChangePlan('${b.id}','${b.businessName}','${b.plan||'basic'}')">Change Plan</button> <button class="icon-btn" onclick="toggleBizStatus('${b.id}')">${b.status==='suspended'?'Activate':'Suspend'}</button></td>`;}).join('')||'<tr><td colspan="8">No businesses</td></tr>';}
-window.toggleBizStatus=async function(id){var biz=allBusinesses.find(b=>b.id===id);await db.collection("businesses").doc(id).update({status:biz.status==='suspended'?'active':'suspended'});};
-function renderAllParts(filter=''){var tbody=document.getElementById('allPartsBody');var list=filter?allParts.filter(p=>p.name?.toLowerCase().includes(filter)):allParts;tbody.innerHTML=list.map(p=>{var name=typeof p.name==='object'?p.name.sq||p.name.en:p.name;return `<tr><td><strong>${name}</strong><br><small>${p.fits||''}</small></td><td>${p.sellerName||'—'}</td><td>${p.condition}</td><td>${p.stock||0}</td><td>${(p.basePrice||0).toLocaleString()} L</td><td><strong>${((p.basePrice||0)+Math.round((p.basePrice||0)*PLATFORM_FEE)).toLocaleString()} L</strong></td><td><span class="sbadge ${p.status==='active'?'s-active':'s-suspended'}">${p.status}</span></td><td><button class="icon-btn" onclick="togglePartStatus('${p.id}','${p.status}')">${p.status==='active'?'Deactivate':'Activate'}</button></td>`;}).join('')||'<tr><td colspan="8">No parts</td></tr>';}
-window.togglePartStatus=async function(id,status){await db.collection("parts").doc(id).update({status:status==='active'?'inactive':'active'});};
-function renderAllOrders(filter='all'){var tbody=document.getElementById('allOrdersBody');var list=allOrders;if(filter==='pending')list=allOrders.filter(o=>o.status==='pending');if(filter==='sold')list=allOrders.filter(o=>o.status==='sold');document.getElementById('ordersCount').textContent=list.length+' orders';tbody.innerHTML=list.map(o=>`<tr><td>#${o.id?.slice(-6)}</td><td>${o.partName||'—'}</td><td>${o.buyerName||'—'}<br><small>${o.buyerPhone||''}</small></td><td>${o.sellerName||'—'}</td><td>${o.createdAt?.toDate().toLocaleDateString()}</td><td>${(o.totalPrice||0).toLocaleString()} L</td><td>+${(o.platformFee||0).toLocaleString()} L</td><td><span class="sbadge ${o.status==='sold'?'s-active':o.status==='pending'?'s-pending':'s-suspended'}">${o.status}</span></td>`).join('')||'<tr><td colspan="8">No orders</td></tr>';}
+function updateDashboard(){var sold=allOrders.filter(o=>o.status==='sold');document.getElementById('statRevenue').textContent=sold.reduce((s,o)=>s+(o.platformFee||0),0).toLocaleString()+' L';document.getElementById('statGMV').textContent=sold.reduce((s,o)=>s+(o.totalPrice||0),0).toLocaleString()+' L';document.getElementById('statBiz').textContent=allBusinesses.length;document.getElementById('statParts').textContent=allParts.filter(p=>p.status==='active').length;document.getElementById('statOrders').textContent=allOrders.length;document.getElementById('statPending').textContent=allOrders.filter(o=>o.status==='pending').length;var recent=allOrders.slice(0,5);document.getElementById('recentActivity').innerHTML=recent.map(o=>'<div class="activity-row"><div>'+(o.status==='sold'?'✓':'○')+'</div><div><strong>'+o.partName+'</strong><br>'+o.buyerName+' · '+o.sellerName+'</div><div>'+(o.totalPrice||0).toLocaleString()+' L</div></div>').join('')||'<div style="padding:1rem;text-align:center;">No activity</div>';}
+function renderBusinesses(filter=''){var tbody=document.getElementById('bizBody');var list=filter?allBusinesses.filter(b=>b.businessName?.toLowerCase().includes(filter)):allBusinesses;tbody.innerHTML=list.map(b=>{var plan=PLANS[b.plan||'basic'];return '<tr><td><strong>'+b.businessName+'</strong><br><small>'+b.email+'</small></span><td>'+b.city+'</span><td><span style="color:'+(plan.name==='Gold'?'#f5c518':plan.name==='Silver'?'#94a3b8':'#8892a4')+'">'+plan.name+'</span><td>'+allParts.filter(p=>p.uid===b.id).length+'</span><td>'+allOrders.filter(o=>o.sellerUid===b.id&&o.status==='sold').length+'</span><td>'+allOrders.filter(o=>o.sellerUid===b.id&&o.status==='sold').reduce((s,o)=>s+(o.platformFee||0),0).toLocaleString()+' L</span><td><span class="sbadge '+(b.status==='suspended'?'s-suspended':'s-active')+'">'+(b.status!=='suspended'?'Active':'Suspended')+'</span><td><button class="icon-btn" onclick="openChangePlan(\''+b.id+'\',\''+b.businessName+'\',\''+(b.plan||'basic')+'\')">Change Plan</button> <button class="icon-btn" onclick="toggleBizStatus(\''+b.id+'\')">'+(b.status==='suspended'?'Activate':'Suspend')+'</button></span></tr>';}).join('')||'<tr><td colspan="8">No businesses</span></tr>';}
+window.toggleBizStatus=async function(id){var biz=allBusinesses.find(b=>b.id===id);await db.collection("businesses").doc(id).update({status:biz.status==='suspended'?'active':'suspended'});showToast('Status updated!');};
+function renderAllParts(filter=''){var tbody=document.getElementById('allPartsBody');var list=filter?allParts.filter(p=>{var n=typeof p.name==='object'?p.name.sq:p.name;return n?.toLowerCase().includes(filter);}):allParts;tbody.innerHTML=list.map(p=>{var name=typeof p.name==='object'?p.name.sq||p.name.en:p.name;return '<tr><td><strong>'+name+'</strong><br><small>'+p.fits+'</small></span><td>'+p.sellerName+'</span><td>'+p.condition+'</span><td>'+p.stock+'</span><td>'+(p.basePrice||0).toLocaleString()+' L</span><td><strong>'+((p.basePrice||0)+Math.round((p.basePrice||0)*PLATFORM_FEE)).toLocaleString()+' L</strong></span><td><span class="sbadge '+(p.status==='active'?'s-active':'s-suspended')+'">'+p.status+'</span><td><button class="icon-btn" onclick="togglePartStatus(\''+p.id+'\',\''+p.status+'\')">'+(p.status==='active'?'Deactivate':'Activate')+'</button></span></td>';}).join('')||'<tr><td colspan="8">No parts</span></tr>';}
+window.togglePartStatus=async function(id,status){await db.collection("parts").doc(id).update({status:status==='active'?'inactive':'active'});showToast('Status updated!');};
+function renderAllOrders(filter='all'){var tbody=document.getElementById('allOrdersBody');var list=allOrders;if(filter==='pending')list=allOrders.filter(o=>o.status==='pending');if(filter==='sold')list=allOrders.filter(o=>o.status==='sold');document.getElementById('ordersCount').textContent=list.length+' orders';tbody.innerHTML=list.map(o=>'<tr><td style="font-weight:600;">#'+o.id.slice(-6).toUpperCase()+'</span><td>'+o.partName+'</span><td>'+o.buyerName+'<br><small>'+o.buyerPhone+'</small></span><td>'+o.sellerName+'</span><td>'+o.createdAt?.toDate().toLocaleDateString()+'</span><td>'+(o.totalPrice||0).toLocaleString()+' L</span><td>+'+ (o.platformFee||0).toLocaleString()+' L</span><td><span class="sbadge '+(o.status==='sold'?'s-active':o.status==='pending'?'s-pending':'s-suspended')+'">'+o.status+'</span></td>';}).join('')||'<tr><td colspan="8">No orders</span></tr>';}
 window.filterOrders=function(f,btn){document.querySelectorAll('.ot-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderAllOrders(f);};
-function renderMessages(){var tbody=document.getElementById('messagesBody');tbody.innerHTML=allMessages.map(m=>`<tr onclick="viewMessage('${m.id}')" style="cursor:pointer;"><td>${m.status==='unread'?'Unread':'Read'}</td><td>${m.name}</td><td>${m.email}</td><td>${m.createdAt?.toDate().toLocaleDateString()}</td><td>${m.message?.substring(0,50)}...</td><td><button class="icon-btn" onclick="event.stopPropagation();toggleMessageStatus('${m.id}')">Mark Read</button></td>`).join('')||'<tr><td colspan="6">No messages</td></tr>';}
+function renderMessages(){var tbody=document.getElementById('messagesBody');tbody.innerHTML=allMessages.map(m=>'<tr onclick="viewMessage(\''+m.id+'\')" style="cursor:pointer;"><td>'+(m.status==='unread'?'Unread':'Read')+'</span><td>'+m.name+'</span><td>'+m.email+'</span><td>'+m.createdAt?.toDate().toLocaleDateString()+'</span><td>'+(m.message||'').substring(0,50)+'...</span><td><button class="icon-btn" onclick="event.stopPropagation();toggleMessageStatus(\''+m.id+'\')">Mark Read</button></span></tr>').join('')||'<tr><td colspan="6">No messages</span></tr>';}
 function updateMessageBadge(){var unread=allMessages.filter(m=>m.status==='unread').length;var badge=document.getElementById('msgBadge');if(badge){badge.textContent=unread;badge.style.display=unread>0?'inline-block':'none';}}
-window.viewMessage=function(id){var m=allMessages.find(x=>x.id===id);document.getElementById('msgDetailContent').innerHTML=`<p><strong>From:</strong> ${m.name}</p><p><strong>Email:</strong> ${m.email}</p><p><strong>Message:</strong><br>${m.message}</p>`;if(m.status==='unread')db.collection("contact_messages").doc(id).update({status:'read'});document.getElementById('msgDetailModal').classList.add('open');};
-window.toggleMessageStatus=async function(id){await db.collection("contact_messages").doc(id).update({status:'read'});};
-function renderPlanRequests(){var tbody=document.getElementById('planRequestsBody');tbody.innerHTML=allPlanRequests.map(r=>{var fromPlan=PLANS[r.fromPlan]||PLANS.basic,toPlan=PLANS[r.toPlan]||PLANS.basic;return `<tr><td>${r.businessName}</td><td>${fromPlan.name}</td><td><strong>${toPlan.name}</strong></td><td>€${toPlan.monthly}/month</td><td>${r.createdAt?.toDate().toLocaleDateString()}</td><td><span class="sbadge ${r.status==='pending'?'s-pending':r.status==='approved'?'s-active':'s-suspended'}">${r.status}</span></td><td>${r.status==='pending'?'<button class="icon-btn" onclick="approvePlan(\''+r.id+'\')">Approve</button> <button class="icon-btn" onclick="rejectPlan(\''+r.id+'\')">Reject</button>':'-'}</td>`;}).join('')||'<tr><td colspan="7">No requests</td></tr>';}
-function renderWeeklyPromos(){var tbody=document.getElementById('weeklyPromosBody');tbody.innerHTML=allWeeklyPromos.map(r=>`<tr><td>${r.businessName}</td><td>${r.partName}</td><td>${r.tierName}</td><td>€${r.cost}</td><td>${r.createdAt?.toDate().toLocaleDateString()}</td><td>${r.expiresAt?.toDate().toLocaleDateString()||'-'}</td><td><span class="sbadge ${r.status==='active'?'s-active':r.status==='pending'?'s-pending':'s-suspended'}">${r.status}</span></td><td>${r.status==='pending'?'<button class="icon-btn" onclick="approvePromo(\''+r.id+'\')">Approve</button>':'-'}</td>`).join('')||'<tr><td colspan="8">No requests</td></tr>';}
+window.viewMessage=function(id){var m=allMessages.find(x=>x.id===id);document.getElementById('msgDetailContent').innerHTML='<p><strong>From:</strong> '+m.name+'</p><p><strong>Email:</strong> '+m.email+'</p><p><strong>Message:</strong><br>'+m.message+'</p>';if(m.status==='unread')db.collection("contact_messages").doc(id).update({status:'read'});document.getElementById('msgDetailModal').classList.add('open');};
+window.toggleMessageStatus=async function(id){await db.collection("contact_messages").doc(id).update({status:'read'});showToast('Message marked as read!');};
+function renderPlanRequests(){var tbody=document.getElementById('planRequestsBody');tbody.innerHTML=allPlanRequests.map(r=>{var fromPlan=PLANS[r.fromPlan]||PLANS.basic,toPlan=PLANS[r.toPlan]||PLANS.basic;return '<tr><td><strong>'+r.businessName+'</strong><br><small>'+r.email+'</small></span><td>'+fromPlan.name+'</span><td><strong>'+toPlan.name+'</strong></span><td>€'+toPlan.monthly+'/month</span><td>'+r.createdAt?.toDate().toLocaleDateString()+'</span><td><span class="sbadge '+(r.status==='pending'?'s-pending':r.status==='approved'?'s-active':'s-suspended')+'">'+r.status+'</span></td><td>'+(r.status==='pending'?'<button class="icon-btn" onclick="approvePlan(\''+r.id+'\')">Approve</button> <button class="icon-btn" onclick="rejectPlan(\''+r.id+'\')">Reject</button>':'-')+'</span></tr>';}).join('')||'<tr><td colspan="7">No requests</span></td>';}
+function renderWeeklyPromos(){var tbody=document.getElementById('weeklyPromosBody');tbody.innerHTML=allWeeklyPromos.map(r=>'<tr><td><strong>'+r.businessName+'</strong><br><small>'+r.email+'</small></span><td>'+r.partName+'</span><td>'+r.tierName+'</span><td>€'+r.cost+'</span><td>'+r.createdAt?.toDate().toLocaleDateString()+'</span><td>'+r.expiresAt?.toDate().toLocaleDateString()||'-'+'</span><td><span class="sbadge '+(r.status==='active'?'s-active':r.status==='pending'?'s-pending':'s-suspended')+'">'+r.status+'</span><td>'+(r.status==='pending'?'<button class="icon-btn" onclick="approvePromo(\''+r.id+'\')">Approve</button>':'-')+'</span></tr>';}).join('')||'<tr><td colspan="8">No requests</span></tr>';}
 window.approvePlan=async function(id){var req=allPlanRequests.find(x=>x.id===id);await db.collection("businesses").doc(req.businessId).update({plan:req.toPlan});await db.collection("plan_requests").doc(id).update({status:'approved'});showToast('Plan approved!');};
 window.rejectPlan=async function(id){await db.collection("plan_requests").doc(id).update({status:'rejected'});showToast('Plan rejected!');};
 window.approvePromo=async function(id){var promo=allWeeklyPromos.find(p=>p.id===id);var now=new Date();var expiresAt=new Date(now);expiresAt.setDate(expiresAt.getDate()+(promo.durationDays||7));await db.collection("weekly_promotions").doc(id).update({status:'active',activatedAt:now,expiresAt:expiresAt});await db.collection("parts").doc(promo.partId).update({weeklyPromo:true,promoActivatedAt:now,promoExpiresAt:expiresAt});showToast('Promotion activated!');};
 window.fixBusinessData=async function(){var fixed=0;for(var biz of allBusinesses){for(var part of allParts){if(part.sellerName===biz.businessName&&part.uid!==biz.id){await db.collection("parts").doc(part.id).update({uid:biz.id});fixed++;}}}showToast(fixed+' parts fixed!');};
-function renderEarnings(){var sold=allOrders.filter(o=>o.status==='sold');document.getElementById('earnTotalFees').textContent=sold.reduce((s,o)=>s+(o.platformFee||0),0).toLocaleString()+' L';document.getElementById('earnTotalGMV').textContent=sold.reduce((s,o)=>s+(o.totalPrice||0),0).toLocaleString()+' L';document.getElementById('earnTotalOrders').textContent=sold.length;var byMonth={};sold.forEach(o=>{var d=o.createdAt?.toDate();var key=d.getFullYear()+'-'+(d.getMonth()+1);if(!byMonth[key])byMonth[key]={orders:0,gmv:0,fees:0};byMonth[key].orders++;byMonth[key].gmv+=o.totalPrice||0;byMonth[key].fees+=o.platformFee||0;});var tbody=document.getElementById('earningsBody');tbody.innerHTML=Object.entries(byMonth).map(([k,m])=>`<tr><td>${k}</td><td>${m.orders}</td><td>${m.gmv.toLocaleString()} L</td><td>+${m.fees.toLocaleString()} L</td><td>✓</td>`).join('')||'<tr><td colspan="5">No sales yet</td></tr>';}
-window.openChangePlan=function(id,name,current){document.getElementById('changePlanBizName').textContent=name;document.getElementById('changePlanBizId').value=id;var container=document.getElementById('changePlanOptions');container.innerHTML=Object.entries(PLANS).map(([key,p])=>`<div onclick="selectPlan('${key}')" style="padding:10px;border:1px solid var(--border);margin-bottom:5px;border-radius:6px;cursor:pointer;background:${key===current?'var(--primary-light)':'transparent'}"><strong>${p.name}</strong> - ${p.monthly===0?'Free':'€'+p.monthly+'/month'} · ${Math.round(p.fee*100)}% fee</div>`).join('');document.getElementById('changePlanModal').classList.add('open');};
+function renderEarnings(){var sold=allOrders.filter(o=>o.status==='sold');document.getElementById('earnTotalFees').textContent=sold.reduce((s,o)=>s+(o.platformFee||0),0).toLocaleString()+' L';document.getElementById('earnTotalGMV').textContent=sold.reduce((s,o)=>s+(o.totalPrice||0),0).toLocaleString()+' L';document.getElementById('earnTotalOrders').textContent=sold.length;var byMonth={};sold.forEach(o=>{var d=o.createdAt?.toDate();var key=d.getFullYear()+'-'+(d.getMonth()+1);if(!byMonth[key])byMonth[key]={orders:0,gmv:0,fees:0};byMonth[key].orders++;byMonth[key].gmv+=o.totalPrice||0;byMonth[key].fees+=o.platformFee||0;});var tbody=document.getElementById('earningsBody');tbody.innerHTML=Object.entries(byMonth).reverse().map(([k,m])=>'<tr><td>'+k+'</span><td>'+m.orders+'</span><td>'+m.gmv.toLocaleString()+' L</span><td>+'+m.fees.toLocaleString()+' L</span><td>✓</span></tr>').join('')||'<tr><td colspan="5">No sales yet</span></tr>';}
+window.openChangePlan=function(id,name,current){document.getElementById('changePlanBizName').textContent=name;document.getElementById('changePlanBizId').value=id;var container=document.getElementById('changePlanOptions');container.innerHTML=Object.entries(PLANS).map(([key,p])=>'<div onclick="selectPlan(\''+key+'\')" style="padding:10px;border:1px solid var(--border);margin-bottom:5px;border-radius:6px;cursor:pointer;background:'+(key===current?'var(--primary-light)':'transparent')+'"><strong>'+p.name+'</strong> - '+(p.monthly===0?'Free':'€'+p.monthly+'/month')+' · '+Math.round(p.fee*100)+'% fee</div>').join('');document.getElementById('changePlanModal').classList.add('open');};
 window.selectPlan=function(plan){document.getElementById('selectedPlan').value=plan;};
 window.confirmChangePlan=async function(){var id=document.getElementById('changePlanBizId').value,plan=document.getElementById('selectedPlan').value;if(!plan)return;await db.collection("businesses").doc(id).update({plan:plan});closeModal('changePlanModal');showToast('Plan changed!');};
 window.searchBiz=function(v){renderBusinesses(v.toLowerCase());};
 window.searchParts=function(v){renderAllParts(v.toLowerCase());};
 window.showPage=function(page){currentPage=page;document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById('page-'+page)?.classList.add('active');document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));document.getElementById('nav-'+page)?.classList.add('active');document.getElementById('topbarTitle').textContent=page.toUpperCase();if(page==='earnings')renderEarnings();};
-function showApp(){document.getElementById('loginScreen').style.display='none';document.getElementById('app').style.display='flex';}
-function showLogin(){document.getElementById('loginScreen').style.display='flex';document.getElementById('app').style.display='none';}
 </script>
 </body>
 </html>
