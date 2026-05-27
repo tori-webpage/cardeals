@@ -1,182 +1,110 @@
 <!DOCTYPE html>
-<html lang="sq" itemscope itemtype="https://schema.org/WebApplication">
+<html lang="sq">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Cardeals.al — Find & Compare Auto Parts in Albania</title>
-<meta name="description" content="Albania's #1 auto parts marketplace. Find, compare and buy car parts from verified sellers. New and used parts with warranty." />
-<meta name="keywords" content="car parts, auto parts, spare parts, Albania, Tirana, buy parts, compare prices" />
-<meta name="robots" content="index, follow" />
-<link rel="canonical" href="https://cardeals.al/index.html" />
-<meta property="og:title" content="Cardeals.al — Auto Parts Marketplace" />
-<meta property="og:description" content="Find and compare auto parts from verified sellers in Albania." />
-<meta property="og:url" content="https://cardeals.al" />
-<meta property="og:type" content="website" />
-<meta property="og:site_name" content="Cardeals.al" />
-<meta name="twitter:card" content="summary" />
-<link rel="manifest" href="/manifest.json" />
-<meta name="theme-color" content="#d97706" />
-<meta name="apple-mobile-web-app-capable" content="yes" />
+<title>Cardeals.al — Auto Parts Marketplace</title>
+<meta name="description" content="Find and compare auto parts from verified sellers in Albania." />
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
 <style>
-:root{
-  --bg:#f8f9fa;
-  --panel:#ffffff;
-  --card:#ffffff;
-  --border:#e9ecef;
-  --primary:#d97706;
-  --primary-dark:#b45309;
-  --text-secondary:#6c757d;
-  --text-primary:#212529;
-  --success:#28a745;
-  --warning:#ffc107;
-  --danger:#dc3545;
-  --radius:8px;
-  --shadow:0 1px 3px rgba(0,0,0,0.08);
-  --shadow-hover:0 4px 12px rgba(0,0,0,0.12);
-}
 *{margin:0;padding:0;box-sizing:border-box;}
-body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text-primary);min-height:100vh;}
-.ribbon{background:linear-gradient(90deg,#b45309,#d97706,#b45309);text-align:center;padding:8px;font-size:0.75rem;font-weight:600;color:white;}
+:root{
+  --bg:#f8f9fa; --panel:#ffffff; --card:#ffffff; --border:#e9ecef;
+  --primary:#d97706; --primary-dark:#b45309; --primary-light:#fff3e6;
+  --text-secondary:#6c757d; --text-primary:#212529; --success:#28a745;
+  --warning:#ffc107; --danger:#dc3545; --radius:8px;
+}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text-primary);}
 nav{background:var(--panel);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 2rem;height:64px;position:sticky;top:0;z-index:100;}
 .logo{font-weight:800;font-size:1.5rem;color:var(--text-primary);text-decoration:none;}
 .logo span{color:var(--primary);}
 .nav-right{display:flex;gap:1rem;align-items:center;}
-.nav-links{display:flex;gap:1.5rem;align-items:center;}
-.nav-links a{color:var(--text-secondary);text-decoration:none;font-weight:500;font-size:0.85rem;transition:color 0.2s;}
+.nav-links{display:flex;gap:1.5rem;}
+.nav-links a{color:var(--text-secondary);text-decoration:none;font-weight:500;font-size:0.85rem;}
 .nav-links a:hover{color:var(--primary);}
 .nav-sell{background:var(--primary);color:white!important;padding:8px 18px;border-radius:6px;}
-.lang-toggle{display:flex;background:var(--bg);border:1px solid var(--border);border-radius:6px;overflow:hidden;}
-.lang-btn{padding:5px 12px;font-size:0.75rem;font-weight:600;cursor:pointer;border:none;background:transparent;color:var(--text-secondary);font-family:'Inter',sans-serif;}
+.lang-toggle{display:flex;background:var(--bg);border:1px solid var(--border);border-radius:6px;}
+.lang-btn{padding:5px 12px;font-size:0.75rem;font-weight:600;cursor:pointer;border:none;background:transparent;color:var(--text-secondary);}
 .lang-btn.active{background:var(--primary);color:white;}
 .user-menu{position:relative;display:flex;gap:0.5rem;}
-.user-btn{background:var(--panel);border:1px solid var(--border);color:var(--text-primary);border-radius:6px;padding:6px 14px;font-weight:500;cursor:pointer;display:flex;align-items:center;gap:6px;}
+.user-btn{background:var(--panel);border:1px solid var(--border);border-radius:6px;padding:6px 14px;font-weight:500;cursor:pointer;}
 .register-btn{background:var(--primary)!important;color:white!important;border-color:var(--primary)!important;}
-.user-dropdown{display:none;position:absolute;top:100%;right:0;margin-top:8px;background:var(--card);border:1px solid var(--border);border-radius:8px;min-width:180px;overflow:hidden;z-index:50;box-shadow:0 4px 12px rgba(0,0,0,0.1);}
+.user-dropdown{display:none;position:absolute;top:100%;right:0;background:var(--card);border:1px solid var(--border);border-radius:8px;min-width:180px;z-index:50;}
 .user-dropdown.open{display:block;}
-.user-dropdown a,.user-dropdown button{display:block;width:100%;text-align:left;padding:10px 16px;color:var(--text-secondary);text-decoration:none;background:none;border:none;font-family:'Inter',sans-serif;font-size:0.85rem;cursor:pointer;}
-.user-dropdown a:hover,.user-dropdown button:hover{background:rgba(217,119,6,0.05);color:var(--primary);}
-.hero{background:linear-gradient(180deg,#f8f9fa 0%,#f1f3f5 100%);padding:3rem 2rem 2rem;text-align:center;border-bottom:1px solid var(--border);}
-.hero-badge{display:inline-block;background:rgba(217,119,6,0.1);border:1px solid rgba(217,119,6,0.2);color:var(--primary);font-size:0.7rem;font-weight:600;text-transform:uppercase;padding:6px 16px;border-radius:20px;margin-bottom:1rem;}
-.hero h1{font-size:clamp(2.5rem,7vw,4.5rem);font-weight:800;line-height:1.2;margin-bottom:1rem;color:var(--text-primary);}
+.user-dropdown a,.user-dropdown button{display:block;width:100%;padding:10px 16px;text-align:left;background:none;border:none;cursor:pointer;font-size:0.8rem;}
+.user-dropdown a:hover,.user-dropdown button:hover{background:var(--primary-light);color:var(--primary);}
+.hero{background:linear-gradient(180deg,#f8f9fa 0%,#f1f3f5 100%);padding:3rem 2rem;text-align:center;}
+.hero h1{font-size:clamp(2rem,6vw,3.5rem);font-weight:800;margin-bottom:1rem;}
 .hero h1 span{color:var(--primary);}
-.hero p{font-size:1rem;color:var(--text-secondary);max-width:580px;margin:0 auto 2rem;line-height:1.6;}
-.car-selector{display:flex;gap:0.5rem;justify-content:center;flex-wrap:wrap;margin-bottom:1rem;}
-.car-selector select,.car-selector input{background:var(--panel);border:1px solid var(--border);color:var(--text-primary);padding:0.7rem 1rem;border-radius:6px;font-family:'Inter',sans-serif;font-size:0.9rem;outline:none;min-width:200px;}
-.car-selector select:focus,.car-selector input:focus{border-color:var(--primary);box-shadow:0 0 0 2px rgba(217,119,6,0.1);}
-.search-wrap{max-width:760px;margin:0 auto 1.5rem;}
+.hero p{color:var(--text-secondary);max-width:580px;margin:0 auto 1.5rem;}
+.car-selector{display:flex;gap:0.5rem;justify-content:center;flex-wrap:wrap;margin-bottom:1.5rem;}
+.car-selector select,.car-selector input{background:var(--panel);border:1px solid var(--border);padding:0.7rem 1rem;border-radius:6px;min-width:200px;}
+.search-wrap{max-width:760px;margin:0 auto;}
 .search-bar{display:flex;background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;}
-.search-bar input{flex:1;background:transparent;border:none;padding:1rem 1.5rem;font-size:0.95rem;color:var(--text-primary);font-family:'Inter',sans-serif;outline:none;}
-.search-bar input::placeholder{color:var(--text-secondary);}
-.search-bar select{background:var(--panel);border:none;border-left:1px solid var(--border);color:var(--text-primary);padding:0 1rem;font-weight:500;cursor:pointer;outline:none;}
-.search-bar button{background:var(--primary);color:white;border:none;padding:0 2rem;font-weight:600;cursor:pointer;transition:background 0.2s;}
-.search-bar button:hover{background:var(--primary-dark);}
-.advanced-filters-toggle{background:transparent;border:1px solid var(--border);color:var(--text-secondary);padding:6px 16px;border-radius:20px;font-size:0.75rem;font-weight:600;cursor:pointer;margin-top:0.75rem;}
-.advanced-filters{max-height:0;overflow:hidden;opacity:0;transition:max-height 0.35s ease,opacity 0.25s ease;background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:0 1.25rem;}
-.advanced-filters.open{max-height:450px;opacity:1;margin-top:1rem;padding:1.25rem;}
-.filter-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem;}
-.filter-group label{display:block;font-size:0.7rem;font-weight:600;color:var(--text-secondary);margin-bottom:0.3rem;}
-.filter-group input,.filter-group select{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:6px;color:var(--text-primary);padding:8px 12px;font-family:'Inter',sans-serif;font-size:0.85rem;outline:none;}
-.filter-tags{display:flex;gap:0.5rem;justify-content:center;flex-wrap:wrap;margin-top:1rem;}
-.tag{background:var(--panel);border:1px solid var(--border);color:var(--text-secondary);padding:6px 16px;border-radius:20px;font-size:0.75rem;font-weight:500;cursor:pointer;transition:all 0.2s;}
-.tag:hover,.tag.active{background:var(--primary);border-color:var(--primary);color:white;}
-.stats-bar{background:var(--panel);border-top:1px solid var(--border);border-bottom:1px solid var(--border);display:flex;justify-content:center;gap:3rem;padding:1.25rem 2rem;flex-wrap:wrap;}
+.search-bar input{flex:1;border:none;padding:1rem;font-size:0.9rem;outline:none;}
+.search-bar select{border:none;border-left:1px solid var(--border);padding:0 1rem;}
+.search-bar button{background:var(--primary);color:white;border:none;padding:0 2rem;cursor:pointer;font-weight:600;}
+.filter-tags{display:flex;gap:0.5rem;justify-content:center;flex-wrap:wrap;margin:1rem 0;}
+.tag{background:var(--panel);border:1px solid var(--border);padding:6px 16px;border-radius:20px;font-size:0.75rem;cursor:pointer;}
+.tag.active{background:var(--primary);border-color:var(--primary);color:white;}
+.stats-bar{background:var(--panel);border-top:1px solid var(--border);border-bottom:1px solid var(--border);display:flex;justify-content:center;gap:3rem;padding:1.25rem;}
 .stat{text-align:center;}
-.stat-num{font-weight:800;font-size:1.8rem;color:var(--primary);}
-.stat-label{font-size:0.7rem;color:var(--text-secondary);text-transform:uppercase;letter-spacing:1px;}
-.section{padding:2.5rem 2rem;max-width:1300px;margin:0 auto;}
-.section-title{font-size:1.5rem;font-weight:700;margin-bottom:0.5rem;}
-.section-title span{color:var(--primary);}
+.stat-num{font-weight:800;font-size:1.5rem;color:var(--primary);}
+.stat-label{font-size:0.7rem;color:var(--text-secondary);}
+.section{padding:2rem;max-width:1300px;margin:0 auto;}
+.section-title{font-size:1.3rem;font-weight:700;margin-bottom:0.5rem;}
 .section-sub{color:var(--text-secondary);font-size:0.85rem;margin-bottom:1.5rem;}
 .parts-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1.5rem;}
-.part-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;cursor:pointer;transition:transform 0.2s,box-shadow 0.2s;}
-.part-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-hover);border-color:var(--primary);}
-.part-card.promoted{border-color:rgba(245,158,11,0.3);box-shadow:0 0 0 2px rgba(245,158,11,0.1);}
-.part-img{width:100%;height:160px;display:flex;align-items:center;justify-content:center;font-size:3rem;position:relative;overflow:hidden;background:linear-gradient(135deg,#f8f9fa,#f1f3f5);}
+.part-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;cursor:pointer;transition:all 0.2s;}
+.part-card:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,0.1);border-color:var(--primary);}
+.part-img{width:100%;height:150px;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#f8f9fa,#e9ecef);font-size:2rem;}
 .part-img img{width:100%;height:100%;object-fit:cover;}
-.part-img-icon{position:relative;z-index:1;}
-.part-img-cat{position:absolute;bottom:10px;right:12px;font-size:0.6rem;font-weight:600;color:var(--text-secondary);background:rgba(255,255,255,0.9);padding:2px 8px;border-radius:4px;}
-.cond-badge{position:absolute;top:10px;left:10px;padding:4px 10px;border-radius:20px;font-size:0.65rem;font-weight:600;color:white;z-index:2;}
-.promo-badge-top{position:absolute;top:40px;left:10px;background:linear-gradient(135deg,#f59e0b,#f97316);color:white;padding:2px 10px;border-radius:20px;font-size:0.6rem;font-weight:600;z-index:2;}
+.cond-badge{position:absolute;top:10px;left:10px;padding:4px 10px;border-radius:20px;font-size:0.6rem;font-weight:600;color:white;}
+.cond-new{background:var(--success);}
+.cond-used{background:var(--warning);color:#333;}
 .part-body{padding:1rem;}
-.part-name{font-weight:600;font-size:0.9rem;margin-bottom:0.25rem;line-height:1.3;}
-.part-fits{font-size:0.75rem;color:var(--text-secondary);margin-bottom:0.25rem;}
-.part-seller{font-size:0.7rem;color:var(--text-secondary);margin-bottom:0.3rem;}
+.part-name{font-weight:600;margin-bottom:0.25rem;}
+.part-fits{font-size:0.7rem;color:var(--text-secondary);margin-bottom:0.25rem;}
+.part-seller{font-size:0.7rem;color:var(--text-secondary);margin-bottom:0.5rem;}
 .part-seller a{color:var(--primary);text-decoration:none;}
 .part-stock{font-size:0.7rem;font-weight:600;margin-bottom:0.5rem;}
 .stock-in{color:var(--success);}
 .stock-low{color:var(--warning);}
 .stock-out{color:var(--danger);}
 .price-box{background:var(--bg);border-radius:6px;padding:0.6rem;margin-bottom:0.6rem;}
-.pr{display:flex;justify-content:space-between;align-items:center;font-size:0.8rem;padding:2px 0;}
-.pr-total{border-top:1px solid var(--border);margin-top:4px;padding-top:4px;font-weight:600;}
-.pr-total-val{color:var(--success);font-weight:700;}
-.btn{width:100%;border:none;border-radius:6px;padding:10px;font-family:'Inter',sans-serif;font-weight:600;font-size:0.85rem;cursor:pointer;transition:all 0.2s;}
+.price-line{display:flex;justify-content:space-between;font-size:0.75rem;padding:2px 0;}
+.price-total{border-top:1px solid var(--border);margin-top:4px;padding-top:4px;font-weight:700;}
+.price-total-value{color:var(--success);}
+.btn{width:100%;border:none;border-radius:6px;padding:8px;font-weight:500;font-size:0.8rem;cursor:pointer;}
 .btn-primary{background:var(--primary);color:white;}
 .btn-primary:hover{background:var(--primary-dark);}
 .btn-outline{background:transparent;border:1px solid var(--border);color:var(--text-primary);}
 .btn-outline:hover{background:var(--primary);border-color:var(--primary);color:white;}
-.btn:disabled{opacity:0.5;cursor:not-allowed;}
-.spinner{width:36px;height:36px;border:2px solid var(--border);border-top-color:var(--primary);border-radius:50%;animation:spin 0.6s linear infinite;margin:0 auto;}
-@keyframes spin{to{transform:rotate(360deg)}}
-.how-section{background:var(--panel);padding:3rem 2rem;border-top:1px solid var(--border);}
-.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:2rem;margin-top:2rem;max-width:1200px;margin-left:auto;margin-right:auto;}
-.step{text-align:center;}
-.step-icon{width:56px;height:56px;background:rgba(217,119,6,0.1);border:1px solid var(--primary);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.4rem;margin:0 auto 1rem;}
-.step h3{font-weight:600;font-size:1rem;margin-bottom:0.5rem;}
-.step p{font-size:0.8rem;color:var(--text-secondary);line-height:1.5;}
-.biz-cta{background:linear-gradient(135deg,#b45309,#d97706);border-radius:16px;padding:2.5rem;text-align:center;max-width:1200px;margin:2rem auto;color:white;}
-.biz-cta h2{font-size:1.8rem;font-weight:700;margin-bottom:0.75rem;}
-.biz-cta p{opacity:0.9;max-width:500px;margin:0 auto 1.5rem;line-height:1.6;}
-.biz-features{display:flex;justify-content:center;gap:1.5rem;flex-wrap:wrap;margin-bottom:1.5rem;}
-.biz-feat{font-size:0.85rem;font-weight:500;opacity:0.9;}
-.cta-btn{display:inline-block;background:white;color:var(--primary);text-decoration:none;padding:12px 2rem;border-radius:8px;font-weight:600;transition:transform 0.15s;}
-.cta-btn:hover{transform:translateY(-1px);}
-.contact-section{background:var(--bg);padding:3rem 2rem;}
-.contact-inner{max-width:500px;margin:0 auto;}
-.contact-form{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:1.5rem;}
-.field{margin-bottom:1rem;}
-.field label{display:block;font-size:0.75rem;font-weight:600;color:var(--text-secondary);margin-bottom:5px;}
-.field input,.field textarea{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:6px;color:var(--text-primary);padding:10px 12px;font-family:'Inter',sans-serif;font-size:0.9rem;outline:none;}
-.field input:focus,.field textarea:focus{border-color:var(--primary);}
-footer{background:var(--panel);border-top:1px solid var(--border);padding:2rem 2rem 1rem;text-align:center;}
-.footer-logo{font-weight:800;font-size:1.5rem;margin-bottom:0.5rem;color:var(--text-primary);}
-.footer-logo span{color:var(--primary);}
-footer p{color:var(--text-secondary);font-size:0.8rem;margin-bottom:1rem;}
-.footer-links{display:flex;gap:1.5rem;justify-content:center;flex-wrap:wrap;margin-bottom:1rem;}
-.footer-links a{color:var(--text-secondary);text-decoration:none;font-size:0.75rem;font-weight:500;}
-.footer-links a:hover{color:var(--primary);}
-.footer-copy{font-size:0.7rem;color:var(--text-secondary);}
+.pagination-container{display:flex;justify-content:center;gap:0.5rem;margin-top:2rem;}
+.pagination-btn{background:var(--panel);border:1px solid var(--border);padding:6px 14px;border-radius:6px;cursor:pointer;}
+.pagination-btn:disabled{opacity:0.5;cursor:not-allowed;}
 .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:200;align-items:center;justify-content:center;padding:1rem;}
 .modal-overlay.open{display:flex;}
-.modal{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.5rem;max-width:480px;width:100%;position:relative;max-height:90vh;overflow-y:auto;}
-.modal-x{position:absolute;top:1rem;right:1rem;background:none;border:none;color:var(--text-secondary);font-size:1.2rem;cursor:pointer;}
-.toast{position:fixed;bottom:2rem;right:2rem;color:white;padding:0.75rem 1.25rem;border-radius:8px;font-weight:500;font-size:0.85rem;display:none;z-index:300;}
-.toast.show{display:block;animation:toastIn 0.3s ease;}
-@keyframes toastIn{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
+.modal{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.5rem;max-width:500px;width:100%;max-height:90vh;overflow-y:auto;position:relative;}
+.modal-x{position:absolute;top:1rem;right:1rem;background:none;border:none;font-size:1.2rem;cursor:pointer;}
 .cart-item{display:flex;align-items:center;gap:1rem;padding:0.75rem 0;border-bottom:1px solid var(--border);}
-.cart-item-img{width:48px;height:48px;border-radius:6px;display:flex;align-items:center;justify-content:center;background:var(--bg);flex-shrink:0;}
-.cart-item-info{flex:1;}
-.cart-item-name{font-weight:600;font-size:0.85rem;}
-.cart-item-seller{font-size:0.7rem;color:var(--text-secondary);}
-.cart-item-price{font-weight:600;color:var(--success);font-size:0.85rem;}
 .cart-item-qty{display:flex;align-items:center;gap:0.3rem;}
 .cart-item-qty button{width:24px;height:24px;border-radius:4px;border:1px solid var(--border);background:var(--bg);cursor:pointer;}
-.pagination-container{display:flex;justify-content:center;align-items:center;gap:0.5rem;margin-top:2rem;flex-wrap:wrap;}
-.pagination-btn{background:var(--panel);border:1px solid var(--border);color:var(--text-primary);padding:6px 14px;border-radius:6px;font-weight:500;font-size:0.8rem;cursor:pointer;}
-.pagination-btn:hover:not(:disabled){background:var(--primary);border-color:var(--primary);color:white;}
-.pagination-btn:disabled{opacity:0.4;cursor:not-allowed;}
-.pagination-info{color:var(--text-secondary);font-size:0.8rem;}
-.items-per-page{background:var(--panel);border:1px solid var(--border);padding:6px 10px;border-radius:6px;margin-left:0.5rem;}
-@media(max-width:768px){.nav-links a:not(.nav-sell){display:none;}nav{padding:0 1rem;}.hero{padding:1.5rem;}.hero h1{font-size:1.8rem;}.section{padding:1.5rem 1rem;}.parts-grid{grid-template-columns:1fr;}.search-bar{flex-direction:column;}.search-bar select{border-left:none;border-top:1px solid var(--border);padding:0.6rem;}}
+.field{margin-bottom:0.8rem;}
+.field label{display:block;font-size:0.7rem;font-weight:600;color:var(--text-secondary);margin-bottom:3px;}
+.field input,.field textarea{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:8px 10px;font-family:'Inter',sans-serif;outline:none;}
+.toast{position:fixed;bottom:1.5rem;right:1.5rem;color:white;padding:0.75rem 1.25rem;border-radius:8px;display:none;z-index:300;}
+.toast.show{display:block;animation:toastIn 0.3s ease;}
+.spinner{width:32px;height:32px;border:2px solid var(--border);border-top-color:var(--primary);border-radius:50%;animation:spin 0.6s linear infinite;margin:0 auto;}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes toastIn{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
+@media(max-width:640px){nav{padding:0 1rem;}.nav-links a:not(.nav-sell){display:none;}.hero{padding:1.5rem;}.search-bar{flex-direction:column;}.search-bar select{border-left:none;border-top:1px solid var(--border);padding:0.6rem;}.parts-grid{grid-template-columns:1fr;}}
 </style>
 </head>
 <body>
-
-<div class="ribbon">Albania's #1 Auto Parts Marketplace | Best Prices Guaranteed</div>
 
 <nav>
   <a class="logo" href="#">Car<span>deals</span>.al</a>
@@ -185,14 +113,13 @@ footer p{color:var(--text-secondary);font-size:0.8rem;margin-bottom:1rem;}
       <a href="#parts">Browse</a>
       <a href="#how">How It Works</a>
       <a href="workshop.html" target="_blank">Service Points</a>
-      <a href="#contact">Contact</a>
       <a href="cardeals-backoffice.html" class="nav-sell" target="_blank">Sell Here</a>
     </div>
     <div class="lang-toggle">
       <button class="lang-btn active" onclick="setLang('sq')">SQ</button>
       <button class="lang-btn" onclick="setLang('en')">EN</button>
     </div>
-    <button class="user-btn" onclick="openCart()" style="position:relative;">Cart <span id="cartBadge" style="background:var(--primary);color:white;font-size:0.6rem;padding:2px 7px;border-radius:10px;position:absolute;top:-6px;right:-8px;display:none;">0</span></button>
+    <button class="user-btn" onclick="openCart()" style="position:relative;">Cart <span id="cartBadge" style="background:var(--primary);color:white;font-size:0.6rem;padding:2px 6px;border-radius:10px;position:absolute;top:-6px;right:-8px;display:none;">0</span></button>
     <div class="user-menu">
       <button class="user-btn" onclick="toggleUserMenu()"><span id="userDisplay">Account</span></button>
       <button class="user-btn register-btn" onclick="openRegisterModal()" id="registerBtn">Sign Up</button>
@@ -206,11 +133,10 @@ footer p{color:var(--text-secondary);font-size:0.8rem;margin-bottom:1rem;}
 </nav>
 
 <div class="hero">
-  <div class="hero-badge">New & Used Parts · Best Prices</div>
   <h1>Find Any <span>Auto Part.</span><br>Compare Every Price.</h1>
   <p>Select your car and see all compatible parts instantly.</p>
   <div class="car-selector">
-    <select id="carMakeSelect" onchange="onCarMakeChange()"><option value="">Select Brand</option></select>
+    <select id="carMakeSelect"><option value="">Select Brand</option></select>
     <input type="text" id="carModelInput" placeholder="Model (e.g. Golf)" list="carModelList" disabled />
     <datalist id="carModelList"></datalist>
     <button onclick="searchByCar()" class="btn btn-primary" style="width:auto;padding:0.7rem 2rem;">Search Parts</button>
@@ -218,48 +144,12 @@ footer p{color:var(--text-secondary);font-size:0.8rem;margin-bottom:1rem;}
   <div class="search-wrap">
     <div class="search-bar">
       <input type="text" id="searchInput" placeholder="Search by keyword, VIN, brand..."/>
-      <select id="condFilter" onchange="filterCond(this.value)">
+      <select id="condFilter">
         <option value="all">All</option>
         <option value="new">New Only</option>
         <option value="used">Used Only</option>
       </select>
       <button onclick="renderParts()">Search</button>
-    </div>
-    <div style="text-align:center;">
-      <button class="advanced-filters-toggle" onclick="toggleAdvancedFilters()">Advanced Filters</button>
-    </div>
-    <div class="advanced-filters" id="advancedFilters">
-      <div class="filter-row">
-        <div class="filter-group">
-          <label>City</label>
-          <select id="filterCity"><option value="">All</option></select>
-        </div>
-        <div class="filter-group">
-          <label>Seller</label>
-          <input type="text" id="filterSeller" placeholder="Seller name..." />
-        </div>
-        <div class="filter-group">
-          <label>VIN / Chassis</label>
-          <input type="text" id="filterVin" placeholder="Search by VIN..." maxlength="17" />
-        </div>
-        <div class="filter-group">
-          <label>Max Price (ALL)</label>
-          <input type="number" id="filterMaxPrice" placeholder="50000" />
-        </div>
-        <div class="filter-group">
-          <label>Sort By</label>
-          <select id="filterSort">
-            <option value="newest">Newest first</option>
-            <option value="price_asc">Price: Low to High</option>
-            <option value="price_desc">Price: High to Low</option>
-            <option value="discount">Biggest discount</option>
-          </select>
-        </div>
-      </div>
-      <div style="display:flex;gap:0.5rem;margin-top:1rem;">
-        <button class="btn btn-primary" style="flex:1;" onclick="renderParts()">Apply Filters</button>
-        <button class="btn btn-outline" style="flex:1;" onclick="resetAdvancedFilters()">Reset</button>
-      </div>
     </div>
     <div class="filter-tags">
       <span class="tag active" onclick="filterCat(this,'all')">All</span>
@@ -283,79 +173,109 @@ footer p{color:var(--text-secondary);font-size:0.8rem;margin-bottom:1rem;}
 <div class="section" id="parts">
   <h2 class="section-title">Listed <span>Parts</span></h2>
   <p class="section-sub">Prices from verified businesses — our 8% fee is included</p>
-  <div class="parts-grid" id="partsGrid"><div style="grid-column:1/-1;text-align:center;padding:3rem;"><div class="spinner"></div><p style="margin-top:1rem;">Loading parts...</p></div></div>
-  <div id="paginationControls" style="display:none;">
-    <div class="pagination-container">
-      <button class="pagination-btn" id="firstPageBtn" onclick="goToPage(1)">First</button>
-      <button class="pagination-btn" id="prevPageBtn" onclick="prevPage()">Previous</button>
-      <span class="pagination-info" id="pageInfo">Page 1</span>
-      <button class="pagination-btn" id="nextPageBtn" onclick="nextPage()">Next</button>
-      <button class="pagination-btn" id="lastPageBtn" onclick="goToPage(lastPage)">Last</button>
-      <select id="itemsPerPage" class="items-per-page" onchange="changeItemsPerPage()">
-        <option value="12">12 per page</option>
-        <option value="24" selected>24 per page</option>
-        <option value="36">36 per page</option>
-        <option value="48">48 per page</option>
-      </select>
-    </div>
+  <div class="parts-grid" id="partsGrid"><div class="spinner"></div></div>
+  <div id="paginationControls" style="display:none;" class="pagination-container">
+    <button class="pagination-btn" id="prevPageBtn" onclick="prevPage()">Previous</button>
+    <span id="pageInfo">Page 1</span>
+    <button class="pagination-btn" id="nextPageBtn" onclick="nextPage()">Next</button>
+    <select id="itemsPerPage" onchange="changeItemsPerPage()">
+      <option value="12">12 per page</option>
+      <option value="24" selected>24 per page</option>
+      <option value="48">48 per page</option>
+    </select>
   </div>
 </div>
 
-<div class="how-section" id="how">
-  <h2 class="section-title" style="text-align:center;">How It <span>Works</span></h2>
-  <div class="steps">
-    <div class="step"><div class="step-icon">1</div><h3>Select Your Car</h3><p>Choose brand and model</p></div>
-    <div class="step"><div class="step-icon">2</div><h3>Compare</h3><p>View prices and ratings</p></div>
-    <div class="step"><div class="step-icon">3</div><h3>Purchase</h3><p>Pay online or reserve free</p></div>
-    <div class="step"><div class="step-icon">4</div><h3>Review</h3><p>Leave your feedback</p></div>
+<div class="how-section" id="how" style="background:var(--panel);padding:3rem 2rem;text-align:center;">
+  <h2 class="section-title">How It <span>Works</span></h2>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:2rem;max-width:1000px;margin:2rem auto 0;">
+    <div><div style="width:50px;height:50px;background:var(--primary-light);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;font-weight:700;">1</div><h3>Select Your Car</h3><p style="font-size:0.8rem;color:var(--text-secondary);">Choose brand and model</p></div>
+    <div><div style="width:50px;height:50px;background:var(--primary-light);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;font-weight:700;">2</div><h3>Compare</h3><p style="font-size:0.8rem;color:var(--text-secondary);">View prices and ratings</p></div>
+    <div><div style="width:50px;height:50px;background:var(--primary-light);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;font-weight:700;">3</div><h3>Purchase</h3><p style="font-size:0.8rem;color:var(--text-secondary);">Pay online or reserve free</p></div>
+    <div><div style="width:50px;height:50px;background:var(--primary-light);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;font-weight:700;">4</div><h3>Review</h3><p style="font-size:0.8rem;color:var(--text-secondary);">Leave your feedback</p></div>
   </div>
 </div>
 
-<div class="biz-cta">
-  <h2>Are You a Parts Business?</h2>
-  <p>List your inventory on Cardeals.al and reach thousands of buyers</p>
-  <div class="biz-features">
-    <div class="biz-feat">✓ Free registration</div>
-    <div class="biz-feat">✓ List new & used</div>
-    <div class="biz-feat">✓ Live sales panel</div>
-    <div class="biz-feat">✓ Commission only when you sell</div>
+<footer style="background:var(--panel);border-top:1px solid var(--border);padding:2rem;text-align:center;">
+  <div class="footer-logo" style="font-weight:800;font-size:1.3rem;margin-bottom:0.5rem;">Car<span style="color:var(--primary);">deals</span>.al</div>
+  <p style="font-size:0.75rem;color:var(--text-secondary);">The smart way to find and buy auto parts in Albania</p>
+  <div style="display:flex;gap:1rem;justify-content:center;margin:1rem 0;">
+    <a href="#" style="color:var(--text-secondary);text-decoration:none;font-size:0.7rem;">About</a>
+    <a href="#how" style="color:var(--text-secondary);text-decoration:none;font-size:0.7rem;">How It Works</a>
+    <a href="cardeals-backoffice.html" style="color:var(--text-secondary);text-decoration:none;font-size:0.7rem;">Sell With Us</a>
+    <a href="privacy.html" style="color:var(--text-secondary);text-decoration:none;font-size:0.7rem;">Privacy</a>
   </div>
-  <a href="cardeals-backoffice.html" class="cta-btn" target="_blank">Register Your Business →</a>
-</div>
-
-<div class="contact-section" id="contact">
-  <div class="contact-inner">
-    <h2 class="section-title" style="text-align:center;">Contact <span>Us</span></h2>
-    <p style="text-align:center;color:var(--text-secondary);margin-bottom:1.5rem;">Questions? Issues? We're here for you.</p>
-    <div class="contact-form">
-      <div class="field"><label>Your Name</label><input type="text" id="contactName" /></div>
-      <div class="field"><label>Email</label><input type="email" id="contactEmail" /></div>
-      <div class="field"><label>Message</label><textarea id="contactMsg" rows="3"></textarea></div>
-      <button class="btn btn-primary" onclick="submitContact()" style="width:100%;">Send Message</button>
-    </div>
-  </div>
-</div>
-
-<footer>
-  <div class="footer-logo">Car<span>deals</span>.al</div>
-  <p>The smart way to find and buy auto parts in Albania</p>
-  <div class="footer-links">
-    <a href="#">About Us</a>
-    <a href="#how">How It Works</a>
-    <a href="cardeals-backoffice.html" target="_blank">Sell With Us</a>
-    <a href="workshop.html" target="_blank">Service Points</a>
-    <a href="#contact">Contact</a>
-    <a href="privacy.html">Privacy Policy</a>
-  </div>
-  <div class="footer-copy">© 2025 Cardeals.al</div>
+  <div style="font-size:0.65rem;color:var(--text-secondary);">© 2025 Cardeals.al</div>
 </footer>
 
-<!-- Modals - kept but cleaned -->
-<div class="modal-overlay" id="buyModal"><div class="modal"><button class="modal-x" onclick="closeModal('buyModal')">×</button><div style="font-size:2rem;text-align:center;margin-bottom:0.5rem;" id="mEmoji">🔧</div><h3 id="mName" style="text-align:center;"></h3><p id="mSeller" style="text-align:center;color:var(--text-secondary);margin-bottom:0.8rem;"></p><div id="mStockInfo" style="margin-bottom:0.8rem;"></div><div style="display:flex;align-items:center;gap:0.8rem;margin-bottom:0.8rem;"><span>Quantity:</span><button onclick="changeQty(-1)" style="width:28px;height:28px;border-radius:4px;border:1px solid var(--border);background:var(--bg);cursor:pointer;">-</button><input type="number" id="mQty" value="1" min="1" oninput="updateModalTotal()" style="width:50px;text-align:center;background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:4px;" /><button onclick="changeQty(1)" style="width:28px;height:28px;border-radius:4px;border:1px solid var(--border);background:var(--bg);cursor:pointer;">+</button></div><div class="price-summary" style="background:var(--bg);border-radius:8px;padding:0.8rem;margin-bottom:0.8rem;"><div style="display:flex;justify-content:space-between;font-size:0.8rem;"><span>Seller Price</span><span id="mBase"></span></div><div style="display:flex;justify-content:space-between;font-size:0.75rem;color:var(--text-secondary);border-top:1px solid var(--border);padding-top:4px;margin-top:4px;"><span>Cardeals Fee (8%)</span><span id="mFee"></span></div><div style="display:flex;justify-content:space-between;font-weight:600;border-top:1px solid var(--border);padding-top:4px;margin-top:4px;"><span>Total</span><span id="mTotal" style="color:var(--success);"></span></div></div><button class="btn btn-outline" onclick="addToCartFromModal()" style="width:100%;">Add to Cart</button></div></div>
+<!-- Modals -->
+<div class="modal-overlay" id="authModal">
+  <div class="modal">
+    <button class="modal-x" onclick="closeModal('authModal')">×</button>
+    <div style="display:flex;margin-bottom:1rem;border-bottom:1px solid var(--border);">
+      <button onclick="showAuthTab('login')" id="tabLogin" style="flex:1;padding:8px;background:var(--primary);color:white;border:none;cursor:pointer;">Login</button>
+      <button onclick="showAuthTab('register')" id="tabRegister" style="flex:1;padding:8px;background:transparent;border:none;cursor:pointer;">Register</button>
+    </div>
+    <div id="authLoginForm">
+      <div class="field"><label>Email</label><input type="email" id="authEmail" /></div>
+      <div class="field"><label>Password</label><input type="password" id="authPass" /></div>
+      <button class="btn btn-primary" onclick="buyerLogin()">Login</button>
+    </div>
+    <div id="authRegisterForm" style="display:none;">
+      <div class="field"><label>Full Name</label><input type="text" id="regName" /></div>
+      <div class="field"><label>Email</label><input type="email" id="regEmail" /></div>
+      <div class="field"><label>Phone</label><input type="text" id="regPhone" /></div>
+      <div class="field"><label>Password</label><input type="password" id="regPass" /></div>
+      <button class="btn btn-primary" onclick="buyerRegister()">Register</button>
+    </div>
+  </div>
+</div>
 
-<div class="modal-overlay" id="addressModal"><div class="modal"><button class="modal-x" onclick="closeModal('addressModal')">×</button><h3 style="margin-bottom:1rem;">Delivery Address</h3><div class="field"><label>Full Address *</label><input type="text" id="deliveryAddress" placeholder="Street, building, apartment" /></div><div class="field"><label>City *</label><input type="text" id="deliveryCity" placeholder="e.g. Tirana" /></div><div class="field"><label>Postal Code</label><input type="text" id="deliveryPostal" placeholder="Optional" /></div><div class="field"><label>Delivery Instructions</label><textarea id="deliveryInstructions" rows="2" placeholder="Gate, floor, near landmark..."></textarea></div><div class="field"><label>Confirmation Email *</label><input type="email" id="deliveryEmail" /></div><button class="btn btn-primary" id="confirmAddressBtn" onclick="confirmAddress()" style="width:100%;">Confirm Order</button></div></div>
+<div class="modal-overlay" id="buyModal">
+  <div class="modal">
+    <button class="modal-x" onclick="closeModal('buyModal')">×</button>
+    <h3 id="mName"></h3>
+    <p id="mSeller" style="color:var(--text-secondary);margin:0.5rem 0;"></p>
+    <div id="mStockInfo"></div>
+    <div style="display:flex;align-items:center;gap:1rem;margin:1rem 0;">
+      <span>Quantity:</span>
+      <button onclick="changeQty(-1)" style="width:28px;height:28px;border-radius:4px;border:1px solid var(--border);background:var(--bg);cursor:pointer;">-</button>
+      <input type="number" id="mQty" value="1" min="1" oninput="updateModalTotal()" style="width:60px;text-align:center;">
+      <button onclick="changeQty(1)" style="width:28px;height:28px;border-radius:4px;border:1px solid var(--border);background:var(--bg);cursor:pointer;">+</button>
+    </div>
+    <div class="price-box">
+      <div class="price-line"><span>Seller Price</span><span id="mBase"></span></div>
+      <div class="price-line"><span>Cardeals Fee (8%)</span><span id="mFee"></span></div>
+      <div class="price-line price-total"><span>Total</span><span class="price-total-value" id="mTotal"></span></div>
+    </div>
+    <button class="btn btn-primary" onclick="addToCartFromModal()">Add to Cart</button>
+  </div>
+</div>
 
-<div class="modal-overlay" id="cartModal"><div class="modal" style="max-width:550px;"><button class="modal-x" onclick="closeModal('cartModal')">×</button><h3 style="margin-bottom:1rem;">Shopping Cart</h3><div id="cartContent"><div style="text-align:center;padding:2rem;color:var(--text-secondary);">Your cart is empty</div></div><div id="cartCheckoutSection" style="display:none;margin-top:1rem;border-top:1px solid var(--border);padding-top:1rem;"><div style="display:flex;justify-content:space-between;font-weight:600;margin-bottom:0.5rem;"><span>Subtotal</span><span id="cartSubtotal" style="color:var(--success);">0 L</span></div><div style="display:flex;justify-content:space-between;font-size:0.8rem;color:var(--text-secondary);margin-bottom:0.5rem;"><span>Shipping</span><span id="cartShipping">0 L</span></div><div style="display:flex;justify-content:space-between;font-weight:700;margin-bottom:1rem;border-top:1px solid var(--border);padding-top:0.5rem;"><span>Total</span><span id="cartGrandTotal" style="color:var(--success);">0 L</span></div><button class="btn btn-primary" onclick="proceedToAddress()" style="width:100%;">Proceed to Checkout</button></div></div></div>
+<div class="modal-overlay" id="cartModal">
+  <div class="modal" style="max-width:550px;">
+    <button class="modal-x" onclick="closeModal('cartModal')">×</button>
+    <h3>Shopping Cart</h3>
+    <div id="cartContent"></div>
+    <div id="cartCheckoutSection" style="display:none;margin-top:1rem;border-top:1px solid var(--border);padding-top:1rem;">
+      <div style="display:flex;justify-content:space-between;"><span>Subtotal</span><span id="cartSubtotal"></span></div>
+      <div style="display:flex;justify-content:space-between;font-size:0.75rem;"><span>Shipping</span><span id="cartShipping"></span></div>
+      <div style="display:flex;justify-content:space-between;font-weight:700;margin:0.5rem 0;"><span>Total</span><span id="cartGrandTotal"></span></div>
+      <button class="btn btn-primary" onclick="proceedToAddress()">Proceed to Checkout</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="addressModal">
+  <div class="modal">
+    <button class="modal-x" onclick="closeModal('addressModal')">×</button>
+    <h3>Delivery Address</h3>
+    <div class="field"><label>Full Address *</label><input type="text" id="deliveryAddress" /></div>
+    <div class="field"><label>City *</label><input type="text" id="deliveryCity" /></div>
+    <div class="field"><label>Email for confirmation *</label><input type="email" id="deliveryEmail" /></div>
+    <button class="btn btn-primary" id="confirmAddressBtn" onclick="confirmAddress()">Confirm Order</button>
+  </div>
+</div>
 
 <div class="toast" id="toast"></div>
 
@@ -365,92 +285,58 @@ const db=firebase.firestore(),auth=firebase.auth(),PLATFORM_FEE=0.08;
 let allParts=[],currentLang='sq',currentFilter='all',currentCondition='all',selectedPart=null,currentBuyer=null;
 let currentCarMake='',currentCarModel='',pendingCheckoutData=null;
 let currentPageNum=1,itemsPerPage=24,filteredParts=[],totalPages=1;
+const EUR_TO_LEK=120,FREE_SHIPPING_THRESHOLD_LEK=100*EUR_TO_LEK,SHIPPING_FEE_LEK=5*EUR_TO_LEK;
+function calculateShipping(total){return total>=FREE_SHIPPING_THRESHOLD_LEK?0:SHIPPING_FEE_LEK;}
 
-const EUR_TO_LEK = 120, FREE_SHIPPING_THRESHOLD_LEK = 100 * EUR_TO_LEK, SHIPPING_FEE_LEK = 5 * EUR_TO_LEK;
-function calculateShipping(totalLek, payMethod) { if (payMethod === 'pickup') return 0; return totalLek >= FREE_SHIPPING_THRESHOLD_LEK ? 0 : SHIPPING_FEE_LEK; }
-
-const L={sq:{/* Albanian translations - shortened for brevity */},en:{/* English translations */}};
-function l(k){return L[currentLang][k]||k;}
 function g(id){return document.getElementById(id);}
-function showToast(msg,isErr){const t=g('toast');if(!t)return;t.textContent=msg;t.style.background=isErr?'#dc3545':'#28a745';t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000);}
-function closeModal(id){document.getElementById(id)?.classList.remove('open');}
+function showToast(msg,isErr){var t=g('toast');t.textContent=msg;t.style.background=isErr?'#dc3545':'#28a745';t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000);}
+function closeModal(id){g(id)?.classList.remove('open');}
 
-// Auth functions
-auth.onAuthStateChanged(user=>{currentBuyer=user;g('userDisplay').textContent=user?user.email.split('@')[0]:'Account';const rb=g('registerBtn');if(rb)rb.style.display=user?'none':'inline-block';if(user)prefillBuyerFields();});
-function openRegisterModal(){/* open register modal */}function toggleUserMenu(){g('userDropdown').classList.toggle('open');}
+// Auth
+auth.onAuthStateChanged(user=>{currentBuyer=user;g('userDisplay').textContent=user?user.email.split('@')[0]:'Account';g('registerBtn').style.display=user?'none':'inline-block';if(user)prefillBuyerFields();});
+function openRegisterModal(){g('authModal').classList.add('open');showAuthTab('register');}
+function showAuthTab(tab){var lf=g('authLoginForm'),rf=g('authRegisterForm'),lb=g('tabLogin'),rb=g('tabRegister');if(tab==='login'){lb.style.background='var(--primary)';lb.style.color='white';rb.style.background='transparent';rb.style.color='var(--text-secondary)';lf.style.display='block';rf.style.display='none';}else{rb.style.background='var(--primary)';rb.style.color='white';lb.style.background='transparent';lb.style.color='var(--text-secondary)';rf.style.display='block';lf.style.display='none';}}
+function toggleUserMenu(){g('userDropdown').classList.toggle('open');}
+function buyerLogin(){var e=g('authEmail').value.trim(),p=g('authPass').value;if(!e||!p){showToast('Fill all fields!',true);return;}auth.signInWithEmailAndPassword(e,p).then(()=>{closeModal('authModal');showToast('Welcome!');}).catch(err=>showToast(err.message,true));}
+function buyerRegister(){var n=g('regName').value.trim(),e=g('regEmail').value.trim(),p=g('regPass').value,ph=g('regPhone').value.trim();if(!n||!e||!p||!ph){showToast('Fill all fields!',true);return;}if(p.length<6){showToast('Password must be 6+ characters',true);return;}auth.createUserWithEmailAndPassword(e,p).then(cred=>db.collection('buyers').doc(cred.user.uid).set({name:n,email:e,phone:ph})).then(()=>{closeModal('authModal');showToast('Account created!');}).catch(err=>showToast(err.message,true));}
 function buyerLogout(){auth.signOut();g('userDropdown').classList.remove('open');}
+function prefillBuyerFields(){if(!currentBuyer)return;db.collection('buyers').doc(currentBuyer.uid).get().then(doc=>{if(doc.exists){var d=doc.data();if(d.address)g('deliveryAddress').value=d.address;if(d.city)g('deliveryCity').value=d.city;}});}
+function showMyOrders(){if(!currentBuyer){openRegisterModal();return;}g('userDropdown').classList.remove('open');var c=g('myOrdersContent');if(c){c.innerHTML='Loading...';g('myOrdersModal').classList.add('open');db.collection("orders").where("buyerUid","==",currentBuyer.uid).orderBy("createdAt","desc").get().then(snap=>{var h='<table style="width:100%"><thead><tr><th>#</th><th>Part</th><th>Seller</th><th>Price</th><th>Status</th><th>Date</th></tr></thead><tbody>';snap.forEach(d=>{var o=d.data();h+='<tr><td>#'+d.id.slice(-6).toUpperCase()+'</td><td>'+o.partName+'</td><td>'+o.sellerName+'</td><td>'+o.totalPrice+' L</td><td>'+o.status+'</td><td>'+(o.createdAt?.toDate().toLocaleDateString()||'')+'</td></tr>';});h+='</tbody></table>';c.innerHTML=h||'No orders';});}}
 
-// Cart functions
-let cart=[];function loadCart(){try{var saved=localStorage.getItem('cardeals_cart');if(saved)cart=JSON.parse(saved);}catch(e){cart=[];}updateCartBadge();}
+// Cart
+let cart=[];function loadCart(){try{var saved=localStorage.getItem('cardeals_cart');if(saved)cart=JSON.parse(saved);}catch(e){}updateCartBadge();}
 function saveCart(){localStorage.setItem('cardeals_cart',JSON.stringify(cart));updateCartBadge();}
 function updateCartBadge(){var count=cart.reduce((s,i)=>s+(i.qty||1),0);var badge=g('cartBadge');if(badge){badge.textContent=count;badge.style.display=count>0?'inline-block':'none';}}
-function addToCart(partId){event.stopPropagation();var part=allParts.find(p=>p.id===partId);if(!part)return;var existing=cart.find(i=>i.partId===partId);if(existing){existing.qty=(existing.qty||1)+1;}else{var name=typeof part.name==='object'?(part.name.sq||part.name.en):part.name;cart.push({partId,partName:name,sellerUid:part.uid||'',sellerName:part.sellerName||'',sellerCity:part.sellerCity||'',basePrice:part.basePrice||0,discount:part.discount||0,image:part.images?.[0]||'',qty:1});}saveCart();showToast('Added to cart!');closeModal('buyModal');}
+function addToCart(partId){var part=allParts.find(p=>p.id===partId);if(!part)return;var existing=cart.find(i=>i.partId===partId);if(existing){existing.qty=(existing.qty||1)+1;}else{var name=typeof part.name==='object'?(part.name.sq||part.name.en):part.name;cart.push({partId,partName:name,sellerUid:part.uid||'',sellerName:part.sellerName||'',sellerCity:part.sellerCity||'',basePrice:part.basePrice||0,discount:part.discount||0,image:part.images?.[0]||'',qty:1});}saveCart();showToast('Added to cart!');closeModal('buyModal');}
 function addToCartFromModal(){if(selectedPart)addToCart(selectedPart.id);}
 function removeFromCart(index){cart.splice(index,1);saveCart();renderCart();}
 function updateCartQty(index,delta){cart[index].qty=Math.max(1,(cart[index].qty||1)+delta);saveCart();renderCart();}
 function openCart(){renderCart();g('cartModal').classList.add('open');}
-function renderCart(){var container=g('cartContent'),checkoutSection=g('cartCheckoutSection');if(!cart.length){container.innerHTML='<div style="text-align:center;padding:2rem;">Your cart is empty</div>';checkoutSection.style.display='none';return;}var subtotal=0,html='';cart.forEach((item,index)=>{var dp=item.discount>0?Math.round((item.basePrice||0)*(1-(item.discount||0)/100)):(item.basePrice||0);var fee=Math.round(dp*PLATFORM_FEE);var fin=dp+fee;var itemTotal=fin*(item.qty||1);subtotal+=itemTotal;html+='<div class="cart-item"><div class="cart-item-img">'+(item.image?'<img src="'+item.image+'" style="width:48px;height:48px;object-fit:cover;" />':'🔧')+'</div><div class="cart-item-info"><div class="cart-item-name">'+item.partName+'</div><div class="cart-item-seller">'+item.sellerName+' · '+item.sellerCity+'</div><div class="cart-item-price">'+itemTotal.toLocaleString()+' L</div></div><div class="cart-item-qty"><button onclick="updateCartQty('+index+',-1)">-</button><span>'+item.qty+'</span><button onclick="updateCartQty('+index+',1)">+</button></div><button class="cart-item-remove" onclick="removeFromCart('+index+')" style="background:none;border:none;cursor:pointer;font-size:1rem;">✕</button></div>';});container.innerHTML=html;var shipping=calculateShipping(subtotal,'online'),grandTotal=subtotal+shipping;g('cartSubtotal').textContent=subtotal.toLocaleString()+' L';if(shipping>0){var remaining=FREE_SHIPPING_THRESHOLD_LEK-subtotal;g('cartShipping').innerHTML=shipping.toLocaleString()+' L <span style="font-size:0.7rem;">(Add '+remaining.toLocaleString()+' L for free shipping)</span>';}else{g('cartShipping').innerHTML=subtotal>=FREE_SHIPPING_THRESHOLD_LEK?'Free Shipping':'0 L';}g('cartGrandTotal').textContent=grandTotal.toLocaleString()+' L';checkoutSection.style.display='block';}
+function renderCart(){var container=g('cartContent'),checkout=g('cartCheckoutSection');if(!cart.length){container.innerHTML='<div style="padding:2rem;text-align:center;">Your cart is empty</div>';checkout.style.display='none';return;}var subtotal=0,html='';cart.forEach((item,index)=>{var dp=item.discount>0?Math.round((item.basePrice||0)*(1-(item.discount||0)/100)):(item.basePrice||0);var fee=Math.round(dp*PLATFORM_FEE);var fin=dp+fee;var itemTotal=fin*(item.qty||1);subtotal+=itemTotal;html+='<div class="cart-item"><div>'+(item.image?'<img src="'+item.image+'" style="width:48px;height:48px;object-fit:cover;" />':'🔧')+'</div><div style="flex:1"><div>'+item.partName+'</div><div style="font-size:0.7rem;">'+item.sellerName+'</div></div><div>'+itemTotal.toLocaleString()+' L</div><div class="cart-item-qty"><button onclick="updateCartQty('+index+',-1)">-</button><span>'+item.qty+'</span><button onclick="updateCartQty('+index+',1)">+</button></div><button onclick="removeFromCart('+index+')" style="background:none;border:none;cursor:pointer;">✕</button></div>';});container.innerHTML=html;var shipping=calculateShipping(subtotal),grandTotal=subtotal+shipping;g('cartSubtotal').textContent=subtotal.toLocaleString()+' L';g('cartShipping').innerHTML=shipping>0?shipping.toLocaleString()+' L':'Free';g('cartGrandTotal').textContent=grandTotal.toLocaleString()+' L';checkout.style.display='block';}
 function proceedToAddress(){if(!cart.length)return;closeModal('cartModal');prefillBuyerFields();var subtotal=0;for(var i=0;i<cart.length;i++){var item=cart[i];var dp=item.discount>0?Math.round((item.basePrice||0)*(1-(item.discount||0)/100)):(item.basePrice||0);var fee=Math.round(dp*0.08);subtotal+=(dp+fee)*(item.qty||1);}pendingCheckoutData={cartItems:JSON.parse(JSON.stringify(cart)),cartTotal:subtotal,isCartOrder:true};g('addressModal').classList.add('open');g('confirmAddressBtn').innerHTML='Confirm Order ('+cart.length+' items)';}
+function confirmAddress(){var address=g('deliveryAddress').value.trim(),city=g('deliveryCity').value.trim(),email=g('deliveryEmail').value.trim();if(!address||!city||!email){showToast('Please fill all fields!',true);return;}if(!pendingCheckoutData){showToast('Order error!',true);return;}var btn=g('confirmAddressBtn'),original=btn.innerHTML;btn.textContent='Processing...';btn.disabled=true;var currentUser=auth.currentUser;if(pendingCheckoutData.isCartOrder){var subtotal=pendingCheckoutData.cartTotal,shippingFee=calculateShipping(subtotal),grandTotal=subtotal+shippingFee,promises=[];for(var i=0;i<pendingCheckoutData.cartItems.length;i++){var item=pendingCheckoutData.cartItems[i],dp=item.discount>0?Math.round((item.basePrice||0)*(1-(item.discount||0)/100)):(item.basePrice||0),fee=Math.round(dp*0.08),total=(dp+fee)*(item.qty||1),itemShipping=Math.round((total/grandTotal)*shippingFee),orderData={deliveryAddress:address,deliveryCity:city,deliveryEmail:email,createdAt:firebase.firestore.FieldValue.serverTimestamp(),status:'pending',partId:item.partId,partName:item.partName,sellerUid:item.sellerUid,sellerName:item.sellerName,sellerCity:item.sellerCity,basePrice:dp,quantity:item.qty||1,platformFee:fee*(item.qty||1),totalPrice:total,shippingFee:itemShipping,payMethod:'online'};if(currentUser){orderData.buyerUid=currentUser.uid;orderData.buyerEmail=currentUser.email;}else{orderData.buyerUid='guest_'+Date.now()+'_'+i;orderData.buyerEmail=email;}promises.push(db.collection('orders').add(orderData));}Promise.all(promises).then(()=>{showToast('Order placed!');closeModal('addressModal');cart=[];saveCart();updateCartBadge();pendingCheckoutData=null;btn.textContent=original;btn.disabled=false;}).catch(err=>{showToast('Error: '+err.message,true);btn.textContent=original;btn.disabled=false;});}}
 
-// Part rendering (cleaned, no emojis)
-function renderPartCard(p){
-  const name=typeof p.name==='object'?p.name.sq||p.name.en:p.name;
-  const discount=p.discount||0,dp=discount>0?Math.round((p.basePrice||0)*(1-discount/100)):(p.basePrice||0);
-  const fee=Math.round(dp*PLATFORM_FEE),fin=dp+fee,stk=p.stock||0,isOut=stk===0;
-  const mainImage=p.images?.length?p.images[0]:null;
-  const promoted=p.weeklyPromo&&p.promoExpiresAt&&new Date()<(p.promoExpiresAt.toDate?p.promoExpiresAt.toDate():new Date(p.promoExpiresAt));
-  let stockHtml='';if(isOut){stockHtml='<span class="stock-out">Out of Stock</span>';}else if(stk<=3){stockHtml='<span class="stock-low">Low Stock: '+stk+' left</span>';}else{stockHtml='<span class="stock-in">In Stock: '+stk+' units</span>';}
-  let priceHtml=discount>0?'<div class="pr"><span>Price</span><span><span style="text-decoration:line-through;color:#999;">'+(p.basePrice||0).toLocaleString()+' L</span> <strong>'+dp.toLocaleString()+' L</strong></span></div>':'<div class="pr"><span>Price</span><span>'+(p.basePrice||0).toLocaleString()+' L</span></div>';
-  return '<div class="part-card'+(promoted?' promoted':'')+'" onclick="openModal(\''+p.id+'\')">'+
-    '<div class="part-img">'+(mainImage?'<img src="'+mainImage+'" alt="'+name+'" />':'<span class="part-img-icon">🔧</span>')+'<span class="part-img-cat">'+(p.category||'').toUpperCase()+'</span></div>'+
-    '<div class="cond-badge" style="background:'+(p.condition==='new'?'#28a745':'#ffc107')+'">'+(p.condition==='new'?'NEW':'USED')+'</div>'+
-    (promoted?'<div class="promo-badge-top">PROMOTED</div>':'')+
-    '<div class="part-body">'+
-    '<div class="part-name">'+name+'</div>'+
-    '<div class="part-fits">Fits: '+(p.fits||'')+'</div>'+
-    '<div class="part-seller">Seller: <a href="dyqani.html?id='+(p.uid||'')+'" target="_blank" onclick="event.stopPropagation();">'+(p.sellerName||'')+'</a> · '+(p.sellerCity||'')+'</div>'+
-    '<div class="part-stock">'+stockHtml+'</div>'+
-    '<div class="price-box">'+priceHtml+'<div class="pr"><span>+ Cardeals Fee (8%)</span><span>+'+fee.toLocaleString()+' L</span></div>'+
-    '<div class="pr pr-total"><span>Total Price</span><span class="pr-total-val">'+fin.toLocaleString()+' L</span></div></div>'+
-    '<button class="btn btn-outline" onclick="addToCart(\''+p.id+'\');event.stopPropagation();" style="width:100%;margin-top:4px;" '+(isOut?'disabled':'')+'>Add to Cart</button>'+
-    '</div></div>';
-}
-
-function openModal(id){selectedPart=allParts.find(p=>p.id===id);if(!selectedPart)return;var name=typeof selectedPart.name==='object'?(selectedPart.name.sq||selectedPart.name.en):selectedPart.name;var stock=selectedPart.stock||0;g('mQty').value=1;g('mName').textContent=name;g('mSeller').textContent='Seller: '+(selectedPart.sellerName||'')+' · '+(selectedPart.sellerCity||'');g('mStockInfo').innerHTML=stock===0?'Out of stock':(stock<=3?'Only '+stock+' left!':'In stock: '+stock+' units');updateModalTotal();g('buyModal').classList.add('open');}
-function updateModalTotal(){if(!selectedPart)return;var qty=parseInt(g('mQty')?.value)||1;var discount=selectedPart.discount||0;var dp=discount>0?Math.round((selectedPart.basePrice||0)*(1-discount/100)):(selectedPart.basePrice||0);var fee=Math.round(dp*PLATFORM_FEE);g('mBase').innerHTML=discount>0?'<span style="text-decoration:line-through;">'+(selectedPart.basePrice||0).toLocaleString()+' L</span> <strong>'+dp.toLocaleString()+' L</strong> × '+qty:dp.toLocaleString()+' L × '+qty;g('mFee').textContent='+'+(fee*qty).toLocaleString()+' L';g('mTotal').textContent=((dp+fee)*qty).toLocaleString()+' L';}
-function changeQty(d){var el=g('mQty');if(!el)return;var max=selectedPart?Math.max(1,selectedPart.stock||99):99;el.value=Math.min(max,Math.max(1,(parseInt(el.value)||1)+d));updateModalTotal();}
-
-// Shipping and order functions
-function confirmAddress(){var address=g('deliveryAddress').value.trim(),city=g('deliveryCity').value.trim(),email=g('deliveryEmail').value.trim();if(!address||!city||!email){showToast('Please fill all required fields!',true);return;}if(!pendingCheckoutData){showToast('Order error!',true);return;}var btn=g('confirmAddressBtn'),original=btn.innerHTML;btn.textContent='Processing...';btn.disabled=true;var currentUser=auth.currentUser;if(pendingCheckoutData.isCartOrder){var subtotal=pendingCheckoutData.cartTotal,shippingFee=calculateShipping(subtotal,'online'),grandTotal=subtotal+shippingFee,promises=[];for(var i=0;i<pendingCheckoutData.cartItems.length;i++){var item=pendingCheckoutData.cartItems[i],dp=item.discount>0?Math.round((item.basePrice||0)*(1-(item.discount||0)/100)):(item.basePrice||0),fee=Math.round(dp*0.08),total=(dp+fee)*(item.qty||1),itemShipping=Math.round((total/grandTotal)*shippingFee),orderData={deliveryAddress:address,deliveryCity:city,deliveryEmail:email,createdAt:firebase.firestore.FieldValue.serverTimestamp(),status:'pending',isGuest:!currentUser,partId:item.partId,partName:item.partName,sellerUid:item.sellerUid,sellerName:item.sellerName,sellerCity:item.sellerCity,basePrice:dp,quantity:item.qty||1,platformFee:fee*(item.qty||1),totalPrice:total,shippingFee:itemShipping,payMethod:'online'};if(currentUser){orderData.buyerUid=currentUser.uid;orderData.buyerEmail=currentUser.email;orderData.buyerName=currentUser.email?.split('@')[0]||'Customer';}else{orderData.buyerUid='guest_'+Date.now()+'_'+i+'_'+Math.random().toString(36).substr(2,6);orderData.buyerEmail=email;orderData.buyerName=email.split('@')[0];}promises.push(db.collection('orders').add(orderData));}Promise.all(promises).then(()=>{showToast('Order placed successfully!');closeModal('addressModal');cart=[];saveCart();updateCartBadge();pendingCheckoutData=null;btn.textContent=original;btn.disabled=false;}).catch(err=>{showToast('Error: '+err.message,true);btn.textContent=original;btn.disabled=false;});}else{var total=(pendingCheckoutData.basePrice+pendingCheckoutData.platformFee)*pendingCheckoutData.quantity,shippingFee=calculateShipping(total,pendingCheckoutData.payMethod);var orderData={deliveryAddress:address,deliveryCity:city,deliveryEmail:email,createdAt:firebase.firestore.FieldValue.serverTimestamp(),status:'pending',isGuest:!currentUser,partId:pendingCheckoutData.partId,partName:pendingCheckoutData.partName,sellerUid:pendingCheckoutData.sellerUid,sellerName:pendingCheckoutData.sellerName,sellerCity:pendingCheckoutData.sellerCity,basePrice:pendingCheckoutData.basePrice,quantity:pendingCheckoutData.quantity||1,platformFee:pendingCheckoutData.platformFee,totalPrice:total,shippingFee:shippingFee,payMethod:pendingCheckoutData.payMethod};if(currentUser){orderData.buyerUid=currentUser.uid;orderData.buyerEmail=currentUser.email;orderData.buyerName=currentUser.email?.split('@')[0]||'Customer';}else{orderData.buyerUid='guest_'+Date.now()+'_'+Math.random().toString(36).substr(2,8);orderData.buyerEmail=email;orderData.buyerName=email.split('@')[0];}db.collection('orders').add(orderData).then(()=>{showToast('Order placed!');closeModal('addressModal');if(orderData.partId&&orderData.quantity)reducePartStock(orderData.partId,orderData.quantity);pendingCheckoutData=null;btn.textContent=original;btn.disabled=false;}).catch(err=>{showToast('Error: '+err.message,true);btn.textContent=original;btn.disabled=false;});}}
-
-function reducePartStock(partId,quantity){db.collection("parts").doc(partId).get().then(doc=>{if(doc.exists){var ns=Math.max(0,(doc.data().stock||0)-quantity);db.collection("parts").doc(partId).update({stock:ns,status:ns>0?'active':'inactive'});}});}
-function prefillBuyerFields(){if(!currentBuyer)return;db.collection('buyers').doc(currentBuyer.uid).get().then(doc=>{if(doc.exists){var d=doc.data();if(d.address)g('deliveryAddress').value=d.address;if(d.city)g('deliveryCity').value=d.city;}});}
-function submitContact(){var n=g('contactName').value.trim(),e=g('contactEmail').value.trim(),m=g('contactMsg').value.trim();if(!n||!e||!m){showToast('Please fill all fields!',true);return;}db.collection('contact_messages').add({name:n,email:e,message:m,status:'unread',createdAt:firebase.firestore.FieldValue.serverTimestamp()}).then(()=>{showToast('Message sent!');g('contactName').value='';g('contactEmail').value='';g('contactMsg').value='';});}
-
-// Car makes and filters
-const carBrands=['Abarth','Acura','Alfa Romeo','Audi','BMW','Citroën','Dacia','Fiat','Ford','Honda','Hyundai','Kia','Mazda','Mercedes-Benz','Mitsubishi','Nissan','Opel','Peugeot','Renault','Seat','Škoda','Subaru','Suzuki','Tesla','Toyota','Volkswagen','Volvo'];
-const carModels={/* shortened for brevity */};
-function populateCarMakes(){var sel=g('carMakeSelect');sel.innerHTML='<option value="">Select Brand</option>';carBrands.forEach(b=>{var o=document.createElement('option');o.value=b;o.textContent=b;sel.appendChild(o);});}
-function onCarMakeChange(){var make=g('carMakeSelect').value,mi=g('carModelInput'),dl=g('carModelList');dl.innerHTML='';if(make&&carModels[make]){mi.disabled=false;mi.placeholder='Model (e.g. '+carModels[make][0]+')';carModels[make].forEach(m=>{var o=document.createElement('option');o.value=m;dl.appendChild(o);});}else{mi.disabled=true;mi.value='';mi.placeholder='Model';}}
-function searchByCar(){currentCarMake=g('carMakeSelect').value;currentCarModel=g('carModelInput').value.trim();g('searchInput').value='';renderParts();}
+// Parts loading
+function loadParts(){db.collection('parts').where('status','==','active').onSnapshot(snap=>{allParts=snap.docs.map(d=>({id:d.id,...d.data()}));allParts.sort((a,b)=>(b.createdAt?.toMillis?.()||0)-(a.createdAt?.toMillis?.()||0));renderParts();updateStats();});}
+function updateStats(){g('statParts').textContent=allParts.length+'+';g('statSellers').textContent=new Set(allParts.map(p=>p.sellerName)).size+'+';}
+function applyFilters(){var search=g('searchInput').value.toLowerCase(),brand=currentCarMake,model=currentCarModel.toLowerCase();var filtered=allParts.filter(p=>{var name=typeof p.name==='object'?p.name.sq||p.name.en:p.name||'';var fits=(p.fits||'').toLowerCase();if(currentFilter!=='all'&&p.category!==currentFilter)return false;if(currentCondition!=='all'&&p.condition!==currentCondition)return false;if(search&&!name.toLowerCase().includes(search)&&!fits.includes(search))return false;if(brand&&fits.indexOf(brand.toLowerCase())===-1)return false;if(model&&fits.indexOf(model)===-1)return false;return true;});filtered.sort((a,b)=>(b.createdAt?.toMillis?.()||0)-(a.createdAt?.toMillis?.()||0));return filtered;}
+function renderParts(){filteredParts=applyFilters();totalPages=Math.ceil(filteredParts.length/itemsPerPage);if(currentPageNum>totalPages)currentPageNum=1;var start=(currentPageNum-1)*itemsPerPage;var paginated=filteredParts.slice(start,start+itemsPerPage);var grid=g('partsGrid');if(!filteredParts.length){grid.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:3rem;">No parts found</div>';g('paginationControls').style.display='none';return;}grid.innerHTML=paginated.map(p=>{var name=typeof p.name==='object'?p.name.sq||p.name.en:p.name;var dp=p.discount>0?Math.round((p.basePrice||0)*(1-(p.discount||0)/100)):(p.basePrice||0);var fee=Math.round(dp*PLATFORM_FEE),fin=dp+fee,stk=p.stock||0;var stockHtml=stk===0?'<span style="color:var(--danger);">Out of Stock</span>':stk<=3?'<span style="color:var(--warning);">Low Stock: '+stk+' left</span>':'<span style="color:var(--success);">In Stock: '+stk+' units</span>';return '<div class="part-card" onclick="openModal(\''+p.id+'\')"><div class="part-img">'+(p.images?.length?'<img src="'+p.images[0]+'" />':'🔧')+'</div><div class="cond-badge '+(p.condition==='new'?'cond-new':'cond-used')+'">'+(p.condition==='new'?'NEW':'USED')+'</div><div class="part-body"><div class="part-name">'+name+'</div><div class="part-fits">Fits: '+(p.fits||'')+'</div><div class="part-seller">Seller: '+(p.sellerName||'')+' · '+(p.sellerCity||'')+'</div><div class="part-stock">'+stockHtml+'</div><div class="price-box"><div class="price-line"><span>Price</span><span>'+(p.basePrice||0).toLocaleString()+' L</span></div><div class="price-line"><span>+ Fee (8%)</span><span>+'+fee.toLocaleString()+' L</span></div><div class="price-line price-total"><span>Total</span><span class="price-total-value">'+fin.toLocaleString()+' L</span></div></div><button class="btn btn-outline" onclick="event.stopPropagation();addToCart(\''+p.id+'\');">Add to Cart</button></div></div>';}).join('');var pagination=g('paginationControls');if(totalPages>1){pagination.style.display='flex';var pageInfo=g('pageInfo');if(pageInfo)pageInfo.textContent='Page '+currentPageNum+' of '+totalPages;g('prevPageBtn').disabled=(currentPageNum===1);g('nextPageBtn').disabled=(currentPageNum===totalPages);}else{pagination.style.display='none';}}
+function nextPage(){if(currentPageNum<totalPages){currentPageNum++;renderParts();window.scrollTo({top:0});}}
+function prevPage(){if(currentPageNum>1){currentPageNum--;renderParts();window.scrollTo({top:0});}}
+function changeItemsPerPage(){itemsPerPage=parseInt(g('itemsPerPage').value);currentPageNum=1;renderParts();}
 function filterCat(el,cat){currentFilter=cat;document.querySelectorAll('.tag').forEach(t=>t.classList.remove('active'));el.classList.add('active');renderParts();}
 function filterCond(val){currentCondition=val;renderParts();}
-function toggleAdvancedFilters(){g('advancedFilters').classList.toggle('open');}
-function resetAdvancedFilters(){g('filterCity').value='';g('filterSeller').value='';g('filterVin').value='';g('filterMaxPrice').value='';g('filterSort').value='newest';renderParts();}
-
-function applyFilters(){var search=g('searchInput').value.toLowerCase(),brand=currentCarMake,model=currentCarModel.toLowerCase(),city=g('filterCity').value,sellerFilter=g('filterSeller').value.toLowerCase(),vinFilter=g('filterVin').value.toLowerCase(),maxPrice=parseFloat(g('filterMaxPrice').value)||Infinity,sort=g('filterSort').value;var filtered=allParts.filter(p=>{var name=typeof p.name==='object'?p.name.sq||p.name.en:p.name||'',fits=(p.fits||'').toLowerCase(),vin=(p.vin||'').toLowerCase();if(currentFilter!=='all'&&p.category!==currentFilter)return false;if(currentCondition!=='all'&&p.condition!==currentCondition)return false;if(search&&!name.toLowerCase().includes(search)&&!fits.includes(search)&&!vin.includes(search)&&!(p.sellerCity||'').toLowerCase().includes(search))return false;if(brand&&fits.indexOf(brand.toLowerCase())===-1)return false;if(model&&fits.indexOf(model)===-1)return false;if(city&&p.sellerCity!==city)return false;if(sellerFilter&&!(p.sellerName||'').toLowerCase().includes(sellerFilter)&&!(p.sellerCity||'').toLowerCase().includes(sellerFilter))return false;if(vinFilter&&vin.indexOf(vinFilter)===-1)return false;if((p.basePrice||0)>maxPrice)return false;return true;});filtered.sort((a,b)=>{var aP=a.weeklyPromo&&a.promoExpiresAt&&new Date()<(a.promoExpiresAt.toDate?a.promoExpiresAt.toDate():new Date(a.promoExpiresAt));var bP=b.weeklyPromo&&b.promoExpiresAt&&new Date()<(b.promoExpiresAt.toDate?b.promoExpiresAt.toDate():new Date(b.promoExpiresAt));if(aP&&!bP)return-1;if(!aP&&bP)return 1;if(aP&&bP){var aT=a.promoActivatedAt?.toDate?a.promoActivatedAt.toDate().getTime():0;var bT=b.promoActivatedAt?.toDate?b.promoActivatedAt.toDate().getTime():0;return bT-aT;}if(sort==='price_asc')return(a.basePrice||0)-(b.basePrice||0);if(sort==='price_desc')return(b.basePrice||0)-(a.basePrice||0);if(sort==='discount')return(b.discount||0)-(a.discount||0);return 0;});return filtered;}
-
-function renderParts(){filteredParts=applyFilters();totalPages=Math.ceil(filteredParts.length/itemsPerPage);if(currentPageNum>totalPages)currentPageNum=1;if(totalPages===0)currentPageNum=1;var start=(currentPageNum-1)*itemsPerPage;var paginatedParts=filteredParts.slice(start,start+itemsPerPage);var grid=g('partsGrid');if(!filteredParts.length){grid.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:3rem;"><div style="font-size:2rem;">🔍</div><p>No parts found</p></div>';g('paginationControls').style.display='none';return;}grid.innerHTML=paginatedParts.map(p=>renderPartCard(p)).join('');var paginationDiv=g('paginationControls');if(totalPages>1){paginationDiv.style.display='block';updatePaginationButtons();}else{paginationDiv.style.display='none';}}
-function updatePaginationButtons(){var pageInfo=g('pageInfo'),firstBtn=g('firstPageBtn'),prevBtn=g('prevPageBtn'),nextBtn=g('nextPageBtn'),lastBtn=g('lastPageBtn');if(pageInfo)pageInfo.textContent='Page '+currentPageNum+' of '+totalPages;if(firstBtn)firstBtn.disabled=(currentPageNum===1);if(prevBtn)prevBtn.disabled=(currentPageNum===1);if(nextBtn)nextBtn.disabled=(currentPageNum===totalPages);if(lastBtn)lastBtn.disabled=(currentPageNum===totalPages);}
-function goToPage(page){if(page<1||page>totalPages)return;currentPageNum=page;renderParts();window.scrollTo({top:0,behavior:'smooth'});}
-function nextPage(){if(currentPageNum<totalPages)goToPage(currentPageNum+1);}
-function prevPage(){if(currentPageNum>1)goToPage(currentPageNum-1);}
-function changeItemsPerPage(){itemsPerPage=parseInt(g('itemsPerPage').value);currentPageNum=1;renderParts();}
-function updateStats(){g('statParts').textContent=allParts.length+'+';g('statSellers').textContent=new Set(allParts.map(p=>p.sellerName)).size+'+';}
-function populateFilters(){var cs=g('filterCity');cs.innerHTML='<option value="">All</option>';var cities=new Set(allParts.map(p=>p.sellerCity).filter(Boolean));cities.forEach(c=>{var o=document.createElement('option');o.value=c;o.textContent=c;cs.appendChild(o);});}
-async function refreshPromotionsIfNeeded(parts){/* promotion refresh logic */}function loadParts(){db.collection('parts').where('status','==','active').onSnapshot(async snap=>{allParts=snap.docs.map(d=>({id:d.id,...d.data()}));allParts.sort((a,b)=>(b.createdAt?.toMillis?.()||0)-(a.createdAt?.toMillis?.()||0));await refreshPromotionsIfNeeded(allParts);renderParts();updateStats();populateFilters();});}
+function searchByCar(){currentCarMake=g('carMakeSelect').value;currentCarModel=g('carModelInput').value.trim();g('searchInput').value='';renderParts();}
+function openModal(id){selectedPart=allParts.find(p=>p.id===id);if(!selectedPart)return;var name=typeof selectedPart.name==='object'?(selectedPart.name.sq||selectedPart.name.en):selectedPart.name;var stock=selectedPart.stock||0;g('mQty').value=1;g('mName').textContent=name;g('mSeller').textContent=selectedPart.sellerName+' · '+selectedPart.sellerCity;g('mStockInfo').innerHTML=stock===0?'<span style="color:var(--danger);">Out of stock</span>':stock<=3?'<span style="color:var(--warning);">Only '+stock+' left!</span>':'<span style="color:var(--success);">In stock: '+stock+' units</span>';updateModalTotal();g('buyModal').classList.add('open');}
+function updateModalTotal(){if(!selectedPart)return;var qty=parseInt(g('mQty')?.value)||1;var dp=selectedPart.discount>0?Math.round((selectedPart.basePrice||0)*(1-(selectedPart.discount||0)/100)):(selectedPart.basePrice||0);var fee=Math.round(dp*PLATFORM_FEE);g('mBase').textContent=dp.toLocaleString()+' L × '+qty;g('mFee').textContent='+'+(fee*qty).toLocaleString()+' L';g('mTotal').textContent=((dp+fee)*qty).toLocaleString()+' L';}
+function changeQty(d){var el=g('mQty');if(!el)return;var max=selectedPart?Math.max(1,selectedPart.stock||99):99;el.value=Math.min(max,Math.max(1,(parseInt(el.value)||1)+d));updateModalTotal();}
 function setLang(lg){currentLang=lg;document.querySelectorAll('.lang-btn').forEach(b=>b.classList.toggle('active',(lg==='sq'&&b.textContent.includes('SQ'))||(lg==='en'&&b.textContent.includes('EN'))));renderParts();}
-loadCart();populateCarMakes();loadParts();
+// Car makes
+var carBrands=['Audi','BMW','Mercedes-Benz','Volkswagen','Ford','Toyota','Honda','Hyundai','Kia','Nissan','Opel','Peugeot','Renault','Fiat','Citroën','Dacia','Mazda','Mitsubishi','Subaru','Suzuki','Volvo'];
+var carModels={Audi:['A3','A4','A6','Q5','Q7'],BMW:['3 Series','5 Series','X3','X5'],'Mercedes-Benz':['C-Class','E-Class','GLC','GLE'],Volkswagen:['Golf','Passat','Tiguan','Polo'],Ford:['Focus','Fiesta','Mondeo','Kuga'],Toyota:['Corolla','Camry','RAV4','Yaris'],Honda:['Civic','CR-V','HR-V','Jazz'],Hyundai:['i10','i20','i30','Tucson','Santa Fe'],Kia:['Ceed','Sportage','Picanto','Rio'],Nissan:['Qashqai','Juke','X-Trail','Micra'],Opel:['Astra','Corsa','Insignia','Mokka'],Peugeot:['208','308','2008','3008'],Renault:['Clio','Megane','Captur','Kadjar'],Fiat:['500','Panda','Tipo','Doblo'],Citroën:['C3','C4','C3 Aircross','Berlingo'],Dacia:['Sandero','Duster','Logan','Jogger'],Mazda:['2','3','6','CX-5','CX-30'],Mitsubishi:['Lancer','Outlander','ASX','Space Star'],Subaru:['Impreza','Forester','Outback','XV'],Suzuki:['Swift','Vitara','S-Cross','Ignis'],Volvo:['S60','S90','XC60','XC90']};
+function populateCarMakes(){var sel=g('carMakeSelect');sel.innerHTML='<option value="">Select Brand</option>';carBrands.forEach(b=>{var o=document.createElement('option');o.value=b;o.textContent=b;sel.appendChild(o);});}
+function onCarMakeChange(){var make=g('carMakeSelect').value,mi=g('carModelInput'),dl=g('carModelList');dl.innerHTML='';if(make&&carModels[make]){mi.disabled=false;carModels[make].forEach(m=>{var o=document.createElement('option');o.value=m;dl.appendChild(o);});}else{mi.disabled=true;mi.value='';}}
+g('carMakeSelect').onchange=onCarMakeChange;populateCarMakes();loadCart();loadParts();
 </script>
 </body>
 </html>
