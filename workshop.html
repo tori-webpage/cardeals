@@ -9,41 +9,32 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 <style>
-:root{
-  --bg:#f8f9fa;
-  --panel:#ffffff;
-  --card:#ffffff;
-  --border:#e9ecef;
-  --primary:#d97706;
-  --primary-dark:#b45309;
-  --primary-light:#fff3e6;
-  --text-secondary:#6c757d;
-  --text-primary:#212529;
-  --success:#28a745;
-  --warning:#ffc107;
-  --danger:#dc3545;
-  --radius:8px;
-  --sidebar-width:260px;
-}
 *{margin:0;padding:0;box-sizing:border-box;}
-body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text-primary);min-height:100vh;}
+:root{
+  --bg:#f8f9fa; --panel:#ffffff; --card:#ffffff; --border:#e9ecef;
+  --primary:#d97706; --primary-dark:#b45309; --primary-light:#fff3e6;
+  --text-secondary:#6c757d; --text-primary:#212529; --success:#28a745;
+  --danger:#dc3545; --radius:8px; --sidebar-width:260px;
+}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text-primary);}
 .login-screen{position:fixed;inset:0;background:var(--bg);z-index:1000;display:flex;align-items:center;justify-content:center;}
 .login-box{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:2rem;width:100%;max-width:400px;}
-.login-logo{font-weight:800;font-size:1.3rem;margin-bottom:0.5rem;text-align:center;}.login-logo span{color:var(--primary);}
-.login-sub{text-align:center;color:var(--text-secondary);font-size:0.8rem;margin-bottom:1.5rem;}
+.login-logo{font-weight:800;font-size:1.3rem;margin-bottom:0.5rem;text-align:center;}
+.login-logo span{color:var(--primary);}
+.login-sub{text-align:center;color:var(--text-secondary);font-size:0.75rem;margin-bottom:1.5rem;}
 .auth-tabs{display:flex;margin-bottom:1.5rem;background:var(--bg);border-radius:8px;overflow:hidden;}
-.auth-tab{flex:1;padding:10px;text-align:center;cursor:pointer;font-weight:600;font-size:0.85rem;border:none;background:transparent;color:var(--text-secondary);}
+.auth-tab{flex:1;padding:10px;text-align:center;cursor:pointer;font-weight:600;font-size:0.8rem;border:none;background:transparent;}
 .auth-tab.active{background:var(--primary);color:white;}
 .inp-group{margin-bottom:1rem;}
 .inp-group label{display:block;font-size:0.7rem;font-weight:600;color:var(--text-secondary);margin-bottom:4px;}
-.inp-group input{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:10px 12px;font-family:'Inter',sans-serif;outline:none;}
+.inp-group input{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:10px 12px;outline:none;}
 .inp-row{display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;}
 .auth-btn{width:100%;background:var(--primary);color:white;border:none;border-radius:6px;padding:12px;font-weight:600;cursor:pointer;}
 #app{display:none;min-height:100vh;}
 .sidebar{width:var(--sidebar-width);background:var(--panel);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100vh;z-index:50;}
-.sidebar-logo{padding:1.25rem 1.5rem;border-bottom:1px solid var(--border);font-weight:800;font-size:1.2rem;}
+.sidebar-logo{padding:1.25rem 1.5rem;border-bottom:1px solid var(--border);font-weight:800;}
 .sidebar-logo span{color:var(--primary);}
-.sidebar-logo small{display:block;font-size:0.6rem;font-weight:500;color:var(--text-secondary);margin-top:2px;}
+.sidebar-logo small{display:block;font-size:0.6rem;font-weight:500;color:var(--text-secondary);}
 .sidebar-nav{flex:1;padding:0.75rem 0;overflow-y:auto;}
 .nav-section{padding:0.5rem 1.5rem;font-size:0.6rem;font-weight:600;color:var(--text-secondary);text-transform:uppercase;}
 .nav-item{display:flex;align-items:center;gap:0.75rem;padding:0.6rem 1.5rem;cursor:pointer;font-weight:500;font-size:0.85rem;color:var(--text-secondary);border-left:3px solid transparent;}
@@ -53,17 +44,17 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text-primar
 .workshop-badge{background:var(--primary-light);border-radius:8px;padding:0.75rem;margin-bottom:0.75rem;}
 .workshop-badge .ws-name{font-weight:600;font-size:0.85rem;}
 .workshop-badge .ws-role{font-size:0.65rem;color:var(--primary);font-weight:600;}
-.logout-btn{width:100%;background:transparent;border:1px solid var(--border);border-radius:6px;padding:7px;font-weight:500;font-size:0.75rem;cursor:pointer;}
+.logout-btn{width:100%;background:transparent;border:1px solid var(--border);border-radius:6px;padding:7px;font-weight:500;cursor:pointer;text-decoration:none;display:block;text-align:center;margin-bottom:0.5rem;}
 .main{margin-left:var(--sidebar-width);flex:1;display:flex;flex-direction:column;min-height:100vh;}
 .topbar{background:var(--panel);border-bottom:1px solid var(--border);padding:0 1.5rem;height:56px;display:flex;align-items:center;justify-content:space-between;}
-.topbar-title{font-weight:700;font-size:1rem;}
+.topbar-title{font-weight:700;}
 .sidebar-toggle{display:none;background:none;border:none;font-size:1.2rem;cursor:pointer;}
-.page{padding:1.5rem;display:none;}.page.active{display:block;}
+.page{padding:1.5rem;display:none;}
+.page.active{display:block;}
 .stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem;margin-bottom:1.5rem;}
 .stat-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:1rem;}
-.stat-ico{font-size:1.2rem;margin-bottom:0.5rem;}
-.stat-val{font-weight:800;font-size:1.3rem;}
-.stat-lbl{font-size:0.65rem;color:var(--text-secondary);}
+.stat-card .stat-val{font-weight:800;font-size:1.3rem;}
+.stat-card .stat-lbl{font-size:0.65rem;color:var(--text-secondary);}
 .info-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem;margin-bottom:1.5rem;}
 .info-card h3{font-weight:600;font-size:0.9rem;margin-bottom:1rem;}
 .info-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
@@ -71,12 +62,12 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text-primar
 .info-val{font-weight:800;font-size:1.2rem;color:var(--success);}
 .info-lbl{font-size:0.65rem;color:var(--text-secondary);margin-top:4px;}
 .table-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);overflow-x:auto;}
-.table-header{padding:0.75rem 1rem;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);}
-.table-header h3{font-weight:600;font-size:0.85rem;}
+.table-header{padding:0.75rem 1rem;display:flex;justify-content:space-between;border-bottom:1px solid var(--border);}
+.table-header h3{font-weight:600;}
 table{width:100%;border-collapse:collapse;min-width:600px;}
 thead th{padding:0.5rem 0.75rem;text-align:left;font-size:0.65rem;font-weight:600;color:var(--text-secondary);border-bottom:1px solid var(--border);}
 tbody td{padding:0.6rem 0.75rem;font-size:0.75rem;border-bottom:1px solid var(--border);}
-.toast{position:fixed;bottom:1.5rem;right:1.5rem;color:white;padding:0.75rem 1.25rem;border-radius:8px;font-weight:500;display:none;z-index:300;}
+.toast{position:fixed;bottom:1rem;right:1rem;color:white;padding:0.75rem 1.25rem;border-radius:8px;display:none;z-index:300;}
 .toast.show{display:block;animation:toastIn 0.3s ease;}
 @keyframes toastIn{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
 @media(max-width:768px){.sidebar{transform:translateX(-100%);}.sidebar.open{transform:translateX(0);}.main{margin-left:0;}.sidebar-toggle{display:block;}.stats-row{grid-template-columns:1fr 1fr;}.info-grid{grid-template-columns:1fr;}}
@@ -118,7 +109,7 @@ tbody td{padding:0.6rem 0.75rem;font-size:0.75rem;border-bottom:1px solid var(--
     </nav>
     <div class="sidebar-bottom">
       <div class="workshop-badge"><div class="ws-name" id="workshopName">—</div><div class="ws-role">SERVICE POINT · 2% CASHBACK</div></div>
-      <a href="index.html" class="logout-btn" style="display:block;text-align:center;text-decoration:none;margin-bottom:0.5rem;">Marketplace →</a>
+      <a href="index.html" class="logout-btn">Marketplace →</a>
       <button class="logout-btn" onclick="doLogout()">Sign Out</button>
     </div>
   </aside>
@@ -133,32 +124,32 @@ tbody td{padding:0.6rem 0.75rem;font-size:0.75rem;border-bottom:1px solid var(--
 
     <div class="page active" id="page-dashboard">
       <div class="stats-row">
-        <div class="stat-card"><div class="stat-ico">💰</div><div class="stat-val" id="statTotal">0 L</div><div class="stat-lbl">Total Purchases</div></div>
-        <div class="stat-card"><div class="stat-ico">📦</div><div class="stat-val" id="statOrders">0</div><div class="stat-lbl">Total Orders</div></div>
-        <div class="stat-card"><div class="stat-ico">📅</div><div class="stat-val" id="statMonth">0 L</div><div class="stat-lbl">This Month</div></div>
-        <div class="stat-card"><div class="stat-ico">💵</div><div class="stat-val" id="statCashback">0 L</div><div class="stat-lbl">Expected Cashback</div></div>
+        <div class="stat-card"><div class="stat-val" id="statTotal">0 L</div><div class="stat-lbl">Total Purchases</div></div>
+        <div class="stat-card"><div class="stat-val" id="statOrders">0</div><div class="stat-lbl">Total Orders</div></div>
+        <div class="stat-card"><div class="stat-val" id="statMonth">0 L</div><div class="stat-lbl">This Month</div></div>
+        <div class="stat-card"><div class="stat-val" id="statCashback">0 L</div><div class="stat-lbl">Expected Cashback</div></div>
       </div>
       <div class="info-card" style="background:var(--primary-light);border-color:rgba(217,119,6,0.2);">
-        <h3>CREDIT BALANCE</h3>
+        <h3>Credit Balance</h3>
         <div style="font-weight:800;font-size:1.8rem;color:var(--success);" id="statBalance">0 L</div>
         <div style="color:var(--text-secondary);font-size:0.7rem;">Available credit for future purchases</div>
       </div>
       <div class="table-card">
-        <div class="table-header"><h3>RECENT PURCHASES</h3></div>
+        <div class="table-header"><h3>Recent Purchases</h3></div>
         <table><thead><tr><th>Part</th><th>Price</th><th>Status</th><th>Date</th></tr></thead><tbody id="recentOrdersBody"></tbody></table>
       </div>
     </div>
 
     <div class="page" id="page-orders">
       <div class="table-card">
-        <div class="table-header"><h3>ALL PURCHASES</h3></div>
+        <div class="table-header"><h3>All Purchases</h3></div>
         <table><thead><tr><th>Order #</th><th>Part</th><th>Seller</th><th>Price</th><th>Cashback</th><th>Status</th><th>Date</th></tr></thead><tbody id="allOrdersBody"></tbody></table>
       </div>
     </div>
 
     <div class="page" id="page-cashback">
       <div class="info-card">
-        <h3>CURRENT PERIOD (30 DAYS)</h3>
+        <h3>Current Period (30 days)</h3>
         <div class="info-grid">
           <div class="info-item"><div class="info-val" id="periodStart">—</div><div class="info-lbl">Period Start</div></div>
           <div class="info-item"><div class="info-val" id="daysLeft">—</div><div class="info-lbl">Days Remaining</div></div>
@@ -167,7 +158,7 @@ tbody td{padding:0.6rem 0.75rem;font-size:0.75rem;border-bottom:1px solid var(--
         </div>
       </div>
       <div class="info-card" style="background:var(--primary-light);border-color:rgba(217,119,6,0.2);">
-        <h3>CURRENT CREDIT BALANCE</h3>
+        <h3>Current Credit Balance</h3>
         <div style="font-weight:800;font-size:2rem;color:var(--success);" id="currentBalance">0 L</div>
         <div style="color:var(--text-secondary);font-size:0.7rem;margin-top:0.5rem;">Credit is calculated every 30 days as 2% of your purchases.</div>
       </div>
@@ -207,13 +198,13 @@ function showApp(){g('loginScreen').style.display='none';g('app').style.display=
 window.doLogin=async function(){var e=g('loginEmail').value.trim(),p=g('loginPass').value;if(!e||!p){showToast('Fill all fields!',true);return;}try{await auth.signInWithEmailAndPassword(e,p);}catch(err){showToast('Login failed!',true);}};
 window.doRegister=async function(){var name=g('regName').value.trim(),email=g('regEmail').value.trim(),phone=g('regPhone').value.trim(),pass=g('regPass').value,pass2=g('regPass2').value;if(!name||!email||!pass||!phone){showToast('Fill all fields!',true);return;}if(pass!==pass2){showToast('Passwords do not match!',true);return;}if(pass.length<6){showToast('Password must be 6+ characters!',true);return;}try{var cred=await auth.createUserWithEmailAndPassword(email,pass);await db.collection("workshops").doc(cred.user.uid).set({name:name,email:email,phone:phone,city:g('regCity').value,creditBalance:0,totalPurchases:0,currentPeriodStart:new Date(),currentPeriodTotal:0,createdAt:firebase.firestore.FieldValue.serverTimestamp()});showToast('Account created!');}catch(err){showToast('Error: '+err.message,true);}};
 window.doLogout=async()=>{await auth.signOut();};
-window.showTab=function(tab){var lb=g('tabLogin'),rb=g('tabRegister'),lf=g('loginForm'),rf=g('registerForm');if(tab==='login'){lf.style.display='block';rf.style.display='none';}else{lf.style.display='none';rf.style.display='block';}};
+window.showTab=function(tab){var lf=g('loginForm'),rf=g('registerForm');if(tab==='login'){lf.style.display='block';rf.style.display='none';}else{lf.style.display='none';rf.style.display='block';}};
 window.toggleSidebar=function(){g('sidebar')?.classList.toggle('open');};
 window.showPage=function(page){currentPage=page;document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));g('page-'+page).classList.add('active');document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));g('nav-'+page).classList.add('active');if(page==='dashboard')updateDashboard();if(page==='orders')renderAllOrders();if(page==='cashback')renderCashback();if(window.innerWidth<=768)g('sidebar')?.classList.remove('open');};
 
 async function loadMyOrders(){if(!currentUser)return;db.collection("orders").where("buyerUid","==",currentUser.uid).orderBy("createdAt","desc").onSnapshot(snap=>{myOrders=snap.docs.map(d=>({id:d.id,...d.data()}));if(currentPage==='dashboard')updateDashboard();if(currentPage==='orders')renderAllOrders();if(currentPage==='cashback')renderCashback();});}
-function updateDashboard(){var total=myOrders.reduce((s,o)=>s+(o.totalPrice||0),0);var now=new Date();var thisMonth=myOrders.filter(o=>{var d=o.createdAt?.toDate?o.createdAt.toDate():new Date();return d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear();});var monthTotal=thisMonth.reduce((s,o)=>s+(o.totalPrice||0),0);var cashback=Math.round(monthTotal*0.02);g('statTotal').textContent=total.toLocaleString()+' L';g('statOrders').textContent=myOrders.length;g('statMonth').textContent=monthTotal.toLocaleString()+' L';g('statCashback').textContent=cashback.toLocaleString()+' L';g('statBalance').textContent=(currentWorkshop?.creditBalance||0).toLocaleString()+' L';var recent=myOrders.slice(0,5);g('recentOrdersBody').innerHTML=recent.length?recent.map(o=>'<tr><td>'+o.partName+'</td><td>'+(o.totalPrice||0).toLocaleString()+' L</td><td><span class="status-badge">'+o.status+'</span></td><td>'+o.createdAt?.toDate().toLocaleDateString()+'</td></tr>').join(''):'<tr><td colspan="4">No purchases yet.</td></tr>';}
-function renderAllOrders(){g('allOrdersBody').innerHTML=myOrders.length?myOrders.map(o=>'<tr><td>#'+o.id.slice(-6).toUpperCase()+'</td><td>'+o.partName+'</td><td>'+o.sellerName+'</td><td>'+(o.totalPrice||0).toLocaleString()+' L</td><td style="color:#28a745;">+'+Math.round((o.totalPrice||0)*0.02).toLocaleString()+' L</td><td>'+o.status+'</td><td>'+o.createdAt?.toDate().toLocaleDateString()+'</td></tr>').join(''):'<tr><td colspan="7">No purchases yet.</td></td>';}
+function updateDashboard(){var total=myOrders.reduce((s,o)=>s+(o.totalPrice||0),0);var now=new Date();var thisMonth=myOrders.filter(o=>{var d=o.createdAt?.toDate?o.createdAt.toDate():new Date();return d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear();});var monthTotal=thisMonth.reduce((s,o)=>s+(o.totalPrice||0),0);var cashback=Math.round(monthTotal*0.02);g('statTotal').textContent=total.toLocaleString()+' L';g('statOrders').textContent=myOrders.length;g('statMonth').textContent=monthTotal.toLocaleString()+' L';g('statCashback').textContent=cashback.toLocaleString()+' L';g('statBalance').textContent=(currentWorkshop?.creditBalance||0).toLocaleString()+' L';var recent=myOrders.slice(0,5);g('recentOrdersBody').innerHTML=recent.length?recent.map(o=>'<tr><td>'+o.partName+'</span><td>'+(o.totalPrice||0).toLocaleString()+' L</span><td>'+o.status+'</span><td>'+o.createdAt?.toDate().toLocaleDateString()+'</span></tr>').join(''):'<tr><td colspan="4">No purchases yet.</span></tr>';}
+function renderAllOrders(){g('allOrdersBody').innerHTML=myOrders.length?myOrders.map(o=>'<tr><td style="font-weight:600;">#'+o.id.slice(-6).toUpperCase()+'</span><td>'+o.partName+'</span><td>'+o.sellerName+'</span><td>'+(o.totalPrice||0).toLocaleString()+' L</span><td style="color:var(--success);">+'+Math.round((o.totalPrice||0)*0.02).toLocaleString()+' L</span><td>'+o.status+'</span><td>'+o.createdAt?.toDate().toLocaleDateString()+'</span></tr>').join(''):'<tr><td colspan="7">No purchases yet.</span></tr>';}
 function renderCashback(){var periodStart=currentWorkshop?.currentPeriodStart?.toDate?currentWorkshop.currentPeriodStart.toDate():new Date();var now=new Date();var daysLeft=30-Math.floor((now-periodStart)/(1000*60*60*24));if(daysLeft<0)daysLeft=0;var periodOrders=myOrders.filter(o=>{var d=o.createdAt?.toDate?o.createdAt.toDate():new Date();return d>=periodStart;});var periodTotal=periodOrders.reduce((s,o)=>s+(o.totalPrice||0),0);var projectedCashback=Math.round(periodTotal*0.02);g('periodStart').textContent=periodStart.toLocaleDateString();g('daysLeft').textContent=daysLeft+' days';g('periodTotal').textContent=periodTotal.toLocaleString()+' L';g('periodCashback').textContent=projectedCashback.toLocaleString()+' L';g('currentBalance').textContent=(currentWorkshop?.creditBalance||0).toLocaleString()+' L';}
 </script>
 </body>
