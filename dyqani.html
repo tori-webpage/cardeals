@@ -3,87 +3,90 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Store — Cardeals.al</title>
-<meta name="description" content="Browse auto parts from this verified seller on Cardeals.al" />
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<title>Dyqani — Cardeals.al</title>
+<meta name="description" content="Shiko të gjitha pjesët e këtij shitësi në Cardeals.al" />
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
 <style>
+:root{--bg:#fef7f0;--panel:#ffffff;--card:#ffffff;--border:#f0e0d0;--red:#d97706;--red-dark:#b45309;--chrome:#8a7a6a;--white:#2d1f10;--yellow:#f59e0b;--green:#65a30d;--radius:14px;}
 *{margin:0;padding:0;box-sizing:border-box;}
-:root{
-  --bg:#f8f9fa; --panel:#ffffff; --card:#ffffff; --border:#e9ecef;
-  --primary:#d97706; --primary-dark:#b45309; --primary-light:#fff3e6;
-  --text-secondary:#6c757d; --text-primary:#212529; --success:#28a745;
-  --danger:#dc3545; --radius:8px;
-}
-body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text-primary);}
-nav{background:var(--panel);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 1.5rem;height:60px;position:sticky;top:0;z-index:100;}
-.logo{font-weight:800;font-size:1.3rem;color:var(--text-primary);text-decoration:none;}
-.logo span{color:var(--primary);}
-.nav-right{display:flex;align-items:center;gap:1rem;}
-.cart-btn{background:var(--panel);border:1px solid var(--border);border-radius:6px;padding:8px 14px;font-weight:500;cursor:pointer;position:relative;}
-.cart-badge{background:var(--primary);color:white;font-size:0.6rem;padding:2px 6px;border-radius:10px;position:absolute;top:-6px;right:-8px;display:none;}
-.container{max-width:1200px;margin:0 auto;padding:1.5rem;}
-.store-header{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:1.5rem;margin-bottom:1.5rem;display:flex;align-items:center;gap:1.5rem;flex-wrap:wrap;}
-.store-avatar{width:70px;height:70px;border-radius:50%;background:var(--primary);display:flex;align-items:center;justify-content:center;font-size:1.5rem;flex-shrink:0;color:white;}
-.store-info{flex:1;}
-.store-name{font-weight:700;font-size:1.4rem;}
-.store-city{color:var(--text-secondary);font-size:0.85rem;margin-top:0.25rem;}
+body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--white);min-height:100vh;}
+nav{background:var(--panel);border-bottom:3px solid var(--red);display:flex;align-items:center;justify-content:space-between;padding:0 2rem;height:64px;box-shadow:0 1px 3px rgba(0,0,0,0.06);position:sticky;top:0;z-index:100;}
+.logo{font-family:'Bebas Neue',sans-serif;font-size:1.9rem;letter-spacing:2px;color:var(--white);text-decoration:none;}
+.logo span{color:var(--red);}
+.nav-right{display:flex;gap:1rem;align-items:center;}
+.cart-btn{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;position:relative;font-family:'Nunito',sans-serif;color:var(--white);}
+.cart-badge{background:var(--red);color:white;font-size:0.6rem;padding:2px 7px;border-radius:10px;position:absolute;top:-8px;right:-8px;display:none;}
+.user-btn{background:var(--panel);border:1px solid var(--border);color:var(--white);border-radius:8px;padding:6px 14px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;font-family:'Nunito',sans-serif;}
+.container{max-width:1200px;margin:0 auto;padding:2rem;}
+.store-header{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:2rem;margin-bottom:1.5rem;display:flex;align-items:center;gap:1.5rem;flex-wrap:wrap;box-shadow:0 1px 3px rgba(0,0,0,0.04);}
+.store-avatar{width:80px;height:80px;border-radius:50%;background:var(--red);display:flex;align-items:center;justify-content:center;font-size:2.5rem;flex-shrink:0;color:white;}
+.store-info{flex:1;min-width:200px;}
+.store-name{font-family:'Bebas Neue',sans-serif;font-size:2rem;letter-spacing:2px;}
+.store-city{color:var(--chrome);font-size:0.9rem;margin-top:0.25rem;}
 .store-contact{margin-top:0.75rem;}
-.store-contact a{display:inline-block;background:#25D366;color:white;padding:8px 18px;border-radius:6px;text-decoration:none;font-weight:500;font-size:0.8rem;}
-.store-stats{display:flex;gap:1.5rem;margin-top:0.75rem;}
+.store-contact a{display:inline-block;background:#25D366;color:white;padding:8px 18px;border-radius:8px;text-decoration:none;font-weight:700;font-size:0.85rem;}
+.store-stats{display:flex;gap:2rem;margin-top:1rem;}
 .store-stat{text-align:center;}
-.store-stat-num{font-weight:700;font-size:1.2rem;color:var(--primary);}
-.store-stat-lbl{font-size:0.65rem;color:var(--text-secondary);}
+.store-stat-num{font-family:'Bebas Neue',sans-serif;font-size:1.5rem;color:var(--red);}
+.store-stat-lbl{font-size:0.7rem;color:var(--chrome);text-transform:uppercase;}
 .filter-bar{display:flex;gap:0.75rem;margin-bottom:1.5rem;flex-wrap:wrap;align-items:center;}
-.filter-bar input,.filter-bar select{background:var(--card);border:1px solid var(--border);color:var(--text-primary);padding:0.5rem 0.8rem;border-radius:6px;font-family:'Inter',sans-serif;font-size:0.8rem;outline:none;}
-.filter-bar input{flex:1;min-width:180px;}
-.filter-bar input:focus,.filter-bar select:focus{border-color:var(--primary);}
-.filter-count{color:var(--text-secondary);font-size:0.75rem;}
+.filter-bar input,.filter-bar select{background:var(--card);border:1px solid var(--border);color:var(--white);padding:0.6rem 1rem;border-radius:8px;font-family:'Nunito',sans-serif;font-size:0.85rem;outline:none;}
+.filter-bar input{flex:1;min-width:200px;}
+.filter-bar input:focus,.filter-bar select:focus{border-color:var(--red);}
+.filter-bar input::placeholder{color:var(--chrome);}
+.filter-count{color:var(--chrome);font-size:0.8rem;}
 .parts-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1.5rem;}
-.part-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;transition:transform 0.2s,box-shadow 0.2s;}
-.part-card:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,0.1);border-color:var(--primary);}
-.part-img{width:100%;height:150px;display:flex;align-items:center;justify-content:center;font-size:2rem;background:linear-gradient(135deg,#f8f9fa,#e9ecef);cursor:pointer;}
+.part-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;transition:transform 0.2s,box-shadow 0.2s;box-shadow:0 1px 3px rgba(0,0,0,0.04);}
+.part-card:hover{transform:translateY(-4px);box-shadow:0 8px 24px rgba(0,0,0,0.1);border-color:var(--red);}
+.part-img{width:100%;height:160px;display:flex;align-items:center;justify-content:center;font-size:4rem;background:linear-gradient(135deg,#fef7f0,#f0e0d0);cursor:pointer;}
 .part-img img{width:100%;height:100%;object-fit:cover;}
 .part-body{padding:1rem;}
-.part-name{font-weight:600;font-size:0.9rem;margin-bottom:0.25rem;}
-.part-fits{font-size:0.7rem;color:var(--text-secondary);margin-bottom:0.5rem;}
-.part-price{font-weight:700;color:var(--success);font-size:1rem;margin-bottom:0.5rem;}
-.cond-badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:0.6rem;font-weight:600;margin-bottom:0.5rem;}
-.cond-new{background:#d4edda;color:#155724;}
-.cond-used{background:#fff3cd;color:#856404;}
-.promo-badge{display:inline-block;background:var(--primary-light);color:var(--primary);padding:2px 8px;border-radius:20px;font-size:0.6rem;font-weight:600;margin-left:4px;}
-.btn{width:100%;border:none;border-radius:6px;padding:8px;font-family:'Inter',sans-serif;font-weight:500;font-size:0.8rem;cursor:pointer;transition:all 0.2s;}
-.btn-primary{background:var(--primary);color:white;}
-.btn-primary:hover{background:var(--primary-dark);}
-.btn-outline{background:transparent;border:1px solid var(--border);color:var(--text-primary);}
-.btn-outline:hover{background:var(--primary);border-color:var(--primary);color:white;}
-.back-link{display:inline-block;color:var(--primary);text-decoration:none;margin-bottom:1rem;font-weight:500;}
+.part-name{font-weight:800;font-size:0.95rem;margin-bottom:0.25rem;}
+.part-fits{font-size:0.78rem;color:var(--chrome);margin-bottom:0.5rem;}
+.part-price{font-weight:800;color:var(--green);font-size:1rem;margin-bottom:0.5rem;}
+.cond-badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:0.65rem;font-weight:800;margin-bottom:0.5rem;}
+.cond-new{background:rgba(101,163,13,0.12);color:#65a30d;}
+.cond-used{background:rgba(217,119,6,0.1);color:#d97706;}
+.promo-badge{display:inline-block;background:rgba(245,197,24,0.15);color:#b45309;padding:3px 10px;border-radius:20px;font-size:0.65rem;font-weight:800;margin-left:4px;}
+.buy-btn{width:100%;background:var(--red);color:white;border:none;border-radius:8px;padding:10px;font-weight:700;font-size:0.9rem;cursor:pointer;font-family:'Nunito',sans-serif;transition:background 0.2s;}
+.buy-btn:hover{background:var(--red-dark);}
+.cart-add-btn{width:100%;background:var(--panel);border:1px solid var(--border);color:var(--white);border-radius:8px;padding:10px;font-weight:700;font-size:0.9rem;cursor:pointer;font-family:'Nunito',sans-serif;margin-top:0.5rem;transition:all 0.2s;}
+.cart-add-btn:hover{background:var(--red);border-color:var(--red);color:white;}
+.spinner{width:40px;height:40px;border:3px solid var(--border);border-top-color:var(--red);border-radius:50%;animation:spin 0.6s linear infinite;margin:2rem auto;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.not-found{text-align:center;padding:4rem;color:var(--chrome);}
+.back-link{display:inline-block;color:var(--red);text-decoration:none;margin-bottom:1.5rem;font-weight:700;}
 .back-link:hover{text-decoration:underline;}
-.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:200;align-items:center;justify-content:center;padding:1rem;}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:200;align-items:center;justify-content:center;padding:1rem;}
 .modal-overlay.open{display:flex;}
-.modal{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.5rem;max-width:500px;width:100%;position:relative;max-height:90vh;overflow-y:auto;}
-.modal-x{position:absolute;top:1rem;right:1rem;background:none;border:none;font-size:1.2rem;cursor:pointer;}
+.modal{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:2rem;max-width:520px;width:100%;position:relative;max-height:90vh;overflow-y:auto;box-shadow:0 12px 32px rgba(0,0,0,0.15);}
+.modal-x{position:absolute;top:1rem;right:1rem;background:none;border:none;color:var(--chrome);font-size:1.3rem;cursor:pointer;}
+.modal-x:hover{color:#dc2626;}
 .cart-item{display:flex;align-items:center;gap:1rem;padding:0.75rem 0;border-bottom:1px solid var(--border);}
-.cart-item-img{width:48px;height:48px;border-radius:6px;display:flex;align-items:center;justify-content:center;background:var(--bg);flex-shrink:0;}
+.cart-item-img{width:50px;height:50px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;background:var(--bg);flex-shrink:0;}
+.cart-item-img img{width:50px;height:50px;object-fit:cover;border-radius:8px;}
 .cart-item-info{flex:1;}
-.cart-item-name{font-weight:600;font-size:0.85rem;}
-.cart-item-seller{font-size:0.7rem;color:var(--text-secondary);}
-.cart-item-price{font-weight:600;color:var(--success);font-size:0.85rem;}
+.cart-item-name{font-weight:700;font-size:0.85rem;}
+.cart-item-seller{font-size:0.72rem;color:var(--chrome);}
+.cart-item-price{font-weight:700;color:var(--green);font-size:0.85rem;}
 .cart-item-qty{display:flex;align-items:center;gap:0.3rem;}
-.cart-item-qty button{width:24px;height:24px;border-radius:4px;border:1px solid var(--border);background:var(--bg);cursor:pointer;}
-.cart-item-remove{background:none;border:none;cursor:pointer;font-size:1rem;padding:4px;}
-.field{margin-bottom:0.8rem;}
-.field label{display:block;font-size:0.7rem;font-weight:600;color:var(--text-secondary);margin-bottom:3px;}
-.field input,.field textarea{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:8px 10px;font-family:'Inter',sans-serif;font-size:0.85rem;outline:none;}
-.field input:focus,.field textarea:focus{border-color:var(--primary);}
-.toast{position:fixed;bottom:1.5rem;right:1.5rem;color:white;padding:0.75rem 1.25rem;border-radius:8px;font-weight:500;display:none;z-index:300;}
+.cart-item-qty button{width:24px;height:24px;border-radius:50%;border:1px solid var(--border);background:var(--bg);color:var(--white);cursor:pointer;font-size:0.8rem;}
+.cart-item-qty span{min-width:20px;text-align:center;font-size:0.8rem;}
+.cart-item-remove{background:none;border:none;color:var(--chrome);cursor:pointer;font-size:1rem;padding:4px;}
+.cart-item-remove:hover{color:var(--red);}
+.address-section{background:var(--bg);border-radius:10px;padding:1rem;margin-bottom:1rem;}
+.address-section h4{font-size:0.85rem;margin-bottom:0.5rem;color:var(--red);}
+.field{margin-bottom:0.85rem;}
+.field label{display:block;font-size:0.72rem;font-weight:800;color:var(--chrome);margin-bottom:4px;text-transform:uppercase;letter-spacing:1px;}
+.field input,.field textarea{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--white);padding:9px 12px;font-family:'Nunito',sans-serif;font-size:0.88rem;outline:none;}
+.field input:focus,.field textarea:focus{border-color:var(--red);}
+.toast{position:fixed;bottom:2rem;right:2rem;color:white;padding:1rem 1.5rem;border-radius:10px;font-weight:800;font-size:0.85rem;display:none;z-index:300;box-shadow:0 8px 24px rgba(0,0,0,0.2);}
 .toast.show{display:block;animation:toastIn 0.3s ease;}
 @keyframes toastIn{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
-.spinner{width:32px;height:32px;border:2px solid var(--border);border-top-color:var(--primary);border-radius:50%;animation:spin 0.6s linear infinite;margin:2rem auto;}
-@keyframes spin{to{transform:rotate(360deg)}}
-@media(max-width:640px){.store-header{text-align:center;justify-content:center;}.filter-bar{flex-direction:column;}.filter-bar input{width:100%;}.container{padding:1rem;}.parts-grid{grid-template-columns:1fr;}}
+@media(max-width:640px){.store-header{text-align:center;justify-content:center;}.filter-bar{flex-direction:column;}.filter-bar input{width:100%;}.container{padding:1rem;}.parts-grid{grid-template-columns:1fr;}nav{padding:0 1rem;}}
 </style>
 </head>
 <body>
@@ -91,83 +94,89 @@ nav{background:var(--panel);border-bottom:1px solid var(--border);display:flex;a
 <nav>
   <a class="logo" href="index.html">Car<span>deals</span>.al</a>
   <div class="nav-right">
-    <button class="cart-btn" onclick="openCart()">Cart <span id="cartBadge" class="cart-badge">0</span></button>
+    <button class="cart-btn" onclick="openCart()">🛒 <span id="cartBadge" class="cart-badge">0</span></button>
   </div>
 </nav>
 
 <div class="container" id="content">
-  <a href="index.html" class="back-link">← Back to Cardeals.al</a>
+  <a href="index.html" class="back-link">← Kthehu te Cardeals.al</a>
   <div class="spinner"></div>
 </div>
 
 <!-- Cart Modal -->
-<div class="modal-overlay" id="cartModal">
-  <div class="modal">
-    <button class="modal-x" onclick="closeModal('cartModal')">×</button>
-    <h3 style="margin-bottom:1rem;">Shopping Cart</h3>
-    <div id="cartContent"><div style="text-align:center;padding:2rem;">Your cart is empty</div></div>
-    <div id="cartCheckoutSection" style="display:none;margin-top:1rem;border-top:1px solid var(--border);padding-top:1rem;">
-      <div style="display:flex;justify-content:space-between;font-weight:600;margin-bottom:0.5rem;"><span>Subtotal</span><span id="cartSubtotal" style="color:var(--success);">0 L</span></div>
-      <div style="display:flex;justify-content:space-between;font-size:0.75rem;color:var(--text-secondary);margin-bottom:0.5rem;"><span>Shipping</span><span id="cartShipping">0 L</span></div>
-      <div style="display:flex;justify-content:space-between;font-weight:700;margin-bottom:1rem;border-top:1px solid var(--border);padding-top:0.5rem;"><span>Total</span><span id="cartGrandTotal" style="color:var(--success);">0 L</span></div>
-      <button class="btn btn-primary" onclick="proceedToAddress()" style="width:100%;">Proceed to Checkout</button>
-    </div>
-  </div>
-</div>
+<div class="modal-overlay" id="cartModal"><div class="modal"><button class="modal-x" onclick="closeModal('cartModal')">✕</button><h3 style="font-family:'Bebas Neue',sans-serif;letter-spacing:2px;margin-bottom:1rem;">🛒 Shporta</h3><div id="cartContent"><div style="text-align:center;padding:3rem;color:var(--chrome);">🛒 Shporta është bosh</div></div><div id="cartCheckoutSection" style="display:none;margin-top:1rem;border-top:1px solid var(--border);padding-top:1rem;"><div style="display:flex;justify-content:space-between;font-weight:800;font-size:1rem;margin-bottom:0.5rem;"><span>Nëntotali</span><span id="cartSubtotal" style="color:var(--green);">0 L</span></div><div style="display:flex;justify-content:space-between;font-size:0.85rem;color:var(--chrome);margin-bottom:0.5rem;"><span>Transporti</span><span id="cartShipping">0 L</span></div><div style="display:flex;justify-content:space-between;font-weight:800;font-size:1.1rem;margin-bottom:1rem;border-top:1px solid var(--border);padding-top:0.5rem;"><span>Totali</span><span id="cartGrandTotal" style="color:var(--green);">0 L</span></div><button class="buy-btn" onclick="proceedToAddress()">📦 VAZHDONI ME POROSINË</button></div></div></div>
 
 <!-- Address Modal -->
-<div class="modal-overlay" id="addressModal">
-  <div class="modal">
-    <button class="modal-x" onclick="closeModal('addressModal')">×</button>
-    <h3 style="margin-bottom:1rem;">Delivery Address</h3>
-    <div class="field"><label>Full Address *</label><input type="text" id="deliveryAddress" placeholder="Street, building, apartment" /></div>
-    <div class="field"><label>City *</label><input type="text" id="deliveryCity" placeholder="e.g. Tirana" /></div>
-    <div class="field"><label>Postal Code</label><input type="text" id="deliveryPostal" placeholder="Optional" /></div>
-    <div class="field"><label>Delivery Instructions</label><textarea id="deliveryInstructions" rows="2" placeholder="Gate, floor, near landmark..."></textarea></div>
-    <div class="field"><label>Confirmation Email *</label><input type="email" id="deliveryEmail" /></div>
-    <button class="btn btn-primary" id="confirmAddressBtn" onclick="confirmAddress()" style="width:100%;">Confirm Order</button>
-  </div>
-</div>
+<div class="modal-overlay" id="addressModal"><div class="modal"><button class="modal-x" onclick="closeModal('addressModal')">✕</button><h3 style="font-family:'Bebas Neue',sans-serif;letter-spacing:2px;margin-bottom:1rem;">📍 Adresa e Dorëzimit</h3><div id="addressForm"><div class="field"><label>Adresa e plotë *</label><input type="text" id="deliveryAddress" placeholder="Rruga, ndërtesa, apartamenti" /></div><div class="field"><label>Qyteti *</label><input type="text" id="deliveryCity" placeholder="p.sh. Tiranë" /></div><div class="field"><label>Kodi Postar</label><input type="text" id="deliveryPostal" placeholder="Opsionale" /></div><div class="field"><label>Udhëzime për dërgesë</label><textarea id="deliveryInstructions" rows="2" placeholder="Porta, kati, afër xhamisë..."></textarea></div><div class="field"><label>Email për konfirmim *</label><input type="email" id="deliveryEmail" /></div><button class="buy-btn" id="confirmAddressBtn" onclick="confirmAddress()">💳 KONFIRMO POROSINË</button></div></div></div>
 
 <div class="toast" id="toast"></div>
 
 <script>
 firebase.initializeApp({apiKey:"AIzaSyAU8hVTqury1MbC0Sx-CXGY1YQrr5VJhyE",authDomain:"cardeals-al.firebaseapp.com",projectId:"cardeals-al",storageBucket:"cardeals-al.firebasestorage.app",messagingSenderId:"839953227675",appId:"1:839953227675:web:6fb6aa9350bd3bd507cb3e"});
 const db=firebase.firestore(),auth=firebase.auth(),PLATFORM_FEE=0.08;
-const EUR_TO_LEK=120,FREE_SHIPPING_THRESHOLD_LEK=100*EUR_TO_LEK,SHIPPING_FEE_LEK=5*EUR_TO_LEK;
-function calculateShipping(total){return total>=FREE_SHIPPING_THRESHOLD_LEK?0:SHIPPING_FEE_LEK;}
+const EUR_TO_LEK = 120;
+const FREE_SHIPPING_THRESHOLD_EUR = 100;
+const SHIPPING_FEE_EUR = 5;
+const FREE_SHIPPING_THRESHOLD_LEK = FREE_SHIPPING_THRESHOLD_EUR * EUR_TO_LEK; // 12,000 L
+const SHIPPING_FEE_LEK = SHIPPING_FEE_EUR * EUR_TO_LEK; // 600 L
+
+function calculateShipping(totalLek, payMethod) {
+  // Pickup orders - no shipping fee
+  if (payMethod === 'pickup') return 0;
+  
+  // Free shipping for orders over 100 EUR (12,000 L)
+  if (totalLek >= FREE_SHIPPING_THRESHOLD_LEK) {
+    return 0;
+  }
+  
+  // Otherwise charge shipping fee
+  console.log('Shipping fee applied:', SHIPPING_FEE_LEK, 'L for total:', totalLek, 'L');
+  return SHIPPING_FEE_LEK;
+}
 
 var params=new URLSearchParams(window.location.search);
 var sellerId=params.get('id');
 var allParts=[],cart=[],currentBuyer=null,pendingCheckoutData=null;
 
 function g(id){return document.getElementById(id);}
-function showToast(msg,isErr){var t=g('toast');t.textContent=msg;t.style.background=isErr?'#dc3545':'#28a745';t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000);}
-function closeModal(id){g(id)?.classList.remove('open');}
+function showToast(msg,isErr){const t=g('toast');if(!t)return;t.textContent=msg;t.style.background=isErr?'#dc2626':'#65a30d';t.classList.add('show');setTimeout(()=>t.classList.remove('show'),4000);}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
 
-auth.onAuthStateChanged(function(user){currentBuyer=user;if(user)prefillBuyerFields();});
-function prefillBuyerFields(){if(!currentBuyer)return;db.collection('buyers').doc(currentBuyer.uid).get().then(doc=>{if(doc.exists){var d=doc.data();if(d.address)g('deliveryAddress').value=d.address;if(d.city)g('deliveryCity').value=d.city;}});}
+auth.onAuthStateChanged(function(user){
+  currentBuyer=user;
+  if(user)prefillBuyerFields();
+});
 
-if(!sellerId){document.getElementById('content').innerHTML='<div style="text-align:center;padding:3rem;"><h2>Store not found</h2><p>Missing seller ID.</p></div>';}else{loadStore(sellerId);}
+function prefillBuyerFields(){
+  if(!currentBuyer)return;
+  db.collection('buyers').doc(currentBuyer.uid).get().then(function(doc){
+    if(doc.exists){var d=doc.data();
+      if(d.address)g('deliveryAddress').value=d.address;
+      if(d.city)g('deliveryCity').value=d.city;
+    }
+  });
+}
+
+if(!sellerId){document.getElementById('content').innerHTML='<div class="not-found"><h2>Dyqani nuk u gjet</h2><p>Mungon ID e shitësit.</p></div>';}else{loadStore(sellerId);}
 
 async function loadStore(sellerId){
   try{
     var bizDoc=await db.collection("businesses").doc(sellerId).get();
-    if(!bizDoc.exists){document.getElementById('content').innerHTML='<div style="text-align:center;padding:3rem;"><h2>Store not found</h2><p>This seller does not exist.</p></div>';return;}
+    if(!bizDoc.exists){document.getElementById('content').innerHTML='<div class="not-found"><h2>Dyqani nuk u gjet</h2><p>Ky shitës nuk ekziston.</p></div>';return;}
     var biz=bizDoc.data();
     var partsSnap=await db.collection("parts").where("uid","==",sellerId).where("status","==","active").orderBy("createdAt","desc").get();
     allParts=partsSnap.docs.map(d=>({id:d.id,...d.data()}));
     document.title=biz.businessName+' — Cardeals.al';
     var phone=(biz.whatsappPhone||biz.phone||'').replace(/\D/g,'');
-    var whatsappLink=phone?'<a href="https://wa.me/'+phone+'" target="_blank">Contact on WhatsApp</a>':'';
-    var html='<a href="index.html" class="back-link">← Back to Cardeals.al</a>';
-    html+='<div class="store-header"><div class="store-avatar">🏪</div><div class="store-info"><div class="store-name">'+(biz.businessName||biz.name||'Store')+'</div><div class="store-city">'+(biz.city||'Albania')+'</div><div class="store-stats"><div class="store-stat"><div class="store-stat-num">'+allParts.length+'</div><div class="store-stat-lbl">Parts</div></div></div><div class="store-contact">'+whatsappLink+'</div></div></div>';
-    html+='<div class="filter-bar"><input type="text" id="filterSearch" placeholder="Search parts..." oninput="filterParts()" /><select id="filterCondition" onchange="filterParts()"><option value="all">All conditions</option><option value="new">New only</option><option value="used">Used only</option></select><select id="filterCategory" onchange="filterParts()"><option value="all">All categories</option><option value="brakes">Brakes</option><option value="engine">Engine</option><option value="electrical">Electrical</option><option value="suspension">Suspension</option><option value="body">Body</option><option value="ac">AC & Heat</option></select><span class="filter-count" id="filterCount">'+allParts.length+' parts</span></div>';
+    var whatsappLink=phone?'<a href="https://wa.me/'+phone+'" target="_blank">💬 WhatsApp</a>':'';
+    var html='<a href="index.html" class="back-link">← Kthehu te Cardeals.al</a>';
+    html+='<div class="store-header"><div class="store-avatar">🏪</div><div class="store-info"><div class="store-name">'+(biz.businessName||biz.name||'Dyqan')+'</div><div class="store-city">📍 '+(biz.city||'Shqipëri')+'</div><div class="store-stats"><div class="store-stat"><div class="store-stat-num">'+allParts.length+'</div><div class="store-stat-lbl">Pjesë</div></div></div><div class="store-contact">'+whatsappLink+'</div></div></div>';
+    html+='<div class="filter-bar"><input type="text" id="filterSearch" placeholder="🔍 Kërko pjesë..." oninput="filterParts()" /><select id="filterCondition" onchange="filterParts()"><option value="all">Të gjitha gjendjet</option><option value="new">Vetëm të Reja</option><option value="used">Vetëm të Përdorura</option></select><select id="filterCategory" onchange="filterParts()"><option value="all">Të gjitha kategoritë</option><option value="brakes">Frena</option><option value="engine">Motor</option><option value="electrical">Elektrik</option><option value="suspension">Amortizatorë</option><option value="body">Karroceri</option><option value="ac">Klimë</option></select><span class="filter-count" id="filterCount">'+allParts.length+' pjesë</span></div>';
     html+='<div class="parts-grid" id="partsGrid"></div>';
     document.getElementById('content').innerHTML=html;
     loadCart();
     renderFilteredParts();
-  }catch(e){document.getElementById('content').innerHTML='<div style="text-align:center;padding:3rem;"><h2>Error</h2><p>'+e.message+'</p></div>';}
+  }catch(e){document.getElementById('content').innerHTML='<div class="not-found"><h2>Gabim</h2><p>'+e.message+'</p></div>';}
 }
 
 function filterParts(){renderFilteredParts();}
@@ -176,57 +185,28 @@ function renderFilteredParts(){
   var search=document.getElementById('filterSearch')?.value.toLowerCase()||'';
   var condition=document.getElementById('filterCondition')?.value||'all';
   var category=document.getElementById('filterCategory')?.value||'all';
-  var filtered=allParts.filter(p=>{
-    var name=typeof p.name==='object'?(p.name.sq||p.name.en):(p.name||'');
-    var fits=(p.fits||'').toLowerCase();
-    if(search&&name.toLowerCase().indexOf(search)===-1&&fits.indexOf(search)===-1)return false;
-    if(condition!=='all'&&p.condition!==condition)return false;
-    if(category!=='all'&&p.category!==category)return false;
-    return true;
-  });
-  document.getElementById('filterCount').textContent=filtered.length+' parts';
+  var filtered=allParts.filter(function(p){var name=typeof p.name==='object'?(p.name.sq||p.name.en):(p.name||'');var fits=(p.fits||'').toLowerCase();if(search&&name.toLowerCase().indexOf(search)===-1&&fits.indexOf(search)===-1)return false;if(condition!=='all'&&p.condition!==condition)return false;if(category!=='all'&&p.category!==category)return false;return true;});
+  document.getElementById('filterCount').textContent=filtered.length+' pjesë';
   var grid=document.getElementById('partsGrid');
-  if(!filtered.length){grid.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:2rem;">No parts found.</div>';return;}
-  grid.innerHTML=filtered.map(p=>{
-    var name=typeof p.name==='object'?(p.name.sq||p.name.en):p.name;
-    var thumb=p.images?.length?'<img src="'+p.images[0]+'" alt="'+name+'" />':'🔧';
-    var dp=p.discount>0?Math.round((p.basePrice||0)*(1-(p.discount||0)/100)):(p.basePrice||0);
-    var fee=Math.round(dp*PLATFORM_FEE);
-    var fin=dp+fee;
-    return '<div class="part-card"><div class="part-img">'+thumb+'</div><div class="part-body"><span class="cond-badge '+(p.condition==='new'?'cond-new':'cond-used')+'">'+(p.condition==='new'?'NEW':'USED')+'</span>'+(p.weeklyPromo?'<span class="promo-badge">PROMOTED</span>':'')+'<div class="part-name">'+name+'</div><div class="part-fits">Fits: '+(p.fits||'')+'</div><div class="part-price">'+fin.toLocaleString()+' L</div><button class="btn btn-primary" onclick="buyNow(\''+p.id+'\')">Buy Now</button><button class="btn btn-outline" onclick="addToCart(\''+p.id+'\')" style="margin-top:0.5rem;">Add to Cart</button></div></div>';
-  }).join('');
+  if(!filtered.length){grid.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:3rem;color:var(--chrome);">🔍 Nuk u gjet asnjë pjesë.</div>';return;}
+  grid.innerHTML=filtered.map(function(p){var name=typeof p.name==='object'?(p.name.sq||p.name.en):p.name;var thumb=p.images?.length?'<img src="'+p.images[0]+'" alt="'+name+'" />':'🔩';var dp=p.discount>0?Math.round((p.basePrice||0)*(1-(p.discount||0)/100)):(p.basePrice||0);var fee=Math.round(dp*PLATFORM_FEE);var fin=dp+fee;return '<div class="part-card"><div class="part-img">'+thumb+'</div><div class="part-body"><span class="cond-badge '+(p.condition==='new'?'cond-new':'cond-used')+'">'+(p.condition==='new'?'E RE':'E PËRDORUR')+'</span>'+(p.weeklyPromo?'<span class="promo-badge">🔥 PROMO</span>':'')+'<div class="part-name">'+name+'</div><div class="part-fits">🚗 '+(p.fits||'')+'</div><div class="part-price">'+fin.toLocaleString()+' L</div><button class="buy-btn" onclick="buyNow(\''+p.id+'\')">BLI TANI — '+fin.toLocaleString()+' L</button><button class="cart-add-btn" onclick="addToCart(\''+p.id+'\')">🛒 Shto në Shportë</button></div></div>';}).join('');
 }
 
 function buyNow(partId){addToCart(partId);openCart();}
 
-// Cart Functions
-function loadCart(){try{var saved=localStorage.getItem('cardeals_cart_store');if(saved){cart=JSON.parse(saved);}}catch(e){cart=[];}updateCartBadge();}
-function saveCart(){localStorage.setItem('cardeals_cart_store',JSON.stringify(cart));updateCartBadge();}
-function updateCartBadge(){var count=cart.reduce((s,i)=>s+(i.qty||1),0);var badge=document.getElementById('cartBadge');if(badge){badge.textContent=count;badge.style.display=count>0?'inline-block':'none';}}
-function addToCart(partId){var part=allParts.find(p=>p.id===partId);if(!part)return;var existing=cart.find(i=>i.partId===partId);if(existing){existing.qty=(existing.qty||1)+1;}else{var name=typeof part.name==='object'?(part.name.sq||part.name.en):part.name;cart.push({partId,partName:name,sellerUid:part.uid||'',sellerName:part.sellerName||'',sellerCity:part.sellerCity||'',basePrice:part.basePrice||0,discount:part.discount||0,image:part.images?.[0]||'',qty:1});}saveCart();showToast('Added to cart!');}
+// CART FUNCTIONS
+function loadCart(){try{var saved=localStorage.getItem('cardeals_cart_dyqan');if(saved){cart=JSON.parse(saved);}}catch(e){cart=[];}updateCartBadge();}
+function saveCart(){localStorage.setItem('cardeals_cart_dyqan',JSON.stringify(cart));updateCartBadge();}
+function updateCartBadge(){var count=cart.reduce(function(s,item){return s+(item.qty||1);},0);var badge=document.getElementById('cartBadge');if(badge){badge.textContent=count;badge.style.display=count>0?'inline-block':'none';}}
+function addToCart(partId){var part=allParts.find(function(p){return p.id===partId;});if(!part)return;var existing=cart.find(function(item){return item.partId===partId;});if(existing){existing.qty=(existing.qty||1)+1;}else{var name=typeof part.name==='object'?(part.name.sq||part.name.en):part.name;cart.push({partId:partId,partName:name,sellerUid:part.uid||'',sellerName:part.sellerName||'',sellerCity:part.sellerCity||'',basePrice:part.basePrice||0,discount:part.discount||0,image:part.images?.[0]||'',qty:1});}saveCart();showToast('✅ Shtuar në shportë!');}
 function removeFromCart(index){cart.splice(index,1);saveCart();renderCart();}
 function updateCartQty(index,delta){cart[index].qty=Math.max(1,(cart[index].qty||1)+delta);saveCart();renderCart();}
-function openCart(){renderCart();g('cartModal').classList.add('open');}
-function renderCart(){var container=g('cartContent'),checkout=g('cartCheckoutSection');if(!cart.length){container.innerHTML='<div style="text-align:center;padding:2rem;">Your cart is empty</div>';checkout.style.display='none';return;}var subtotal=0,html='';cart.forEach((item,index)=>{var dp=item.discount>0?Math.round((item.basePrice||0)*(1-(item.discount||0)/100)):(item.basePrice||0);var fee=Math.round(dp*PLATFORM_FEE);var fin=dp+fee;var itemTotal=fin*(item.qty||1);subtotal+=itemTotal;html+='<div class="cart-item"><div class="cart-item-img">'+(item.image?'<img src="'+item.image+'" style="width:48px;height:48px;object-fit:cover;" />':'🔧')+'</div><div class="cart-item-info"><div class="cart-item-name">'+item.partName+'</div><div class="cart-item-seller">'+item.sellerName+' · '+item.sellerCity+'</div><div class="cart-item-price">'+itemTotal.toLocaleString()+' L</div></div><div class="cart-item-qty"><button onclick="updateCartQty('+index+',-1)">-</button><span>'+item.qty+'</span><button onclick="updateCartQty('+index+',1)">+</button></div><button class="cart-item-remove" onclick="removeFromCart('+index+')">✕</button></div>';});container.innerHTML=html;var shipping=calculateShipping(subtotal);var grandTotal=subtotal+shipping;g('cartSubtotal').textContent=subtotal.toLocaleString()+' L';g('cartShipping').innerHTML=shipping>0?shipping.toLocaleString()+' L':'Free';g('cartGrandTotal').textContent=grandTotal.toLocaleString()+' L';checkout.style.display='block';}
-function proceedToAddress(){if(!cart.length)return;closeModal('cartModal');prefillBuyerFields();var subtotal=0;for(var i=0;i<cart.length;i++){var item=cart[i];var dp=item.discount>0?Math.round((item.basePrice||0)*(1-(item.discount||0)/100)):(item.basePrice||0);var fee=Math.round(dp*0.08);subtotal+=(dp+fee)*(item.qty||1);}pendingCheckoutData={cartItems:JSON.parse(JSON.stringify(cart)),cartTotal:subtotal,isCartOrder:true};g('addressModal').classList.add('open');g('confirmAddressBtn').innerHTML='Confirm Order ('+cart.length+' items)';}
+function openCart(){renderCart();document.getElementById('cartModal').classList.add('open');}
+function renderCart(){var container=document.getElementById('cartContent');var checkoutSection=document.getElementById('cartCheckoutSection');if(!cart.length){container.innerHTML='<div style="text-align:center;padding:3rem;color:var(--chrome);">🛒 Shporta është bosh</div>';checkoutSection.style.display='none';return;}var subtotal=0;var html='';cart.forEach(function(item,index){var dp=item.discount>0?Math.round((item.basePrice||0)*(1-(item.discount||0)/100)):(item.basePrice||0);var fee=Math.round(dp*PLATFORM_FEE);var fin=dp+fee;var itemTotal=fin*(item.qty||1);subtotal+=itemTotal;html+='<div class="cart-item"><div class="cart-item-img">'+(item.image?'<img src="'+item.image+'" />':'🔩')+'</div><div class="cart-item-info"><div class="cart-item-name">'+item.partName+'</div><div class="cart-item-seller">🏪 '+item.sellerName+' · '+item.sellerCity+'</div><div class="cart-item-price">'+itemTotal.toLocaleString()+' L</div></div><div class="cart-item-qty"><button onclick="updateCartQty('+index+',-1)">−</button><span>'+item.qty+'</span><button onclick="updateCartQty('+index+',1)">+</button></div><button class="cart-item-remove" onclick="removeFromCart('+index+')">✕</button></div>';});container.innerHTML=html;var shipping=calculateShipping(subtotal);var grandTotal=subtotal+shipping;document.getElementById('cartSubtotal').textContent=subtotal.toLocaleString()+' L';document.getElementById('cartShipping').innerHTML=shipping>0?shipping.toLocaleString()+' L':'<span style="color:#22c55e;">FALAS</span>';document.getElementById('cartGrandTotal').textContent=grandTotal.toLocaleString()+' L';checkoutSection.style.display='block';}
+function proceedToAddress(){if(!cart.length)return;closeModal('cartModal');prefillBuyerFields();pendingCheckoutData={cartItems:cart.slice(),cartTotal:cart.reduce(function(s,i){var dp=i.discount>0?Math.round((i.basePrice||0)*(1-(i.discount||0)/100)):(i.basePrice||0);var fee=Math.round(dp*0.08);return s+((dp+fee)*(i.qty||1));},0),isCartOrder:true};g('addressModal').classList.add('open');g('confirmAddressBtn').innerHTML='📦 KONFIRMO POROSINË ('+cart.length+' pjesë)';}
+async function confirmAddress(){var address=g('deliveryAddress').value.trim(),city=g('deliveryCity').value.trim(),postal=g('deliveryPostal').value.trim(),instructions=g('deliveryInstructions').value.trim(),email=g('deliveryEmail').value.trim();if(!address||!city||!email){showToast('⚠️ Plotëso adresën, qytetin dhe email-in!',true);return;}if(!pendingCheckoutData){showToast('❌ Gabim në porosi',true);return;}var btn=g('confirmAddressBtn');btn.textContent='Duke procesuar...';btn.disabled=true;var ordersToCreate=[];if(pendingCheckoutData.isCartOrder){for(var item of pendingCheckoutData.cartItems){var dp=item.discount>0?Math.round((item.basePrice||0)*(1-(item.discount||0)/100)):(item.basePrice||0);var fee=Math.round(dp*PLATFORM_FEE);var total=(dp+fee)*(item.qty||1);var shippingShare=0;ordersToCreate.push({partId:item.partId,partName:item.partName,partEmoji:'🔩',buyerName:currentBuyer?.email?.split('@')[0]||'Klient',buyerPhone:'',buyerEmail:email,sellerUid:item.sellerUid,sellerName:item.sellerName,sellerCity:item.sellerCity,basePrice:dp,quantity:item.qty||1,platformFee:fee*(item.qty||1),totalPrice:total,shippingFee:0,deliveryAddress:address,deliveryCity:city,deliveryPostal:postal,deliveryInstructions:instructions,deliveryEmail:email,payMethod:'online',status:'pending',createdAt:firebase.firestore.FieldValue.serverTimestamp(),buyerUid:currentBuyer?.uid||null});}}else{ordersToCreate.push(pendingCheckoutData);}try{var batch=db.batch();for(var order of ordersToCreate){var orderRef=db.collection('orders').doc();batch.set(orderRef,order);if(order.partId){var partRef=db.collection('parts').doc(order.partId);var partDoc=await partRef.get();if(partDoc.exists){var currentStock=partDoc.data().stock||0;var newStock=Math.max(0,currentStock-order.quantity);batch.update(partRef,{stock:newStock,status:newStock>0?'active':'inactive',sales:(partDoc.data().sales||0)+order.quantity});}}}await batch.commit();cart=[];saveCart();closeModal('addressModal');showToast('✅ Porosia u regjistrua!');if(currentBuyer){db.collection('buyers').doc(currentBuyer.uid).update({address:address,city:city}).catch(e=>{});}showWhatsAppContact(ordersToCreate[0]);pendingCheckoutData=null;g('deliveryAddress').value='';g('deliveryCity').value='';g('deliveryPostal').value='';g('deliveryInstructions').value='';g('deliveryEmail').value='';}catch(err){showToast('❌ Gabim: '+err.message,true);}btn.textContent='💳 KONFIRMO POROSINË';btn.disabled=false;}
 
-function confirmAddress(){
-  var address=g('deliveryAddress').value.trim(),city=g('deliveryCity').value.trim(),email=g('deliveryEmail').value.trim();
-  if(!address||!city||!email){showToast('Please fill all required fields!',true);return;}
-  if(!pendingCheckoutData){showToast('Order error!',true);return;}
-  var btn=g('confirmAddressBtn'),original=btn.innerHTML;btn.textContent='Processing...';btn.disabled=true;
-  var currentUser=auth.currentUser;
-  if(pendingCheckoutData.isCartOrder){
-    var subtotal=pendingCheckoutData.cartTotal,shippingFee=calculateShipping(subtotal),grandTotal=subtotal+shippingFee,promises=[];
-    for(var i=0;i<pendingCheckoutData.cartItems.length;i++){
-      var item=pendingCheckoutData.cartItems[i],dp=item.discount>0?Math.round((item.basePrice||0)*(1-(item.discount||0)/100)):(item.basePrice||0),fee=Math.round(dp*0.08),total=(dp+fee)*(item.qty||1),itemShipping=Math.round((total/grandTotal)*shippingFee);
-      var orderData={deliveryAddress:address,deliveryCity:city,deliveryEmail:email,createdAt:firebase.firestore.FieldValue.serverTimestamp(),status:'pending',isGuest:!currentUser,partId:item.partId,partName:item.partName,sellerUid:item.sellerUid,sellerName:item.sellerName,sellerCity:item.sellerCity,basePrice:dp,quantity:item.qty||1,platformFee:fee*(item.qty||1),totalPrice:total,shippingFee:itemShipping,payMethod:'online'};
-      if(currentUser){orderData.buyerUid=currentUser.uid;orderData.buyerEmail=currentUser.email;orderData.buyerName=currentUser.email?.split('@')[0]||'Customer';}else{orderData.buyerUid='guest_'+Date.now()+'_'+i+'_'+Math.random().toString(36).substr(2,6);orderData.buyerEmail=email;orderData.buyerName=email.split('@')[0];}
-      promises.push(db.collection('orders').add(orderData));
-    }
-    Promise.all(promises).then(()=>{showToast('Order placed successfully!');closeModal('addressModal');cart=[];saveCart();updateCartBadge();pendingCheckoutData=null;btn.textContent=original;btn.disabled=false;}).catch(err=>{showToast('Error: '+err.message,true);btn.textContent=original;btn.disabled=false;});
-  }else{/* single item order */showToast('Order placed!',false);closeModal('addressModal');pendingCheckoutData=null;btn.textContent=original;btn.disabled=false;}
-}
+function showWhatsAppContact(order){if(!order||!order.sellerUid)return;var partName=order.partName||'';var sellerName=order.sellerName||'';db.collection("businesses").doc(order.sellerUid).get().then(function(doc){if(doc.exists){var phone=(doc.data().whatsappPhone||doc.data().phone||'').replace(/\D/g,'');if(phone){var msg=encodeURIComponent("Pershendetje! Bera nje porosi ne Cardeals.al per pjesen \""+partName+"\". Mund te koordinohemi per detajet?");showToast('📞 Kontakto shitësin në WhatsApp');setTimeout(function(){window.open('https://wa.me/'+phone+'?text='+msg,'_blank');},500);}}}).catch(function(){});}
 </script>
 </body>
 </html>
