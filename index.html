@@ -306,15 +306,24 @@ let itemsPerPage=24;
 let filteredParts=[];
 let totalPages=1;
 
+// SHIPPING CONSTANTS - FIXED
 const EUR_TO_LEK = 120;
 const FREE_SHIPPING_THRESHOLD_EUR = 100;
 const SHIPPING_FEE_EUR = 5;
-const FREE_SHIPPING_THRESHOLD_LEK = FREE_SHIPPING_THRESHOLD_EUR * EUR_TO_LEK;
-const SHIPPING_FEE_LEK = SHIPPING_FEE_EUR * EUR_TO_LEK;
+const FREE_SHIPPING_THRESHOLD_LEK = FREE_SHIPPING_THRESHOLD_EUR * EUR_TO_LEK; // 12,000 L
+const SHIPPING_FEE_LEK = SHIPPING_FEE_EUR * EUR_TO_LEK; // 600 L
 
 function calculateShipping(totalLek, payMethod) {
+  // Pickup orders - no shipping fee
   if (payMethod === 'pickup') return 0;
-  return totalLek >= FREE_SHIPPING_THRESHOLD_LEK ? 0 : SHIPPING_FEE_LEK;
+  
+  // Free shipping for orders over 100 EUR (12,000 L)
+  if (totalLek >= FREE_SHIPPING_THRESHOLD_LEK) {
+    return 0;
+  }
+  
+  // Otherwise charge shipping fee
+  return SHIPPING_FEE_LEK;
 }
 
 const L={sq:{pageTitle:'Cardeals.al — Gjej & Krahaso Pjesë Këmbimi në Shqipëri',heroBadge:'🔧 Pjesë të Reja & të Përdorura · Çmimet më të Mira',heroLine1:'Gjej Çdo',heroLine2:'Krahaso Çdo Çmim.',heroSub:'Zgjidh makinën tënde dhe shiko të gjitha pjesët e përputhshme menjëherë.',selectMake:'Zgjidh Markën',searchPartsBtn:'KËRKO PJESËT',searchPlaceholder:'Ose kërko me fjalë kyçe, VIN, markë...',condAll:'Të gjitha',condNew:'Vetëm të Reja',condUsed:'Vetëm të Përdorura',searchBtn:'KËRKO',advFilters:'⚙️ Filtrat e Avancuar',filterCity:'Qyteti',filterSeller:'Shitësi',filterVin:'VIN / Shasia',filterAll:'Të gjitha',filterMaxPrice:'Çmimi max (Lekë)',filterSort:'Rendit sipas',sortNewest:'Më të rejat',sortPriceAsc:'Çmimi: i ulët → i lartë',sortPriceDesc:'Çmimi: i lartë → i ulët',sortDiscount:'Zbritja më e madhe',applyFilters:'APLIKO FILTRAT',resetFilters:'Rivendos',catAll:'Të gjitha',catEngine:'Motor',catBrakes:'Frena',catElectrical:'Elektrik',catSuspension:'Amortizatorë',catBody:'Karroceri',catAC:'Klimë',statActiveParts:'Pjesë Aktive',statSellers:'Shitës',statFreeReg:'Regjistrim Falas',statCoverage:'Mbulim Kombëtar',partsTitle1:'🔍 Pjesë',partsTitle2:'të Listuara',partsSub:'Çmimet nga biznese të verifikuara — tarifa jonë 8% është e përfshirë',loadingParts:'Duke ngarkuar pjesët...',noPartsFound:'Nuk u gjet asnjë pjesë.',howTitle1:'⚡ Si Funksionon',howTitle2:'Cardeals.al',howStep1Title:'Zgjidh Makinën',howStep1Desc:'Zgjidh markën dhe modelin.',howStep2Title:'Krahaso',howStep2Desc:'Shiko çmimet dhe vlerësimet.',howStep3Title:'Bli',howStep3Desc:'Paguaj online ose rezervo falas.',howStep4Title:'Vlerëso',howStep4Desc:'Lër vlerësimin tënd.',bizCtaTitle:'Je një Biznes Pjesësh?',bizCtaDesc:'Listo inventarin tënd në Cardeals.al dhe arrij mijëra blerës.',bizFeat1:'Regjistrim falas',bizFeat2:'Listo të reja & të përdorura',bizFeat3:'Panel shitjesh live',bizFeat4:'Komision vetëm kur shet',bizCtaBtn:'REGJISTRO BIZNESIN TËND →',contactTitle1:'📬 Na',contactTitle2:'Kontaktoni',contactSub:'Pyetje? Probleme? Jemi këtu për ju.',contactNameLabel:'Emri Juaj',contactEmailLabel:'Email',contactMsgLabel:'Mesazhi',contactSendBtn:'DËRGO MESAZHIN',footerTagline:'Mënyra e zgjuar për të gjetur dhe blerë pjesë këmbimi në Shqipëri.',footerAbout:'Rreth Nesh',footerHow:'Si Funksionon',footerSell:'Shit Me Ne',footerWorkshop:'🔧 Pika Shërbimi',footerContact:'Kontakt',footerPrivacy:'Politika e Privatësisë',navBrowse:'Shfleto',navHow:'Si Funksionon',navWorkshop:'🔧 Pika Shërbimi',navContact:'Kontakt',navSell:'Shit Këtu',account:'Llogaria',register:'✨ Regjistrohu',myOrders:'📦 Porositë e Mia',profile:'⚙️ Profili',logout:'🚪 Dil',condNewBadge:'E RE',condUsedBadge:'E PËRDORUR',stockOut:'Jashtë stokut',stockLow:'copë',stockOk:'copë',priceLabel:'Çmimi shitësit',priceDiscountLabel:'Çmimi',feeLabel:'+ Tarifa (8%)',totalLabel:'Totali',buyBtn:'BLI TANI —',buyBtnOut:'Jashtë stokut',modalQty:'Sasia:',modalBasePrice:'Çmimi shitësit',modalFee:'Tarifa Cardeals (8%)',modalTotal:'Totali',payOnline:'💳 Paguo Online',payPickup:'🤝 Paguo në Marrje',onlineFill:'Plotëso të dhënat.',onlineName:'Emri i Plotë *',onlinePhone:'Telefon *',onlineEmail:'Email *',onlineBtn:'💳 VAZHDO ME PAGESËN',pickupFill:'Rezervo falas.',pickupName:'Emri i Plotë *',pickupPhone:'Telefon *',pickupBtn:'🤝 REZERVO FALAS',modalStockOut:'⚠️ Jashtë stokut',modalStockLow:'⚠️ Mbeten vetëm',modalStockLow2:'copë!',modalStockOk:'✓',modalStockOk2:'copë në stok',authLogin:'🔑 Hyr',authRegister:'✨ Regjistrohu',authName:'Emri i Plotë *',authEmail:'Email *',authPhone:'Telefon *',authPass:'Fjalëkalimi *',authLoginBtn:'HYR',authRegBtn:'REGJISTROHU',toastLoginOk:'✅ Mirë se vini!',toastRegOk:'✅ Llogaria u krijua!',toastOrderOk:'✅ Porosia u regjistrua!',toastReserveOk:'✅ Rezervuar!',toastContactOk:'✅ Mesazhi u dërgua!',toastFillFields:'⚠️ Plotëso të gjitha fushat!',toastPassShort:'⚠️ Fjalëkalimi duhet 6+ karaktere',toastStockLow:'⚠️ Stok i pamjaftueshëm',toastFillNamePhone:'⚠️ Plotëso emrin dhe telefonin',toastError:'❌ Gabim',toastProfileSaved:'✅ Profili u ruajt!',toastCartAdded:'✅ Shtuar në shportë!',toastCartOrder:'porosi u regjistruan!',myOrdersTitle:'📦 Porositë e Mia',myOrdersEmpty:'📦 Nuk keni porosi.',myOrdersColNum:'#',myOrdersColPart:'Pjesa',myOrdersColSeller:'Shitësi',myOrdersColPrice:'Çmimi',myOrdersColStatus:'Statusi',myOrdersColDate:'Data',orderStatusSold:'Shitur',orderStatusPending:'Në Pritje',orderStatusCancelled:'Anuluar',profileTitle:'⚙️ Profili',profileName:'Emri i Plotë',profilePhone:'Telefon',profileEmail:'Email',profileSave:'💾 RUAJ NDRYSHIMET',promoBadge:'PROMOVUAR',daysLeft:'ditë',hoursLeft:'orë',vinLabel:'🔢 VIN:',stockLabel:'📦 Stoku:',fitsLabel:'🚗',sellerLabel:'🏪',cartTitle:'🛒 Shporta',cartEmpty:'🛒 Shporta është bosh',cartTotal:'Totali',cartCheckout:'💳 BLI TË GJITHA',checkoutTitle:'📦 Përfundo Porosinë',checkoutName:'Emri i Plotë *',checkoutPhone:'Telefon *',checkoutEmail:'Email *',checkoutBtn:'💳 KONFIRMO POROSINË',cartAddBtn:'🛒 Shto në Shportë',itemsPerPageLabel:'për faqe',pagePrev:'‹ Mbrapa',pageNext:'Përpara ›',pageFirst:'« Parë',pageLast:'Fundit »',},
@@ -338,7 +347,7 @@ function buyerRegister(){const n=g('regName').value.trim(),e=g('regEmail').value
 function buyerLogout(){auth.signOut();g('userDropdown').classList.remove('open');}
 function prefillBuyerFields(){if(!currentBuyer)return;db.collection('buyers').doc(currentBuyer.uid).get().then(doc=>{if(doc.exists){const d=doc.data();if(d.name){g('onlineName').value=d.name;g('pickupName').value=d.name;}if(d.phone){g('onlinePhone').value=d.phone;g('pickupPhone').value=d.phone;}if(d.email){g('onlineEmail').value=d.email;}if(d.address){g('deliveryAddress').value=d.address;}if(d.city){g('deliveryCity').value=d.city;}}});}
 
-function showMyOrders(){if(!currentBuyer){openRegisterModal();return;}g('userDropdown').classList.remove('open');var c=g('myOrdersContent');c.innerHTML='<div style="text-align:center;padding:2rem;color:var(--chrome);"><div class="spinner"></div></div>';g('myOrdersModal').classList.add('open');db.collection("orders").where("buyerUid","==",currentBuyer.uid).orderBy("createdAt","desc").get().then(snap=>{if(snap.empty){c.innerHTML='<div style="text-align:center;padding:3rem;color:var(--chrome);">'+l('myOrdersEmpty')+'</div>';return;}var h='<table class="myorders-table"><thead><tr><th>'+l('myOrdersColNum')+'</th><th>'+l('myOrdersColPart')+'</th><th>'+l('myOrdersColSeller')+'</th><th>'+l('myOrdersColPrice')+'</th><th>'+l('myOrdersColStatus')+'</th><th>'+l('myOrdersColDate')+'</th></tr></thead><tbody>';snap.docs.forEach(d=>{var o=d.data();o.id=d.id;var sc=o.status==='sold'?'#65a30d':o.status==='pending'?'#d97706':'#dc2626';var st=o.status==='sold'?l('orderStatusSold'):o.status==='pending'?l('orderStatusPending'):l('orderStatusCancelled');var date=o.createdAt?.toDate?o.createdAt.toDate().toLocaleDateString('sq-AL'):'—';h+='<tr><td style="color:var(--red);font-weight:800;">#'+o.id.slice(-6).toUpperCase()+'</td><td>'+(o.partEmoji||'🔩')+' '+o.partName+'</td><td>'+o.sellerName+'</td><td style="font-weight:800;">'+(o.totalPrice||0).toLocaleString()+' L</td><td style="color:'+sc+';font-weight:700;">'+st+'</td><td style="font-size:0.8rem;color:var(--chrome);">'+date+'</td></tr>';});h+='</tbody><table>';c.innerHTML=h;}).catch(err=>{c.innerHTML='<div style="text-align:center;padding:2rem;color:#dc2626;">Gabim: '+err.message+'</div>';});}
+function showMyOrders(){if(!currentBuyer){openRegisterModal();return;}g('userDropdown').classList.remove('open');var c=g('myOrdersContent');c.innerHTML='<div style="text-align:center;padding:2rem;color:var(--chrome);"><div class="spinner"></div></div>';g('myOrdersModal').classList.add('open');db.collection("orders").where("buyerUid","==",currentBuyer.uid).orderBy("createdAt","desc").get().then(snap=>{if(snap.empty){c.innerHTML='<div style="text-align:center;padding:3rem;color:var(--chrome);">'+l('myOrdersEmpty')+'</div>';return;}var h='<table class="myorders-table"><thead><tr><th>'+l('myOrdersColNum')+'</th><th>'+l('myOrdersColPart')+'</th><th>'+l('myOrdersColSeller')+'</th><th>'+l('myOrdersColPrice')+'</th><th>'+l('myOrdersColStatus')+'</th><th>'+l('myOrdersColDate')+'</th></tr></thead><tbody>';snap.docs.forEach(d=>{var o=d.data();o.id=d.id;var sc=o.status==='sold'?'#65a30d':o.status==='pending'?'#d97706':'#dc2626';var st=o.status==='sold'?l('orderStatusSold'):o.status==='pending'?l('orderStatusPending'):l('orderStatusCancelled');var date=o.createdAt?.toDate?o.createdAt.toDate().toLocaleDateString('sq-AL'):'—';h+='<tr><td style="color:var(--red);font-weight:800;">#'+o.id.slice(-6).toUpperCase()+'</td><td>'+(o.partEmoji||'🔩')+' '+o.partName+'</td><td>'+o.sellerName+'</td><td style="font-weight:800;">'+(o.totalPrice||0).toLocaleString()+' L</td><td style="color:'+sc+';font-weight:700;">'+st+'</td><td style="font-size:0.8rem;color:var(--chrome);">'+date+'</td></tr>';});h+='</tbody></table>';c.innerHTML=h;}).catch(err=>{c.innerHTML='<div style="text-align:center;padding:2rem;color:#dc2626;">Gabim: '+err.message+'</div>';});}
 function openBuyerProfile(){if(!currentBuyer){openRegisterModal();return;}g('userDropdown').classList.remove('open');db.collection('buyers').doc(currentBuyer.uid).get().then(doc=>{if(doc.exists){var d=doc.data();g('profileName').value=d.name||'';g('profilePhone').value=d.phone||'';g('profileEmail').value=d.email||'';}g('profileModal').classList.add('open');});}
 window.saveProfile=function(){var n=g('profileName').value.trim(),p=g('profilePhone').value.trim();if(!n||!p){showToast(l('toastFillNamePhone'),true);return;}db.collection('buyers').doc(currentBuyer.uid).update({name:n,phone:p}).then(()=>{showToast(l('toastProfileSaved'));closeModal('profileModal');}).catch(err=>{showToast(l('toastError'),true);});};
 
@@ -448,6 +457,7 @@ function selectPay(m){g('btnOnline').classList.toggle('active',m==='online');g('
 function confirmOnline(){const n=g('onlineName').value.trim(),p=g('onlinePhone').value.trim(),e=g('onlineEmail').value.trim(),qty=parseInt(g('mQty')?.value)||1;if(!n||!p||!e){showToast(l('toastFillFields'),true);return;}if(!selectedPart)return;if(qty>(selectedPart.stock||0)){showToast(l('toastStockLow'),true);return;}const btn=g('btnOnlinePay');btn.textContent='Duke procesuar...';btn.disabled=true;const discount=selectedPart.discount||0,dp=discount>0?Math.round((selectedPart.basePrice||0)*(1-discount/100)):(selectedPart.basePrice||0);const fee=Math.round(dp*PLATFORM_FEE),total=(dp+fee)*qty,partName=typeof selectedPart.name==='object'?selectedPart.name.sq||selectedPart.name.en:selectedPart.name;pendingCheckoutData={partId:selectedPart.id,partName,partEmoji:'🔩',buyerName:n,buyerPhone:p,buyerEmail:e,sellerUid:selectedPart.uid||'',sellerName:selectedPart.sellerName||'',sellerCity:selectedPart.sellerCity||'',basePrice:dp,quantity:qty,platformFee:fee*qty,totalPrice:total,payMethod:'online',status:'pending'};closeModal('buyModal');g('addressModal').classList.add('open');btn.textContent=l('onlineBtn');btn.disabled=false;}
 function confirmPickup(){const n=g('pickupName').value.trim(),p=g('pickupPhone').value.trim(),qty=parseInt(g('mQty')?.value)||1;if(!n||!p){showToast(l('toastFillNamePhone'),true);return;}if(!selectedPart)return;if(qty>(selectedPart.stock||0)){showToast(l('toastStockLow'),true);return;}const btn=g('btnReserve');btn.textContent='Duke rezervuar...';btn.disabled=true;const discount=selectedPart.discount||0,dp=discount>0?Math.round((selectedPart.basePrice||0)*(1-discount/100)):(selectedPart.basePrice||0);const fee=Math.round(dp*PLATFORM_FEE),total=(dp+fee)*qty,partName=typeof selectedPart.name==='object'?selectedPart.name.sq||selectedPart.name.en:selectedPart.name;pendingCheckoutData={partId:selectedPart.id,partName,partEmoji:'🔩',buyerName:n,buyerPhone:p,buyerEmail:'',sellerUid:selectedPart.uid||'',sellerName:selectedPart.sellerName||'',sellerCity:selectedPart.sellerCity||'',basePrice:dp,quantity:qty,platformFee:fee*qty,totalPrice:total,payMethod:'pickup',status:'pending'};closeModal('buyModal');g('addressModal').classList.add('open');btn.textContent=l('pickupBtn');btn.disabled=false;}
 
+// FIXED confirmAddress with shipping fee
 function confirmAddress(){
   var address = document.getElementById('deliveryAddress').value.trim();
   var city = document.getElementById('deliveryCity').value.trim();
@@ -473,12 +483,19 @@ function confirmAddress(){
   var currentUser = auth.currentUser;
   
   if(pendingCheckoutData.isCartOrder){
+    // Calculate subtotal for shipping
+    var subtotal = pendingCheckoutData.cartTotal;
+    var shippingFee = calculateShipping(subtotal, 'online');
+    var grandTotal = subtotal + shippingFee;
+    
     var promises = [];
     for(var i = 0; i < pendingCheckoutData.cartItems.length; i++){
       var item = pendingCheckoutData.cartItems[i];
       var dp = item.discount > 0 ? Math.round((item.basePrice || 0) * (1 - (item.discount || 0) / 100)) : (item.basePrice || 0);
       var fee = Math.round(dp * 0.08);
       var total = (dp + fee) * (item.qty || 1);
+      // Distribute shipping fee proportionally
+      var itemShipping = (total / grandTotal) * shippingFee;
       
       var orderData = {
         deliveryAddress: address,
@@ -499,8 +516,8 @@ function confirmAddress(){
         quantity: item.qty || 1,
         platformFee: fee * (item.qty || 1),
         totalPrice: total,
-        payMethod: 'online',
-        shippingFee: 0
+        shippingFee: Math.round(itemShipping),
+        payMethod: 'online'
       };
       
       if(currentUser){
@@ -542,10 +559,9 @@ function confirmAddress(){
       });
       
   } else {
-    var discount = pendingCheckoutData.discount || 0;
-    var dp = discount > 0 ? Math.round((pendingCheckoutData.basePrice || 0) * (1 - discount / 100)) : (pendingCheckoutData.basePrice || 0);
-    var fee = Math.round(dp * 0.08);
-    var total = (dp + fee) * (pendingCheckoutData.quantity || 1);
+    var total = (pendingCheckoutData.basePrice + pendingCheckoutData.platformFee) * pendingCheckoutData.quantity;
+    var shippingFee = calculateShipping(total, pendingCheckoutData.payMethod);
+    var finalTotal = total + shippingFee;
     
     var finalOrderData = {
       deliveryAddress: address,
@@ -562,12 +578,12 @@ function confirmAddress(){
       sellerUid: pendingCheckoutData.sellerUid,
       sellerName: pendingCheckoutData.sellerName,
       sellerCity: pendingCheckoutData.sellerCity,
-      basePrice: dp,
+      basePrice: pendingCheckoutData.basePrice,
       quantity: pendingCheckoutData.quantity || 1,
-      platformFee: fee * (pendingCheckoutData.quantity || 1),
+      platformFee: pendingCheckoutData.platformFee,
       totalPrice: total,
-      payMethod: pendingCheckoutData.payMethod || 'online',
-      shippingFee: 0
+      shippingFee: shippingFee,
+      payMethod: pendingCheckoutData.payMethod
     };
     
     if(currentUser){
@@ -610,6 +626,66 @@ function confirmAddress(){
   }
 }
 
+// FIXED renderCart with shipping display
+function renderCart(){
+  var container = document.getElementById('cartContent');
+  var checkoutSection = document.getElementById('cartCheckoutSection');
+  if(!cart.length){
+    container.innerHTML = '<div style="text-align:center;padding:3rem;color:var(--chrome);">' + l('cartEmpty') + '</div>';
+    checkoutSection.style.display = 'none';
+    return;
+  }
+  
+  var subtotal = 0;
+  var html = '';
+  
+  cart.forEach(function(item, index){
+    var dp = item.discount > 0 ? Math.round((item.basePrice || 0) * (1 - (item.discount || 0) / 100)) : (item.basePrice || 0);
+    var fee = Math.round(dp * PLATFORM_FEE);
+    var fin = dp + fee;
+    var itemTotal = fin * (item.qty || 1);
+    subtotal += itemTotal;
+    
+    html += '<div class="cart-item">';
+    html += '<div class="cart-item-img">' + (item.image ? '<img src="' + item.image + '" />' : '🔩') + '</div>';
+    html += '<div class="cart-item-info">';
+    html += '<div class="cart-item-name">' + item.partName + '</div>';
+    html += '<div class="cart-item-seller">🏪 ' + item.sellerName + ' · ' + item.sellerCity + '</div>';
+    html += '<div class="cart-item-price">' + itemTotal.toLocaleString() + ' L</div>';
+    html += '</div>';
+    html += '<div class="cart-item-qty">';
+    html += '<button onclick="updateCartQty(' + index + ',-1)">−</button>';
+    html += '<span>' + item.qty + '</span>';
+    html += '<button onclick="updateCartQty(' + index + ',1)">+</button>';
+    html += '</div>';
+    html += '<button class="cart-item-remove" onclick="removeFromCart(' + index + ')">✕</button>';
+    html += '</div>';
+  });
+  
+  container.innerHTML = html;
+  
+  // Calculate shipping
+  var shipping = calculateShipping(subtotal, 'online');
+  var grandTotal = subtotal + shipping;
+  
+  document.getElementById('cartSubtotal').textContent = subtotal.toLocaleString() + ' L';
+  
+  // Show shipping info with threshold message
+  if(shipping > 0){
+    var remainingForFree = FREE_SHIPPING_THRESHOLD_LEK - subtotal;
+    document.getElementById('cartShipping').innerHTML = shipping.toLocaleString() + ' L <span style="font-size:0.7rem;color:#f59e0b;">(Shto ' + remainingForFree.toLocaleString() + ' L për transport falas)</span>';
+  } else {
+    if(subtotal >= FREE_SHIPPING_THRESHOLD_LEK){
+      document.getElementById('cartShipping').innerHTML = '<span style="color:#22c55e;">FALAS 🎉 (Mbi ' + FREE_SHIPPING_THRESHOLD_LEK.toLocaleString() + ' L)</span>';
+    } else {
+      document.getElementById('cartShipping').innerHTML = '0 L';
+    }
+  }
+  
+  document.getElementById('cartGrandTotal').textContent = grandTotal.toLocaleString() + ' L';
+  checkoutSection.style.display = 'block';
+}
+
 function trackWorkshopCashback(total){if(!currentBuyer)return;db.collection("workshops").doc(currentBuyer.uid).get().then(function(doc){if(doc.exists){db.collection("workshops").doc(currentBuyer.uid).update({totalPurchases:firebase.firestore.FieldValue.increment(total),currentPeriodTotal:firebase.firestore.FieldValue.increment(total)}).catch(function(e){});}}).catch(function(e){});}
 
 function showWhatsAppContact(order){if(!order||!order.sellerUid)return;var partName=order.partName||'';var sellerName=order.sellerName||'';var h='<div style="text-align:center;padding:1.5rem;"><div style="font-size:3rem;margin-bottom:1rem;">✅</div><h3>Porosia u regjistrua!</h3><p style="color:var(--chrome);">Pjesa: '+partName+'</p><p style="color:var(--chrome);">Shitesi: '+sellerName+'</p></div>';g('whatsappContactInfo').innerHTML=h;g('whatsappModal').classList.add('open');if(order.sellerUid){db.collection("businesses").doc(order.sellerUid).get().then(function(doc){if(doc.exists){var phone=(doc.data().whatsappPhone||doc.data().phone||'').replace(/\D/g,'');if(phone){var msg=encodeURIComponent("Pershendetje! Bera nje porosi ne Cardeals.al per pjesen \""+partName+"\". Mund te koordinohemi per detajet?");g('whatsappContactInfo').innerHTML='<div style="text-align:center;padding:1.5rem;"><div style="font-size:3rem;margin-bottom:1rem;">✅</div><h3>Porosia u regjistrua!</h3><p style="color:var(--chrome);">Kontakto shitesin ne WhatsApp:</p><a href="https://wa.me/'+phone+'?text='+msg+'" target="_blank" style="display:inline-block;background:#25D366;color:white;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:800;margin-top:0.5rem;">💬 WhatsApp</a><br><small style="color:var(--chrome);">'+phone+'</small></div>';}}}).catch(function(){});}}
@@ -624,8 +700,28 @@ function addToCart(partId){event.stopPropagation();var part=allParts.find(functi
 function removeFromCart(index){cart.splice(index,1);saveCart();renderCart();}
 function updateCartQty(index,delta){cart[index].qty=Math.max(1,(cart[index].qty||1)+delta);saveCart();renderCart();}
 function openCart(){renderCart();document.getElementById('cartModal').classList.add('open');}
-function renderCart(){var container=document.getElementById('cartContent');var checkoutSection=document.getElementById('cartCheckoutSection');if(!cart.length){container.innerHTML='<div style="text-align:center;padding:3rem;color:var(--chrome);">'+l('cartEmpty')+'</div>';checkoutSection.style.display='none';return;}var subtotal=0;var html='';cart.forEach(function(item,index){var dp=item.discount>0?Math.round((item.basePrice||0)*(1-(item.discount||0)/100)):(item.basePrice||0);var fee=Math.round(dp*PLATFORM_FEE);var fin=dp+fee;var itemTotal=fin*(item.qty||1);subtotal+=itemTotal;html+='<div class="cart-item"><div class="cart-item-img">'+(item.image?'<img src="'+item.image+'" />':'🔩')+'</div><div class="cart-item-info"><div class="cart-item-name">'+item.partName+'</div><div class="cart-item-seller">🏪 '+item.sellerName+' · '+item.sellerCity+'</div><div class="cart-item-price">'+itemTotal.toLocaleString()+' L</div></div><div class="cart-item-qty"><button onclick="updateCartQty('+index+',-1)">−</button><span>'+item.qty+'</span><button onclick="updateCartQty('+index+',1)">+</button></div><button class="cart-item-remove" onclick="removeFromCart('+index+')">✕</button></div>';});container.innerHTML=html;var shipping=calculateShipping(subtotal,'online');var grandTotal=subtotal+shipping;document.getElementById('cartSubtotal').textContent=subtotal.toLocaleString()+' L';document.getElementById('cartShipping').innerHTML=shipping>0?shipping.toLocaleString()+' L':'<span style="color:#22c55e;">FALAS</span>';document.getElementById('cartGrandTotal').textContent=grandTotal.toLocaleString()+' L';checkoutSection.style.display='block';}
-function proceedToAddress(){if(!cart.length)return;closeModal('cartModal');prefillBuyerFields();pendingCheckoutData={cartItems:cart.slice(),cartTotal:cart.reduce(function(s,i){var dp=i.discount>0?Math.round((i.basePrice||0)*(1-(i.discount||0)/100)):(i.basePrice||0);var fee=Math.round(dp*0.08);return s+((dp+fee)*(i.qty||1));},0),isCartOrder:true};g('addressModal').classList.add('open');g('confirmAddressBtn').innerHTML='📦 KONFIRMO POROSINË ('+cart.length+' pjesë)';}
+
+function proceedToAddress(){
+  if(!cart.length) return;
+  closeModal('cartModal');
+  prefillBuyerFields();
+  
+  var subtotal = 0;
+  for(var i = 0; i < cart.length; i++){
+    var item = cart[i];
+    var dp = item.discount > 0 ? Math.round((item.basePrice || 0) * (1 - (item.discount || 0) / 100)) : (item.basePrice || 0);
+    var fee = Math.round(dp * 0.08);
+    subtotal += (dp + fee) * (item.qty || 1);
+  }
+  
+  pendingCheckoutData = {
+    cartItems: JSON.parse(JSON.stringify(cart)),
+    cartTotal: subtotal,
+    isCartOrder: true
+  };
+  g('addressModal').classList.add('open');
+  g('confirmAddressBtn').innerHTML = '📦 KONFIRMO POROSINË (' + cart.length + ' pjesë)';
+}
 
 function setLang(lg){
   currentLang=lg;document.querySelectorAll('.lang-btn').forEach(b=>b.classList.toggle('active',(lg==='sq'&&b.textContent.includes('SQ'))||(lg==='en'&&b.textContent.includes('EN'))));
