@@ -3,416 +3,339 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Cardeals.al — Paneli i Biznesit</title>
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<title>Cardeals.al — Service Point Panel</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-<script>
-firebase.initializeApp({apiKey:"AIzaSyAU8hVTqury1MbC0Sx-CXGY1YQrr5VJhyE",authDomain:"cardeals-al.firebaseapp.com",projectId:"cardeals-al",storageBucket:"cardeals-al.firebasestorage.app",messagingSenderId:"839953227675",appId:"1:839953227675:web:6fb6aa9350bd3bd507cb3e"});
-const auth=firebase.auth(),db=firebase.firestore();
-const PLANS={basic:{name:'Basic',fee:0.08,monthly:0,color:'#8892a4',icon:'⚙️'},silver:{name:'Silver',fee:0.06,monthly:50,color:'#94a3b8',icon:'🥈'},gold:{name:'Gold',fee:0.04,monthly:100,color:'#f5c518',icon:'🥇'}};
-const PLATFORM_FEE=0.08;
-const PROMO_TIERS={basic:{name:'Basic',icon:'🥉',price:3,durationDays:7,refreshHours:null,color:'#8892a4',desc:'Promovohet një herë — qëndron në krye për 7 ditë'},standard:{name:'Standard',icon:'🥈',price:5,durationDays:3,refreshHours:6,color:'#94a3b8',desc:'Ri-boostohet çdo 6 orë për 3 ditë'},premium:{name:'Premium',icon:'🥇',price:7,durationDays:3,refreshHours:2,color:'#f5c518',desc:'Ri-boostohet çdo 2 orë për 3 ditë'},ultimate:{name:'Ultimate',icon:'💎',price:12,durationDays:2,refreshHours:1,color:'#e2e8f0',desc:'Shikshmëri maksimale — ri-boostohet çdo orë për 2 ditë'}};
-
-const L={sq:{pageTitle:'Cardeals.al — Paneli i Biznesit',loginTitle:'HYRJA NË LLOGARI',registerTitle:'REGJISTRO BIZNESIN',emailLabel:'EMAIL',passwordLabel:'FJALËKALIMI',confirmPassLabel:'KONFIRMO *',loginBtn:'HYRJA →',registerBtn:'KRIJO LLOGARINË →',bizNameLabel:'EMRI I BIZNESIT *',phoneLabel:'TELEFON *',cityLabel:'QYTETI',loginLoading:'Duke hyrë...',registerLoading:'Duke u regjistruar...',sidebarSub:'PANELI I BIZNESIT',navDash:'Pasqyra',navParts:'Pjesët e Mia',navAdd:'Shto Pjesë',navBulk:'Importo me Shumicë',navOrders:'Porositë',navEarn:'Fitimet',navSet:'Cilësimet',logout:'Dil nga Llogaria',pageDashboard:'PASQYRA',pageParts:'PJESËT E MIA',pageAddpart:'SHTO PJESË',pageBulkimport:'IMPORTO ME SHUMICË',pageOrders:'POROSITË',pageEarnings:'FITIMET',pageSettings:'CILËSIMET',secOverview:'KRYEFAQJA',secCatalog:'KATALOG',secSales:'SHITJE',secAccount:'LLOGARIA',statEarn:'Fitimet Tuaja',statSales:'Shitje Totale',statViews:'Shikime',statParts:'Pjesë Aktive',statLive:'↑ Live',chartSales:'SHITJET — 7 DITËT E FUNDIT',chartCategory:'SIPAS KATEGORISË',chartSalesLabel:'Shitje',chartDonut:'SHITJE',recentOrdersTitle:'POROSITË E FUNDIT',viewAll:'Shiko Të Gjitha',noParts:'📦 Nuk keni pjesë të listuara.',addPartBtn:'+ Shto Pjesë',addPartTitle:'SHTO PJESË TË RE',editPartTitle:'NDRYSHO PJESËN',partNameLabel:'Emri i Pjesës *',categoryLabel:'Kategoria *',conditionLabel:'Gjendja *',makeLabel:'Marka e Makinës *',modelLabel:'Modeli *',vinLabel:'Numri i Shasisë (VIN)',vinPlaceholder:'Opcionale: VIN 17 karaktere',selectMake:'Zgjidh Markën',selectModel:'Zgjidh Modelin',priceLabel:'Çmimi Juaj (Lekë) *',stockLabel:'Sasia në Stok',descLabel:'Përshkrimi',descPlaceholder:'Gjendja, marka, OEM apo aftermarket...',promoLabel:'🏷️ Promocionet',discountLabel:'🟢 Zbritje %',featuredLabel:'⭐ E veçuar (max 3)',specialLabel:'🔥 Ofertë Speciale',shippingLabel:'🚚 Transport Falas',limitedLabel:'⚡ Stok i Limituar',bestLabel:'🏆 Më i Shituri',photosLabel:'📸 Fotot e Pjesës',photoUpload:'📷',photoClick:'Kliko këtu',photoBtn:'📸 ZGJIDH FOTOT',noPhoto:'📷 Asnjë foto',feeCalcTitle:'LLOGARITËSI I ÇMIMIT',feeBase:'Çmimi Juaj',feeFee:'Tarifa (8%)',feeTotal:'Çmimi Final',submitBtn:'📦 PUBLIKO PJESËN',updateBtn:'💾 RUAJ NDRYSHIMET',cancelBtn:'Anulo',bulkTitle:'📦 IMPORTO PJESË ME SHUMICË',bulkDesc:'Formati: Emri | Kategoria | Gjendja | Çmimi | Stoku | Marka | Modeli | Përshkrimi | VIN',bulkPlaceholder:'Set Frenash Para | brakes | new | 5000 | 10 | Volkswagen | Golf | Frenat origjinale | WVGZZZ1KZAW123456',bulkPreviewBtn:'🔍 SHIKO PARAPAMJEN',bulkImportBtn:'📦 IMPORTO TË GJITHA',bulkCount:'pjesë',bulkPreviewTitle:'📋 PARAPAMJA',bulkEmpty:'Asnjë pjesë',orderTimelineAll:'Të Gjitha',orderTimelinePending:'Në Pritje',orderTimelineSold:'Shitur',orderTimelinePickup:'Marrje',allOrdersTitle:'TË GJITHA POROSITË',orderConfirmBtn:'✅ Konfirmo',orderCancelBtn:'✕ Anulo',orderDetailBtn:'👁️ Detaje',orderDetailTitle:'📦 Detajet e Porosisë',orderTotalPrice:'Çmimi Total',orderYourEarn:'Fitimi yt',orderDetailPart:'Pjesa',orderDetailBuyer:'Blerësi',orderDetailPhone:'Telefon',orderDetailAddress:'Adresa',orderShippingFee:'Transporti',noOrders:'Ende nuk keni porosi.',earnNetTotal:'Fitim Neto Total',earnThisMonth:'Ky Muaj (Neto)',earnTotalSales:'Shitje të Konfirmuara',earnFeesTotal:'Tarifa Cardeals (8%)',earnFilterAll:'Të Gjitha',earnFilterMonth:'Ky Muaj',earnFilterOnline:'💳 Online',earnFilterPickup:'🤝 Marrje',earnSalesList:'📋 LISTA E SHITJEVE',earnMonthlyTitle:'📅 PËRMBLEDHJA MUJORE',noEarnings:'Ende nuk keni shitje.',settingsProfile:'PROFILI I BIZNESIT',setBizName:'Emri i Biznesit',setPhone:'Telefon',setWhatsappPhone:'WhatsApp',setEmail:'Email',setCity:'Qyteti',saveSettingsBtn:'RUAJ NDRYSHIMET',settingsPlanTitle:'⭐ PLANI JUAJ & UPGRADET',planActive:'✓ Aktiv',planExpired:'⚠️ Skaduar',planDaysLeft:'ditë',planUpgrade:'UPGRADE →',planCurrent:'PLAN STANDARD · 8%',planFree:'Falas',planPerMonth:'/muaj',planCommission:'komision',promoteTitle:'🚀 Promovo Pjesën',promotePrefix:'Pjesa:',promoteWait:'⚠️ Pasi të aprovohet nga administratori, promocioni aktivizohet menjëherë.',promoteBtn:'🚀 PROMOVO',promoteBtnPrefix:'🚀 PROMOVO PËR €',promoteSending:'Duke dërguar...',promoteCancel:'Anulo',stockTitle:'📦 Përditëso Stokun',stockCurrent:'Stoku Aktual',stockAdd:'Shto Copë (+)',stockNew:'Stoku i Ri',stockUpdateBtn:'✅ PËRDITËSO',deleteTitle:'FSHI PJESËN?',deleteDesc:'Kjo veprim nuk mund të zhbëhet.',deleteConfirm:'PO, FSHI',deleteCancel:'Anulo',backMarketplace:'🌐 Cardeals.al ↗',backPrivacy:'📜 Politika e Privatësisë',toastFillFields:'⚠️ Plotëso fushat e detyrueshme!',toastPartPublished:'✅ Pjesa u publikua!',toastPartUpdated:'✅ Pjesa u përditësua!',toastPromoSent:'✅ Kërkesa u dërgua!',toastStatusChanged:'✅ Statusi u ndryshua!',toastStockUpdated:'✅ Stoku u përditësua!',toastPartDeleted:'🗑️ Pjesa u fshi.',toastSettingsSaved:'✅ Ndryshimet u ruajtën!',toastPlanExpired:'⚠️ Plani juaj ka skaduar.',toastAccountCreated:'🎉 Llogaria u krijua!',toastSelectTier:'⚠️ Zgjidh një plan promocioni!',toastError:'❌ Gabim',toastPassMismatch:'⚠️ Fjalëkalimet nuk përputhen',toastOrderSold:'✅ Shitur! Stoku i mbetur: ',toastOrderSoldOut:'✅ Shitur! Stoku mbaroi.',toastOrderCancelled:'🚫 Porosia u anulua.',toastPhotoSize:'⚠️ Foto mbi 200KB — do të ruhet por mund të jetë e ngadaltë.',active:'Aktiv',inactive:'Joaktiv',new_:'E Re',used:'E Përdorur',sold:'Shitur',pending:'Në Pritje',cancelled:'Anuluar',payOnline:'💳 Online',payPickup:'🤝 Marrje',thPart:'Pjesa',thCategory:'Kategoria',thCondition:'Gjendja',thBasePrice:'Çmimi Bazë',thFinalPrice:'Çmimi Final',thStock:'Stoku',thStatus:'Statusi',thActions:'Veprime',thOrderNum:'#',thBuyer:'Blerësi',thPrice:'Çmimi',thPayMethod:'Pagesa',thDate:'Data',thGross:'Vlera',thFee:'Tarifa',thNet:'Neto',thMonth:'Muaji',thNr:'Nr.',thPhone:'Tel',catBrakes:'Frena',catEngine:'Motor',catElectrical:'Elektrik',catSuspension:'Amortizatorë',catBody:'Karroceri',catAC:'Klimë',},
-en:{pageTitle:'Cardeals.al — Business Dashboard',loginTitle:'LOGIN TO ACCOUNT',registerTitle:'REGISTER BUSINESS',emailLabel:'EMAIL',passwordLabel:'PASSWORD',confirmPassLabel:'CONFIRM *',loginBtn:'LOGIN →',registerBtn:'CREATE ACCOUNT →',bizNameLabel:'BUSINESS NAME *',phoneLabel:'PHONE *',cityLabel:'CITY',loginLoading:'Logging in...',registerLoading:'Registering...',sidebarSub:'BUSINESS DASHBOARD',navDash:'Overview',navParts:'My Parts',navAdd:'Add Part',navBulk:'Bulk Import',navOrders:'Orders',navEarn:'Earnings',navSet:'Settings',logout:'Sign Out',pageDashboard:'OVERVIEW',pageParts:'MY PARTS',pageAddpart:'ADD PART',pageBulkimport:'BULK IMPORT',pageOrders:'ORDERS',pageEarnings:'EARNINGS',pageSettings:'SETTINGS',secOverview:'OVERVIEW',secCatalog:'CATALOG',secSales:'SALES',secAccount:'ACCOUNT',statEarn:'Your Earnings',statSales:'Total Sales',statViews:'Views',statParts:'Active Parts',statLive:'↑ Live',chartSales:'SALES — LAST 7 DAYS',chartCategory:'BY CATEGORY',chartSalesLabel:'Sales',chartDonut:'SALES',recentOrdersTitle:'RECENT ORDERS',viewAll:'View All',noParts:'📦 You have no listed parts.',addPartBtn:'+ Add Part',addPartTitle:'ADD NEW PART',editPartTitle:'EDIT PART',partNameLabel:'Part Name *',categoryLabel:'Category *',conditionLabel:'Condition *',makeLabel:'Car Brand *',modelLabel:'Model *',vinLabel:'VIN Number',vinPlaceholder:'Optional: 17-char VIN',selectMake:'Select Brand',selectModel:'Select Model',priceLabel:'Your Price (ALL) *',stockLabel:'Stock Quantity',descLabel:'Description',descPlaceholder:'Condition, brand, OEM or aftermarket...',promoLabel:'🏷️ Promotions',discountLabel:'🟢 Discount %',featuredLabel:'⭐ Featured (max 3)',specialLabel:'🔥 Special Offer',shippingLabel:'🚚 Free Shipping',limitedLabel:'⚡ Limited Stock',bestLabel:'🏆 Best Seller',photosLabel:'📸 Part Photos',photoUpload:'📷',photoClick:'Click here',photoBtn:'📸 SELECT PHOTOS',noPhoto:'📷 No photos',feeCalcTitle:'PRICE CALCULATOR',feeBase:'Your Price',feeFee:'Fee (8%)',feeTotal:'Final Price',submitBtn:'📦 PUBLISH PART',updateBtn:'💾 SAVE CHANGES',cancelBtn:'Cancel',bulkTitle:'📦 BULK IMPORT PARTS',bulkDesc:'Format: Name | Category | Condition | Price | Stock | Brand | Model | Description | VIN',bulkPlaceholder:'Front Brake Set | brakes | new | 5000 | 10 | Volkswagen | Golf | Original brakes | WVGZZZ1KZAW123456',bulkPreviewBtn:'🔍 PREVIEW',bulkImportBtn:'📦 IMPORT ALL',bulkCount:'parts',bulkPreviewTitle:'📋 PREVIEW',bulkEmpty:'No parts',orderTimelineAll:'All',orderTimelinePending:'Pending',orderTimelineSold:'Sold',orderTimelinePickup:'Pickup',allOrdersTitle:'ALL ORDERS',orderConfirmBtn:'✅ Confirm',orderCancelBtn:'✕ Cancel',orderDetailBtn:'👁️ Details',orderDetailTitle:'📦 Order Details',orderTotalPrice:'Total Price',orderYourEarn:'Your Earnings',orderDetailPart:'Part',orderDetailBuyer:'Buyer',orderDetailPhone:'Phone',orderDetailAddress:'Address',orderShippingFee:'Shipping',noOrders:'No orders yet.',earnNetTotal:'Net Total Earnings',earnThisMonth:'This Month (Net)',earnTotalSales:'Confirmed Sales',earnFeesTotal:'Cardeals Fee (8%)',earnFilterAll:'All',earnFilterMonth:'This Month',earnFilterOnline:'💳 Online',earnFilterPickup:'🤝 Pickup',earnSalesList:'📋 SALES LIST',earnMonthlyTitle:'📅 MONTHLY SUMMARY',noEarnings:'No sales yet.',settingsProfile:'BUSINESS PROFILE',setBizName:'Business Name',setPhone:'Phone',setWhatsappPhone:'WhatsApp',setEmail:'Email',setCity:'City',saveSettingsBtn:'SAVE CHANGES',settingsPlanTitle:'⭐ YOUR PLAN & UPGRADES',planActive:'✓ Active',planExpired:'⚠️ Expired',planDaysLeft:'days',planUpgrade:'UPGRADE →',planCurrent:'STANDARD PLAN · 8%',planFree:'Free',planPerMonth:'/month',planCommission:'commission',promoteTitle:'🚀 Promote Part',promotePrefix:'Part:',promoteWait:'⚠️ Once approved by admin, the promotion activates immediately.',promoteBtn:'🚀 PROMOTE',promoteBtnPrefix:'🚀 PROMOTE FOR €',promoteSending:'Sending...',promoteCancel:'Cancel',stockTitle:'📦 Update Stock',stockCurrent:'Current Stock',stockAdd:'Add Pieces (+)',stockNew:'New Stock',stockUpdateBtn:'✅ UPDATE',deleteTitle:'DELETE PART?',deleteDesc:'This action cannot be undone.',deleteConfirm:'YES, DELETE',deleteCancel:'Cancel',backMarketplace:'🌐 Cardeals.al ↗',backPrivacy:'📜 Privacy Policy',toastFillFields:'⚠️ Fill all required fields!',toastPartPublished:'✅ Part published!',toastPartUpdated:'✅ Part updated!',toastPromoSent:'✅ Request sent!',toastStatusChanged:'✅ Status updated!',toastStockUpdated:'✅ Stock updated!',toastPartDeleted:'🗑️ Part deleted.',toastSettingsSaved:'✅ Changes saved!',toastPlanExpired:'⚠️ Your plan has expired.',toastAccountCreated:'🎉 Account created!',toastSelectTier:'⚠️ Select a promotion tier!',toastError:'❌ Error',toastPassMismatch:'⚠️ Passwords do not match',toastOrderSold:'✅ Sold! Remaining stock: ',toastOrderSoldOut:'✅ Sold! Stock depleted.',toastOrderCancelled:'🚫 Order cancelled.',toastPhotoSize:'⚠️ Image over 200KB — will save but may be slow.',active:'Active',inactive:'Inactive',new_:'New',used:'Used',sold:'Sold',pending:'Pending',cancelled:'Cancelled',payOnline:'💳 Online',payPickup:'🤝 Pickup',thPart:'Part',thCategory:'Category',thCondition:'Condition',thBasePrice:'Base Price',thFinalPrice:'Final Price',thStock:'Stock',thStatus:'Status',thActions:'Actions',thOrderNum:'#',thBuyer:'Buyer',thPrice:'Price',thPayMethod:'Payment',thDate:'Date',thGross:'Value',thFee:'Fee',thNet:'Net',thMonth:'Month',thNr:'No.',thPhone:'Phone',catBrakes:'Brakes',catEngine:'Engine',catElectrical:'Electrical',catSuspension:'Suspension',catBody:'Body',catAC:'AC & Heat',}};
-
-let currentUser=null,currentBiz=null,myParts=[],myOrders=[],lang='sq',currentPage='dashboard',currentOrderFilter='all',deletePartId=null;
-let salesChart=null,categoryChart=null,selectedImages=[],bulkImportData=[],editPartId=null;
-
-function l(k){return L[lang][k]||k;}
-function showToast(msg,isErr){const t=document.getElementById('toast');if(!t)return;t.textContent=msg;t.style.background=isErr?'#e02020':'#22c55e';t.classList.add('show');setTimeout(()=>t.classList.remove('show'),4000);}
-function closeModal(id){const el=document.getElementById(id);if(el)el.classList.remove('open');}
-
-function compressImage(file,maxWidth=600,maxHeight=600,quality=0.5){return new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=function(e){const img=new Image();img.onload=function(){let width=img.width,height=img.height;if(width>maxWidth){height=Math.round((height*maxWidth)/width);width=maxWidth;}if(height>maxHeight){width=Math.round((width*maxHeight)/height);height=maxHeight;}const canvas=document.createElement('canvas');canvas.width=width;canvas.height=height;const ctx=canvas.getContext('2d');ctx.drawImage(img,0,0,width,height);canvas.toBlob((blob)=>{resolve(new File([blob],file.name.replace(/\.[^/.]+$/,'.jpg'),{type:'image/jpeg',lastModified:Date.now()}));},'image/jpeg',quality);};img.onerror=reject;img.src=e.target.result;};reader.onerror=reject;reader.readAsDataURL(file);});}
-window.triggerImageUpload=function(){document.getElementById('imageInput').click();};
-window.handleImageSelect=function(event){const files=event.target.files;if(!files.length)return;for(let i=0;i<files.length;i++){const file=files[i];if(!file.type.match('image.*'))continue;if(selectedImages.length>=5)break;compressImage(file,600,600,0.5).then(f=>{if(f.size>200000){showToast(l('toastPhotoSize'),true);}selectedImages.push(f);renderImagePreviews();}).catch(()=>{selectedImages.push(file);renderImagePreviews();});}event.target.value='';};
-function renderImagePreviews(){const c=document.getElementById('imagePreviews');if(!c)return;if(!selectedImages.length){c.innerHTML='<div style="color:#8892a4;text-align:center;padding:1rem;">'+l('noPhoto')+'</div>';return;}c.innerHTML=selectedImages.map((file,index)=>{const url=URL.createObjectURL(file);return '<div style="position:relative;display:inline-block;margin:0.25rem;"><img src="'+url+'" style="width:80px;height:80px;object-fit:cover;border-radius:8px;border:2px solid var(--border);" /><button onclick="removeImage('+index+')" style="position:absolute;top:-8px;right:-8px;background:var(--red);color:white;border:none;border-radius:50%;width:22px;height:22px;font-size:0.7rem;cursor:pointer;font-weight:bold;">✕</button><div style="font-size:0.6rem;color:#22c55e;text-align:center;">'+(file.size/1024).toFixed(0)+'KB</div></div>';}).join('');}
-window.removeImage=function(index){selectedImages.splice(index,1);renderImagePreviews();};
-async function imagesToBase64(){var results=[];for(var i=0;i<selectedImages.length;i++){var file=selectedImages[i];var base64=await new Promise(function(resolve,reject){var reader=new FileReader();reader.onload=function(e){resolve(e.target.result);};reader.onerror=reject;reader.readAsDataURL(file);});results.push(base64);}return results;}
-
-function getCatEmoji(cat){const e={brakes:'🔘',engine:'⚙️',electrical:'⚡',suspension:'🔩',body:'🚗',ac:'🌡️'};return e[cat]||'🔧';}
-function getCatName(cat){const c={brakes:l('catBrakes'),engine:l('catEngine'),electrical:l('catElectrical'),suspension:l('catSuspension'),body:l('catBody'),ac:l('catAC')};return c[cat]||cat;}
-
-const carBrands=['Abarth','Acura','Alfa Romeo','Alpine','Aston Martin','Audi','Bentley','BMW','Bugatti','Buick','BYD','Cadillac','Chery','Chevrolet','Chrysler','Citroën','Cupra','Dacia','Daewoo','Daihatsu','Dodge','DS Automobiles','Ferrari','Fiat','Ford','Genesis','GMC','Great Wall','Honda','Hummer','Hyundai','Infiniti','Isuzu','Jaguar','Jeep','Kia','Lamborghini','Lancia','Land Rover','Lexus','Lincoln','Lotus','Maserati','Maybach','Mazda','McLaren','Mercedes-Benz','MG','Mini','Mitsubishi','Nissan','Opel','Peugeot','Polestar','Pontiac','Porsche','Renault','Rolls-Royce','Saab','Seat','Škoda','Smart','SsangYong','Subaru','Suzuki','Tata','Tesla','Toyota','Triumph','Volkswagen','Volvo'];
-const carModels={Abarth:['500','595','695','124 Spider','Punto'],Acura:['ILX','MDX','RDX','TLX','NSX','Integra'],'Alfa Romeo':['Giulia','Giulietta','Stelvio','Tonale','Mito','4C','147','156','159','Brera','Spider'],Alpine:['A110'],'Aston Martin':['DB9','DB11','DBX','V8 Vantage','Vanquish','Rapide'],Audi:['A1','A2','A3','A4','A5','A6','A7','A8','Q2','Q3','Q4','Q5','Q7','Q8','e-tron','TT','R8','80','100','Allroad'],Bentley:['Bentayga','Continental','Flying Spur','Mulsanne','Arnage'],BMW:['1 Series','2 Series','3 Series','4 Series','5 Series','6 Series','7 Series','8 Series','X1','X2','X3','X4','X5','X6','X7','Z3','Z4','i3','i4','iX','iX3','M2','M3','M4','M5','M8','X5 M','X6 M'],Bugatti:['Veyron','Chiron','Divo'],Buick:['Enclave','Encore','Envision','LaCrosse','Regal'],BYD:['Atto 3','Han','Tang','Seal','Dolphin'],Cadillac:['ATS','CTS','Escalade','SRX','XT4','XT5','XT6','Lyriq'],Chery:['Tiggo 4','Tiggo 7','Tiggo 8','Arrizo 5','Arrizo 8'],Chevrolet:['Aveo','Blazer','Camaro','Captiva','Corvette','Cruze','Equinox','Impala','Lacetti','Malibu','Matiz','Niva','Orlando','Silverado','Spark','Suburban','Tahoe','Trailblazer','Traverse','Trax','Volt'],Chrysler:['300','300C','Crossfire','Grand Voyager','Pacifica','PT Cruiser','Sebring','Voyager'],Citroën:['C1','C2','C3','C3 Aircross','C3 Picasso','C4','C4 Cactus','C4 Picasso','C4 SpaceTourer','C5','C5 Aircross','C5 X','Berlingo','C-Elysee','DS3','DS4','DS5','DS7','Jumper','Jumpy','Saxo','Xsara'],Cupra:['Born','Formentor','Ateca','Leon'],Dacia:['Duster','Jogger','Logan','Logan MCV','Sandero','Sandero Stepway','Spring','Dokker','Lodgy'],Daewoo:['Matiz','Nubira','Lanos','Leganza','Espero','Tacuma','Kalos'],Daihatsu:['Copen','Cuore','Materia','Sirion','Terios','YRV'],Dodge:['Avenger','Caliber','Challenger','Charger','Durango','Journey','Nitro','RAM','Viper'],'DS Automobiles':['DS3','DS4','DS7','DS9'],Ferrari:['296','488','812','California','F8','Portofino','Roma','SF90'],Fiat:['124 Spider','500','500C','500L','500X','500e','Bravo','Croma','Doblo','Ducato','Fiorino','Grande Punto','Idea','Linea','Multipla','Panda','Punto','Qubo','Scudo','Sedici','Stilo','Tipo','Ulysse'],Ford:['Bronco','C-Max','Cougar','Ecosport','Edge','Escort','Explorer','F-150','Fiesta','Focus','Fusion','Galaxy','Granada','Ka','Kuga','Maverick','Mondeo','Mustang','Mustang Mach-E','Probe','Puma','Ranger','S-Max','Scorpio','Streetka','Tourneo','Transit'],Genesis:['G70','G80','G90','GV60','GV70','GV80'],GMC:['Acadia','Sierra','Terrain','Yukon'],'Great Wall':['Steed','Wingle','Haval H6','Haval Jolion'],Honda:['Accord','Civic','CR-V','CR-Z','FR-V','HR-V','Insight','Jazz','Legend','NSX','Pilot','Prelude','Ridgeline','S2000','Shuttle','Stream','ZR-V'],Hummer:['H1','H2','H3','EV'],Hyundai:['Accent','Atos','Bayon','Coupe','Elantra','Genesis','Getz','Grandeur','i10','i20','i30','i40','IONIQ','IONIQ 5','IONIQ 6','ix20','ix35','Kona','Lantra','Matrix','Nexo','Palisade','Pony','Santa Fe','Santamo','Sonata','Staria','Terracan','Trajet','Tucson','Veloster','Venue'],Infiniti:['FX','G','Q30','Q50','Q60','Q70','QX30','QX50','QX60','QX70','QX80'],Isuzu:['D-Max','MU-X','Rodeo','Trooper'],Jaguar:['E-Pace','F-Pace','F-Type','I-Pace','S-Type','XE','XF','XJ','XK','X-Type'],Jeep:['Avenger','Cherokee','Commander','Compass','Gladiator','Grand Cherokee','Liberty','Patriot','Renegade','Wagoneer','Wrangler'],Kia:['Carens','Carnival','Ceed','Cerato','EV6','EV9','Niro','Optima','Picanto','ProCeed','Rio','Sephia','Shuma','Sorento','Soul','Sportage','Stinger','Stonic','Venga','XCeed'],Lamborghini:['Aventador','Gallardo','Huracan','Murcielago','Urus'],Lancia:['Delta','Flavia','Fulvia','Lybra','Musa','Phedra','Thema','Thesis','Ypsilon','Voyager'],'Land Rover':['Defender','Discovery','Discovery Sport','Freelander','Range Rover','Range Rover Evoque','Range Rover Sport','Range Rover Velar'],Lexus:['CT','ES','GS','IS','LC','LS','LX','NX','RC','RX','SC','UX'],Lincoln:['Aviator','Continental','Corsair','MKX','MKC','MKS','MKT','MKZ','Nautilus','Navigator','Town Car'],Lotus:['Elan','Elise','Emira','Esprit','Europa','Evora','Exige'],Maserati:['Ghibli','GranCabrio','GranTurismo','Levante','MC20','Quattroporte'],Maybach:['57','62','S-Class'],Mazda:['2','3','5','6','323','626','BT-50','CX-3','CX-30','CX-5','CX-60','CX-7','CX-9','CX-80','MX-3','MX-5','MX-30','Premacy','RX-7','RX-8','Tribute','Xedos'],McLaren:['540C','570S','600LT','650S','675LT','720S','765LT','Artura','GT','P1','Senna','Speedtail'],'Mercedes-Benz':['A-Class','AMG GT','B-Class','C-Class','CLA','CL','CLK','CLS','E-Class','EQA','EQB','EQC','EQE','EQS','G-Class','GL','GLA','GLB','GLC','GLE','GLK','GLS','M-Class','ML','R-Class','S-Class','SL','SLC','SLK','SLR','SLS','V-Class','Vaneo','Viano','Vito','190'],MG:['MG3','MG4','MG5','MG6','MG ZS','MG HS','MG ZT','MG F','MG TF','Marvel R'],Mini:['Cooper','Cooper S','Countryman','Clubman','One','Cabrio','Paceman','Roadster','John Cooper Works'],Mitsubishi:['3000 GT','ASX','Carisma','Colt','Eclipse','Eclipse Cross','Galant','Grandis','i-MiEV','L200','Lancer','Lancer Evo','Mirage','Outlander','Pajero','Pajero Pinin','Pajero Sport','Sigma','Space Gear','Space Star','Space Wagon'],Nissan:['350Z','370Z','Almera','Altima','Ariya','Armada','Bluebird','Cube','Elgrand','GT-R','Juke','Kicks','King Cab','Leaf','Maxima','Micra','Murano','Navara','Note','NP300','Pathfinder','Patrol','Pixo','Primera','Pulsar','Qashqai','Sentra','Serena','Skyline','Sunny','Terrano','Tiida','Titan','Townstar','X-Trail'],Opel:['Adam','Agila','Ampera','Antara','Astra','Calibra','Cascada','Combo','Corsa','Crossland','Frontera','Grandland','Insignia','Karl','Manta','Meriva','Mokka','Monterey','Omega','Rocks-e','Senator','Signum','Sintra','Speedster','Tigra','Vectra','Vivaro','Zafira'],Peugeot:['106','107','108','2008','206','207','208','3008','301','306','307','308','4007','4008','406','407','408','5008','508','607','806','807','Bipper','Boxer','Expert','iOn','Partner','RCZ','Rifter','Traveller'],Polestar:['1','2','3','4'],Pontiac:['Aztek','Bonneville','Firebird','G6','Grand Am','Grand Prix','GTO','Montana','Solstice','Sunfire','Trans Am','Trans Sport','Vibe'],Porsche:['718','911','928','944','968','Boxster','Carrera GT','Cayenne','Cayman','Macan','Panamera','Taycan'],Renault:['Arkana','Austral','Avantime','Captur','Clio','Espace','Express','Fluence','Grand Espace','Grand Kangoo','Grand Scenic','Kadjar','Kangoo','Koleos','Laguna','Latitude','Mascott','Master','Megane','Modus','Rafale','Safrane','Scenic','Symbol','Talisman','Thalia','Trafic','Twingo','Twizy','Vel Satis','Wind','Zoe'],'Rolls-Royce':['Cullinan','Dawn','Ghost','Phantom','Silver Seraph','Spectre','Wraith'],Saab:['9-3','9-5','9-7X','900','9000'],Seat:['Alhambra','Altea','Arona','Arosa','Ateca','Cordoba','Exeo','Ibiza','Leon','Malaga','Marbella','Mii','Tarraco','Toledo'],Škoda:['Citigo','Enyaq','Fabia','Favorit','Felicia','Kamiq','Karoq','Kodiaq','Octavia','Rapid','Roomster','Scala','Superb','Yeti'],Smart:['Forfour','Fortwo','Roadster','#1'],SsangYong:['Korando','Kyron','Musso','Rexton','Rodius','Tivoli','Torres'],Subaru:['Ascent','BRZ','Crosstrek','Forester','Impreza','Justy','Legacy','Levorg','Liberty','Outback','Solterra','SVX','Tribeca','WRX','XV'],Suzuki:['Across','Alto','Baleno','Cappuccino','Celerio','Grand Vitara','Ignis','Jimny','Kizashi','Liana','S-Cross','Splash','Swace','Swift','SX4','Vitara','Wagon R+','XL7'],Tata:['Indica','Indigo','Nano','Safari','Sumo','Xenon'],Tesla:['Model 3','Model S','Model X','Model Y','Cybertruck'],Toyota:['4Runner','Auris','Avalon','Avensis','Aygo','Aygo X','bZ4X','C-HR','Camry','Carina','Celica','Corolla','Corolla Cross','Corolla Verso','Crown','Dyna','FJ Cruiser','Fortuner','GT86','Harrier','Highlander','Hilux','IQ','Land Cruiser','Land Cruiser V8','LiteAce','Matrix','Mirai','MR2','Paseo','Picnic','Previa','Prius','Proace','RAV4','Sequoia','Sienna','Starlet','Supra','Tacoma','Tundra','Urban Cruiser','Venza','Verso','Yaris','Yaris Cross','Yaris GR'],Triumph:['Spitfire','TR3','TR4','TR5','TR6','TR7','TR8'],Volkswagen:['Amarok','Arteon','Beetle','Bora','Caddy','California','Corrado','Crafter','Eos','Fox','Golf','Golf Plus','Golf Sportsvan','ID.3','ID.4','ID.5','ID.6','ID.7','Jetta','Lupo','Multivan','Passat','Passat CC','Phaeton','Polo','Routan','Scirocco','Sharan','T-Cross','T-Roc','Taigo','Teramont','Tiguan','Tiguan Allspace','Touareg','Touran','Transporter','up!','Vento'],Volvo:['240','244','245','340','360','440','460','480','740','760','780','850','940','960','C30','C40','C70','EX30','EX90','EX40','EC40','S40','S60','S70','S80','S90','V40','V50','V60','V70','V90','XC40','XC60','XC90']};
-function populateCarMakes(){const sel=document.getElementById('partMake');if(!sel)return;sel.innerHTML='<option value="">'+l('selectMake')+'</option>';carBrands.forEach(b=>{const o=document.createElement('option');o.value=b;o.textContent=b;sel.appendChild(o);});}
-function onPartMakeChange(){const make=document.getElementById('partMake').value,ms=document.getElementById('partModel');ms.innerHTML='<option value="">'+l('selectModel')+'</option>';if(make&&carModels[make]){carModels[make].forEach(m=>{const o=document.createElement('option');o.value=m;o.textContent=m;ms.appendChild(o);});ms.disabled=false;}else{ms.disabled=true;}}
-
-function listenToBusinessProfile(uid){db.collection("businesses").doc(uid).onSnapshot(doc=>{if(doc.exists){currentBiz=doc.data();updateBizDisplay();}},err=>{console.error(err);});}
-auth.onAuthStateChanged(async user=>{if(user){currentUser=user;listenToBusinessProfile(user.uid);showApp();}else{currentUser=null;currentBiz=null;showLogin();}});
-
-function updateBizDisplay(){const el=document.getElementById('bizName'),pl=document.getElementById('bizPlan');if(el)el.textContent=currentBiz?.businessName||currentBiz?.name||'Biznesi Im';const plan=currentBiz?.plan||'basic',planData=PLANS[plan];let countdownHTML='';if(plan!=='basic'&&currentBiz?.planExpiresAt){let expiresAt;if(currentBiz.planExpiresAt.toDate)expiresAt=currentBiz.planExpiresAt.toDate();else if(currentBiz.planExpiresAt.seconds)expiresAt=new Date(currentBiz.planExpiresAt.seconds*1000);else expiresAt=new Date(currentBiz.planExpiresAt);const daysLeft=Math.ceil((expiresAt-new Date())/(1000*60*60*24));if(daysLeft<=0)countdownHTML='<span style="color:#e02020;">'+l('planExpired')+'</span>';else countdownHTML='<span style="color:#22c55e;">✓ '+daysLeft+' '+l('planDaysLeft')+'</span>';}if(pl)pl.innerHTML=planData.icon+' '+planData.name.toUpperCase()+' · '+Math.round(planData.fee*100)+'%<br><small>'+countdownHTML+'</small>';renderPlanCards();}
-function renderPlanCards(){const plan=currentBiz?.plan||'basic';const pc=document.getElementById('planCards');if(!pc)return;pc.innerHTML=Object.entries(PLANS).map(([key,p])=>{const isCurrent=key===plan;return '<div style="background:'+(isCurrent?'rgba(255,255,255,0.06)':'var(--panel)')+';border:2px solid '+(isCurrent?p.color:'var(--border)')+';border-radius:12px;padding:1.25rem;text-align:center;"><div style="font-size:2rem;">'+p.icon+'</div><div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.3rem;color:'+p.color+'">'+p.name.toUpperCase()+'</div><div style="font-size:1.5rem;font-weight:800;">'+(p.monthly===0?l('planFree'):'€'+p.monthly+l('planPerMonth'))+'</div>'+(isCurrent?'<div style="margin-top:0.75rem;color:#22c55e;font-weight:800;">'+l('planActive')+'</div>':'<button onclick="requestUpgrade(\''+key+'\')" style="margin-top:0.75rem;width:100%;background:'+p.color+';color:#000;border:none;border-radius:8px;padding:9px;font-weight:800;cursor:pointer;">'+l('planUpgrade')+'</button>')+'</div>';}).join('');}
-window.requestUpgrade=async function(planKey){if(!currentUser)return;try{await db.collection("plan_requests").add({businessId:currentUser.uid,businessName:currentBiz?.businessName||'',email:currentUser?.email||'',fromPlan:currentBiz?.plan||'basic',toPlan:planKey,status:'pending',createdAt:firebase.firestore.FieldValue.serverTimestamp()});showToast(l('toastPromoSent'));}catch(e){showToast(l('toastError'),true);}};
-
-window.showTab=function(tab,btn){document.querySelectorAll('.auth-tab').forEach(t=>t.classList.remove('active'));btn.classList.add('active');document.getElementById('loginForm').style.display=tab==='login'?'block':'none';document.getElementById('registerForm').style.display=tab==='register'?'block':'none';};
-window.doLogin=async function(){var email=document.getElementById('loginEmail').value.trim();var pass=document.getElementById('loginPass').value;var btn=document.getElementById('loginBtn');if(!email||!pass){showToast(l('toastFillFields'),true);return;}btn.textContent=l('loginLoading');btn.disabled=true;try{await auth.signInWithEmailAndPassword(email,pass);}catch(err){showToast(l('toastError')+': '+err.message,true);btn.textContent=l('loginBtn');btn.disabled=false;}};
-window.doRegister=async function(){var name=document.getElementById('regBizName').value.trim();var email=document.getElementById('regEmail').value.trim();var phone=document.getElementById('regPhone').value.trim();var pass=document.getElementById('regPass').value;var pass2=document.getElementById('regPass2').value;var city=document.getElementById('regCity').value;var btn=document.getElementById('regBtn');if(!name||!email||!pass||!phone){showToast(l('toastFillFields'),true);return;}if(pass!==pass2){showToast(l('toastPassMismatch'),true);return;}btn.textContent=l('registerLoading');btn.disabled=true;try{var cred=await auth.createUserWithEmailAndPassword(email,pass);await db.collection("businesses").doc(cred.user.uid).set({businessName:name,email:email,phone:phone,city:city,plan:'basic',commissionRate:8,createdAt:firebase.firestore.FieldValue.serverTimestamp(),uid:cred.user.uid});showToast(l('toastAccountCreated'));}catch(err){showToast(l('toastError')+': '+err.message,true);btn.textContent=l('registerBtn');btn.disabled=false;}};
-window.doLogout=async()=>{await auth.signOut();};
-
-async function loadMyParts(){
-  if(!currentUser)return;
-  db.collection("parts").where("uid","==",currentUser.uid).onSnapshot(snap=>{
-    myParts=snap.docs.map(d=>({id:d.id,...d.data()}));
-    myParts.sort((a,b)=>(b.createdAt?.toMillis?.()||0)-(a.createdAt?.toMillis?.()||0));
-    renderMyParts();
-    updateDashboardStats();
-  },e=>{console.error(e);});
-}
-async function loadMyOrders(){if(!currentUser)return;db.collection("orders").where("sellerUid","==",currentUser.uid).onSnapshot(snap=>{myOrders=snap.docs.map(d=>({id:d.id,...d.data()}));myOrders.sort((a,b)=>(b.createdAt?.toMillis?.()||0)-(a.createdAt?.toMillis?.()||0));renderOrders(currentOrderFilter);renderRecentOrders();updateDashboardStats();updateCharts();updateOrdersBadge();},e=>{console.error(e);});}
-function updateOrdersBadge(){var pending=myOrders.filter(function(o){return o.status==='pending';}).length;var badge=document.getElementById('ordersBadge');if(badge){badge.textContent=pending;badge.style.display=pending>0?'inline-block':'none';}}
-
-window.submitPart=async function(){
-  var name=document.getElementById('fName').value.trim(),price=parseFloat(document.getElementById('fPrice').value);
-  var make=document.getElementById('partMake').value,model=document.getElementById('partModel').value;
-  var fits=(make&&model)?make+' '+model:document.getElementById('fFits').value.trim();
-  var vin=document.getElementById('fVin')?.value.trim().toUpperCase()||'';
-  var cat=document.getElementById('fCat').value,cond=document.getElementById('fCond').value;
-  var stock=parseInt(document.getElementById('fStock').value)||1,desc=document.getElementById('fDesc').value.trim();
-  var discount=document.getElementById('fDiscount').checked?parseInt(document.getElementById('fDiscountVal').value)||0:0;
-  var featured=document.getElementById('fFeatured').checked||false,specialOffer=document.getElementById('fSpecialOffer').checked||false,freeShipping=document.getElementById('fFreeShipping').checked||false,limitedStock=document.getElementById('fLimitedStock').checked||false,bestSeller=document.getElementById('fBestSeller').checked||false;
-  var btn=document.getElementById('submitPartBtn');
-  if(!name||!price||!fits){showToast(l('toastFillFields'),true);return;}
-  btn.textContent=editPartId?'Duke përditësuar...':'Duke publikuar...';btn.disabled=true;
-  var partData={name:{sq:name,en:name},basePrice:price,fits,category:cat,condition:cond,stock,description:desc,vin:vin,discount,featured,specialOffer,freeShipping,limitedStock,bestSeller,emoji:getCatEmoji(cat),sellerName:currentBiz?.businessName||currentBiz?.name||'',sellerCity:currentBiz?.city||'',uid:currentUser.uid,status:stock>0?'active':'inactive',views:0,sales:0,rating:5,images:[],createdAt:firebase.firestore.FieldValue.serverTimestamp()};
-  try{
-    if(selectedImages.length>0){btn.textContent='Duke konvertuar fotot...';var base64Images=await imagesToBase64();partData.images=base64Images;}
-    if(editPartId){await db.collection("parts").doc(editPartId).update(partData);showToast(l('toastPartUpdated'));}
-    else{await db.collection("parts").add(partData);showToast(l('toastPartPublished'));}
-    resetAddPartForm();editPartId=null;showPage('parts');
-  }catch(e){showToast(l('toastError')+': '+e.message,true);btn.textContent=editPartId?l('updateBtn'):l('submitBtn');btn.disabled=false;}
-};
-
-function resetAddPartForm(){['fName','fFits','fPrice','fStock','fDesc','fVin'].forEach(id=>{var el=document.getElementById(id);if(el)el.value='';});document.getElementById('fDiscountVal').value='10';document.getElementById('fDiscountVal').style.display='none';['fDiscount','fFeatured','fSpecialOffer','fFreeShipping','fLimitedStock','fBestSeller'].forEach(id=>{var el=document.getElementById(id);if(el)el.checked=false;});document.getElementById('partMake').value='';document.getElementById('partModel').value='';document.getElementById('partModel').disabled=true;selectedImages=[];renderImagePreviews();calcFee();document.getElementById('submitPartBtn').textContent=l('submitBtn');document.getElementById('addPartTitle').textContent=l('addPartTitle');editPartId=null;}
-window.editPart=function(partId){var part=myParts.find(p=>p.id===partId);if(!part)return;editPartId=partId;document.getElementById('addPartTitle').textContent=l('editPartTitle');var name=typeof part.name==='object'?(part.name.sq||part.name.en):part.name;document.getElementById('fName').value=name||'';document.getElementById('fPrice').value=part.basePrice||'';document.getElementById('fCat').value=part.category||'brakes';document.getElementById('fCond').value=part.condition||'new';document.getElementById('fStock').value=part.stock||1;document.getElementById('fDesc').value=part.description||'';document.getElementById('fVin').value=part.vin||'';if(part.discount>0){document.getElementById('fDiscount').checked=true;document.getElementById('fDiscountVal').value=part.discount;document.getElementById('fDiscountVal').style.display='inline-block';}populateCarMakes();var fits=part.fits||'',spaceIndex=fits.indexOf(' ');if(spaceIndex>0){document.getElementById('partMake').value=fits.substring(0,spaceIndex);onPartMakeChange();setTimeout(function(){document.getElementById('partModel').value=fits.substring(spaceIndex+1);},300);}selectedImages=[];renderImagePreviews();calcFee();showPage('addpart');};
-
-window.promotePart=function(partId){var part=myParts.find(p=>p.id===partId);if(!part)return;var name=typeof part.name==='object'?(part.name.sq||part.name.en):part.name;document.getElementById('promotePartName').textContent=l('promotePrefix')+' '+name;document.getElementById('promotePartId').value=partId;document.getElementById('promoteSelectedTier').value='';var container=document.getElementById('promoTierOptions');container.innerHTML=Object.entries(PROMO_TIERS).map(([key,tier])=>'<div onclick="selectPromoTier(\''+key+'\')" id="promoTier_'+key+'" style="background:var(--panel);border:2px solid var(--border);border-radius:12px;padding:1rem;cursor:pointer;display:flex;align-items:center;gap:1rem;"><div style="font-size:2rem;">'+tier.icon+'</div><div style="flex:1;"><div style="display:flex;justify-content:space-between;"><span style="font-weight:800;color:'+tier.color+';">'+tier.name+'</span><span style="font-weight:800;color:var(--yellow);">€'+tier.price+'</span></div><div style="font-size:0.78rem;color:var(--chrome);">'+tier.desc+'</div></div></div>').join('');document.getElementById('confirmPromoteBtn').disabled=true;document.getElementById('promoteModal').classList.add('open');};
-window.selectPromoTier=function(tierKey){document.getElementById('promoteSelectedTier').value=tierKey;var tier=PROMO_TIERS[tierKey],btn=document.getElementById('confirmPromoteBtn');btn.disabled=false;btn.textContent=l('promoteBtnPrefix')+tier.price;btn.style.background=tier.color;btn.style.color=(tierKey==='premium'||tierKey==='ultimate')?'#000':'#fff';};
-window.confirmPromote=async function(){var partId=document.getElementById('promotePartId').value,tierKey=document.getElementById('promoteSelectedTier').value;if(!tierKey){showToast(l('toastSelectTier'),true);return;}var part=myParts.find(p=>p.id===partId);if(!part)return;var tier=PROMO_TIERS[tierKey],btn=document.getElementById('confirmPromoteBtn');btn.textContent=l('promoteSending');btn.disabled=true;try{await db.collection("weekly_promotions").add({partId,partName:typeof part.name==='object'?(part.name.sq||part.name.en):part.name,businessId:currentUser.uid,businessName:currentBiz?.businessName||'',email:currentUser?.email||'',tier:tierKey,tierName:tier.name,cost:tier.price,durationDays:tier.durationDays,refreshHours:tier.refreshHours,status:'pending',createdAt:firebase.firestore.FieldValue.serverTimestamp()});showToast(l('toastPromoSent'));closeModal('promoteModal');}catch(e){showToast(l('toastError')+': '+e.message,true);}btn.textContent=l('promoteBtn');btn.disabled=false;};
-
-window.deletePart=function(id){deletePartId=id;document.getElementById('deleteModal').classList.add('open');};
-window.confirmDelete=async function(){if(!deletePartId)return;try{await db.collection("parts").doc(deletePartId).delete();showToast(l('toastPartDeleted'));}catch(e){showToast(l('toastError'),true);}closeModal('deleteModal');deletePartId=null;};
-window.togglePartStatus=async function(id,s){var ns=s==='active'?'inactive':'active';await db.collection("parts").doc(id).update({status:ns});showToast(l('toastStatusChanged'));};
-window.openUpdateStock=function(partId){var part=myParts.find(p=>p.id===partId);if(!part)return;var name=typeof part.name==='object'?(part.name.sq||part.name.en):part.name;document.getElementById('updateStockPartName').textContent=l('promotePrefix')+' '+name;document.getElementById('updateStockPartId').value=partId;document.getElementById('currentStockDisplay').value=part.stock||0;document.getElementById('stockToAdd').value=1;document.getElementById('newStockDisplay').value=(part.stock||0)+1;document.getElementById('stockToAdd').oninput=function(){document.getElementById('newStockDisplay').value=(part.stock||0)+(parseInt(this.value)||0);};document.getElementById('updateStockModal').classList.add('open');};
-window.confirmUpdateStock=async function(){var partId=document.getElementById('updateStockPartId').value,add=parseInt(document.getElementById('stockToAdd').value)||0;var part=myParts.find(p=>p.id===partId);if(!part||add<=0)return;var ns=(part.stock||0)+add;try{await db.collection("parts").doc(partId).update({stock:ns,status:ns>0?'active':'inactive'});showToast(l('toastStockUpdated'));closeModal('updateStockModal');}catch(e){showToast(l('toastError')+': '+e.message,true);}};
-
-window.saveSettings=async function(){if(!currentUser)return;var n=document.getElementById('setBizName').value.trim(),p=document.getElementById('setPhone').value.trim(),wp=document.getElementById('setWhatsappPhone').value.trim(),c=document.getElementById('setCity').value;await db.collection("businesses").doc(currentUser.uid).update({businessName:n,phone:p,whatsappPhone:wp,city:c});currentBiz={...currentBiz,businessName:n,phone:p,whatsappPhone:wp,city:c};updateBizDisplay();showToast(l('toastSettingsSaved'));};
-
-function updateDashboardStats(){document.getElementById('statEarn').textContent=myOrders.filter(o=>o.status==='sold').reduce((s,o)=>s+((o.totalPrice||0)-(o.platformFee||0)),0).toLocaleString()+' L';document.getElementById('statSales').textContent=myOrders.filter(o=>o.status==='sold').length;document.getElementById('statViews').textContent=myParts.reduce((s,p)=>s+(p.views||0),0).toLocaleString();document.getElementById('statParts').textContent=myParts.filter(p=>p.status==='active').length;}
-
-function renderMyParts(){
-  var tbody=document.getElementById('myPartsBody');
-  if(!tbody)return;
-  if(!myParts.length){
-    tbody.innerHTML='<tr><td colspan="8" style="text-align:center;padding:3rem;color:var(--chrome);">📦 '+l('noParts')+'</span></td></tr>';
-    return;
-  }
-  var html='';
-  for(var i=0;i<myParts.length;i++){
-    var p=myParts[i];
-    var name=typeof p.name==='object'?(p.name.sq||p.name.en):p.name;
-    var thumb=p.images&&p.images.length?'<img src="'+p.images[0]+'" style="width:40px;height:40px;object-fit:cover;border-radius:6px;vertical-align:middle;margin-right:8px;" />':'';
-    var badges='';
-    if(p.featured) badges+='⭐';
-    if(p.weeklyPromo) badges+='🔥PROMO';
-    var finalPrice=(p.basePrice||0)+Math.round((p.basePrice||0)*PLATFORM_FEE);
-    
-    html+='<tr>';
-    html+='<td>'+thumb+(p.emoji||'🔩')+' <strong>'+name+'</strong>'+badges+'<br><small style="color:var(--chrome);">'+(p.fits||'')+'</small></td>';
-    html+='<td>'+getCatName(p.category)+'</td>';
-    html+='<td><span class="status-badge '+(p.condition==='new'?'badge-active':'badge-used')+'">'+(p.condition==='new'?l('new_'):l('used'))+'</span></td>';
-    html+='<td>'+(p.basePrice||0).toLocaleString()+' L</td>';
-    html+='<td style="font-weight:800;color:#f5c518;">'+finalPrice.toLocaleString()+' L</td>';
-    html+='<td>'+(p.stock||0)+'</td>';
-    html+='<td><span class="status-badge '+(p.status==='active'?'badge-active':'badge-inactive')+'">'+(p.status==='active'?l('active'):l('inactive'))+'</span></td>';
-    html+='<td><div style="display:flex;gap:0.5rem;flex-wrap:wrap;">';
-    html+='<button class="icon-btn" onclick="togglePartStatus(\''+p.id+'\',\''+p.status+'\')">'+(p.status==='active'?'⏸️':'▶️')+'</button>';
-    html+='<button class="icon-btn" style="border-color:#3b82f6;color:#3b82f6" onclick="editPart(\''+p.id+'\')">✏️</button>';
-    html+='<button class="icon-btn" style="background:rgba(245,197,24,0.15);border-color:#f5c518;color:#f5c518;" onclick="promotePart(\''+p.id+'\')">🚀</button>';
-    html+='<button class="icon-btn" style="border-color:#22c55e;color:#22c55e" onclick="openUpdateStock(\''+p.id+'\')">📦+</button>';
-    html+='<button class="icon-btn" style="border-color:#e02020;color:#e02020" onclick="deletePart(\''+p.id+'\')">🗑️</button>';
-    html+='</div></td>';
-    html+='</tr>';
-  }
-  tbody.innerHTML=html;
-}
-
-function renderRecentOrders(){var tbody=document.getElementById('recentOrdersBody');if(!tbody)return;var recent=myOrders.slice(0,5);tbody.innerHTML=recent.length?recent.map(o=>orderRow(o)).join(''):'<tr><td colspan="8" style="text-align:center;padding:2rem;">'+l('noOrders')+'</td></tr>';}
-function renderOrders(filter){currentOrderFilter=filter;var tbody=document.getElementById('allOrdersBody');if(!tbody)return;var filtered=myOrders;if(filter==='pending')filtered=myOrders.filter(o=>o.status==='pending');if(filter==='sold')filtered=myOrders.filter(o=>o.status==='sold');if(filter==='pickup')filtered=myOrders.filter(o=>o.payMethod==='pickup');document.getElementById('orderCount').textContent=filtered.length+' porosi';tbody.innerHTML=filtered.length?filtered.map(o=>orderRow(o,true)).join(''):'<tr><td colspan="9" style="text-align:center;padding:2rem;">'+l('noOrders')+'</td></tr>';}
-function orderRow(o,showDate){var sm={sold:'badge-sold',pending:'badge-pending',cancelled:'badge-inactive'},sl=o.status==='sold'?l('sold'):o.status==='pending'?l('pending'):l('cancelled'),pl=o.payMethod==='online'?l('payOnline'):l('payPickup'),ds=o.createdAt?.toDate?o.createdAt.toDate().toLocaleDateString('sq-AL'):'—';var actions=o.status==='pending'?'<button class="icon-btn" style="background:rgba(34,197,94,0.15);border-color:#22c55e;color:#22c55e;" onclick="markOrderSold(\''+o.id+'\')">'+l('orderConfirmBtn')+'</button>':'<button class="icon-btn" onclick="viewOrderDetails(\''+o.id+'\')">'+l('orderDetailBtn')+'</button>';return '<tr><td style="font-weight:800;color:#e02020;">#'+(o.id?.slice(-6)||'—')+'</td><td>'+(o.partEmoji||'🔩')+' '+(o.partName||'—')+'</td><td>'+(o.buyerName||'—')+'<br><small>'+(o.buyerPhone||'')+'</small></td><td>'+(o.sellerName||'—')+'</td>'+(showDate?'<td style="color:#8892a4;">'+ds+'</td>':'')+'<td style="font-weight:800;color:#f5c518;">'+(o.totalPrice||0).toLocaleString()+' L</td><td><span class="status-badge '+sm[o.status]+'">'+sl+'</span></td><td>'+pl+'</td><td>'+actions+'</td></tr>';}
-window.markOrderSold=async function(id){var o=myOrders.find(x=>x.id===id);if(!o)return;await db.collection("orders").doc(id).update({status:'sold'});if(o.partId){var pr=db.collection("parts").doc(o.partId),ps=await pr.get();if(ps.exists){var cs=ps.data().stock||0,ns=Math.max(0,cs-(o.quantity||1)),updates={stock:ns,sales:(ps.data().sales||0)+(o.quantity||1)};if(ns===0)updates.status='inactive';await pr.update(updates);showToast(ns===0?l('toastOrderSoldOut'):l('toastOrderSold')+ns);}}};
-window.viewOrderDetails=function(id){var o=myOrders.find(x=>x.id===id);if(!o)return;var phone=o.buyerPhone||'';var cleanPhone=phone.replace(/\D/g,'');var whatsappLink=cleanPhone?'<a href="https://wa.me/'+cleanPhone+'?text=Pershendetje!%20Ne%20lidhje%20me%20porosine%20ne%20Cardeals.al%20%23'+(o.id||'').slice(-6).toUpperCase()+'" target="_blank" style="display:inline-block;background:#25D366;color:white;padding:8px 16px;border-radius:8px;text-decoration:none;font-weight:800;font-size:0.85rem;margin-top:0.75rem;">💬 WhatsApp</a>':'';var addressHtml=o.deliveryAddress?'<div><strong>'+l('orderDetailAddress')+':</strong><br>'+o.deliveryAddress+'<br>'+o.deliveryCity+(o.deliveryPostal?', '+o.deliveryPostal:'')+(o.deliveryInstructions?'<br><small>📝 '+o.deliveryInstructions+'</small>':'')+'</div>':'';var shippingHtml=o.shippingFee?'<div><strong>'+l('orderShippingFee')+':</strong> '+o.shippingFee.toLocaleString()+' L</div>':'';document.getElementById('orderDetailContent').innerHTML='<div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;margin-bottom:1.25rem;"><div class="dash-card"><div class="dash-num">'+(o.totalPrice||0).toLocaleString()+' L</div><div class="dash-label">'+l('orderTotalPrice')+'</div></div><div class="dash-card"><div class="dash-num" style="color:#e02020">+'+(o.platformFee||0).toLocaleString()+' L</div><div class="dash-label">'+l('orderYourEarn')+'</div></div></div><div style="background:var(--bg);border-radius:10px;padding:1.25rem;font-size:0.88rem;line-height:2;">'+addressHtml+shippingHtml+'<div>📦 '+l('orderDetailPart')+': '+(o.partEmoji||'')+' '+(o.partName||'—')+'</div><div>👤 '+l('orderDetailBuyer')+': '+(o.buyerName||'—')+'</div><div>📞 '+l('orderDetailPhone')+': <a href="tel:'+phone+'" style="color:#3b82f6">'+phone+'</a></div>'+whatsappLink+'</div>';document.getElementById('orderDetailModal').classList.add('open');};
-
-function renderEarnings(){
-  var sold=myOrders.filter(function(o){return o.status==='sold';});
-  var totalNet=sold.reduce(function(s,o){return s+((o.totalPrice||0)-(o.platformFee||0));},0);
-  var totalFees=sold.reduce(function(s,o){return s+(o.platformFee||0);},0);
-  document.getElementById('earnTotalVal').textContent=totalNet.toLocaleString()+' L';
-  document.getElementById('earnTotalOrders').textContent=sold.length;
-  document.getElementById('earnFeeVal').textContent=totalFees.toLocaleString()+' L';
-  var byMonth={};
-  sold.forEach(function(o){var d=o.createdAt?.toDate?o.createdAt.toDate():new Date();var key=d.getFullYear()+'-'+(d.getMonth()+1).toString().padStart(2,'0');var label=d.toLocaleDateString('sq-AL',{month:'long',year:'numeric'});if(!byMonth[key])byMonth[key]={label:label,orders:0,gross:0,fees:0,net:0};byMonth[key].orders++;byMonth[key].gross+=o.totalPrice||0;byMonth[key].fees+=o.platformFee||0;byMonth[key].net+=(o.totalPrice||0)-(o.platformFee||0);});
-  var tbody=document.getElementById('earningsBody');
-  if(tbody){var months=Object.values(byMonth).reverse();tbody.innerHTML=months.length?months.map(function(m){return '<tr><td style="font-weight:800">'+m.label+'</td><td>'+m.orders+'</td><td style="color:#f5c518;">'+m.gross.toLocaleString()+' L</td><td style="color:#e02020;">-'+m.fees.toLocaleString()+' L</td><td style="color:#22c55e;">+'+m.net.toLocaleString()+' L</td><td><span class="status-badge badge-active">✓</span></td></tr>';}).join(''):'<tr><td colspan="6" style="text-align:center;padding:2rem;">'+l('noEarnings')+'</td></table>';}
-}
-
-function updateCharts(){var sold=myOrders.filter(o=>o.status==='sold');var now=new Date();var days=[];for(var i=6;i>=0;i--){var d=new Date(now);d.setDate(d.getDate()-i);days.push(d);}var dailyData=days.map(day=>sold.filter(o=>{var od=o.createdAt?.toDate?o.createdAt.toDate():new Date();return od.toDateString()===day.toDateString();}).length);var labels=days.map(d=>d.toLocaleDateString('sq-AL',{weekday:'short',day:'numeric'}));var ctx1=document.getElementById('salesChart')?.getContext('2d');if(ctx1){if(salesChart)salesChart.destroy();salesChart=new Chart(ctx1,{type:'bar',data:{labels,datasets:[{label:l('chartSalesLabel'),data:dailyData,backgroundColor:'#e02020',borderRadius:6}]},options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,ticks:{stepSize:1}}}}});}document.getElementById('donutTotal').textContent=sold.length;}
-window.calcFee=function(){var price=parseFloat(document.getElementById('fPrice')?.value)||0,plan=currentBiz?.plan||'basic',feeRate=PLANS[plan]?.fee||0.08,fee=Math.round(price*feeRate);document.getElementById('fpBase').textContent=price.toLocaleString()+' L';document.getElementById('fpFee').textContent=fee.toLocaleString()+' L ('+Math.round(feeRate*100)+'%)';document.getElementById('fpTotal').textContent=(price+fee).toLocaleString()+' L';};
-
-function showApp(){document.getElementById('loginScreen').style.display='none';document.getElementById('app').style.display='flex';loadMyParts();loadMyOrders();applyTranslations();showPage('dashboard');}
-function showLogin(){document.getElementById('loginScreen').style.display='flex';document.getElementById('app').style.display='none';}
-window.showPage=function(page){
-  currentPage=page;
-  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-  var pg=document.getElementById('page-'+page);if(pg)pg.classList.add('active');
-  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
-  var nav=document.getElementById('nav-'+page);if(nav)nav.classList.add('active');
-  document.getElementById('topbarTitle').textContent=l('page'+page.charAt(0).toUpperCase()+page.slice(1));
-  if(page==='earnings')renderEarnings();
-  if(page==='settings')populateSettings();
-  if(page==='dashboard')updateCharts();
-  if(page==='addpart'&&!editPartId){populateCarMakes();document.getElementById('partModel').disabled=true;resetAddPartForm();}
-  if(window.innerWidth<=768)document.getElementById('sidebar')?.classList.remove('open');
-};
-window.filterOrders=function(f,btn){currentOrderFilter=f;document.querySelectorAll('.ot-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderOrders(f);};
-window.toggleSidebar=function(){document.getElementById('sidebar')?.classList.toggle('open');};
-function populateSettings(){if(!currentBiz)return;document.getElementById('setBizName').value=currentBiz.businessName||'';document.getElementById('setPhone').value=currentBiz.phone||'';document.getElementById('setWhatsappPhone').value=currentBiz.whatsappPhone||currentBiz.phone||'';document.getElementById('setEmail2').value=currentUser?.email||'';var ce=document.getElementById('setCity');if(ce&&currentBiz.city)ce.value=currentBiz.city;}
-
-window.setLang=function(lg){lang=lg;document.querySelectorAll('.lang-btn').forEach(b=>b.classList.remove('active'));var btn=document.querySelector('.lang-btn[onclick="setLang(\''+lg+'\')"]');if(btn)btn.classList.add('active');applyTranslations();renderMyParts();renderOrders(currentOrderFilter);if(currentPage==='earnings')renderEarnings();if(currentPage==='dashboard')updateCharts();};
-window.setLoginLang=function(lg){lang=lg;document.querySelectorAll('.ll-btn').forEach(b=>b.classList.remove('active'));var btn=document.querySelector('.ll-btn[onclick="setLoginLang(\''+lg+'\')"]');if(btn)btn.classList.add('active');applyTranslations();};
-
-function applyTranslations(){
-  document.title=l('pageTitle');
-  document.querySelectorAll('[data-l]').forEach(el=>{var key=el.dataset.l;if(L[lang][key]!==undefined)el.textContent=L[lang][key];});
-  document.querySelectorAll('[data-l-placeholder]').forEach(el=>{var key=el.dataset.lPlaceholder;if(L[lang][key]!==undefined)el.placeholder=L[lang][key];});
-  document.getElementById('sidebarSub').textContent=l('sidebarSub');
-  document.getElementById('topbarTitle').textContent=l('page'+currentPage.charAt(0).toUpperCase()+currentPage.slice(1));
-  var logoutBtn=document.querySelector('.logout-btn');if(logoutBtn)logoutBtn.textContent=l('logout');
-  var backLinks=document.querySelectorAll('.back-link');if(backLinks[0])backLinks[0].textContent=l('backMarketplace');if(backLinks[1])backLinks[1].textContent=l('backPrivacy');
-  var authTabs=document.querySelectorAll('.auth-tab');if(authTabs[0])authTabs[0].textContent=l('loginTitle');if(authTabs[1])authTabs[1].textContent=l('registerTitle');
-  var sb=document.getElementById('submitPartBtn');if(sb)sb.textContent=editPartId?l('updateBtn'):l('submitBtn');
-}
-
-window.parseBulkImport=function(){var text=document.getElementById('bulkText').value.trim();if(!text){showToast(l('toastFillFields'),true);return;}var lines=text.split('\n').filter(l=>l.trim());bulkImportData=lines.map(line=>{var parts=line.split('|').map(s=>s.trim());return{name:parts[0]||'',category:parts[1]||'other',condition:parts[2]||'new',price:parseFloat(parts[3])||0,stock:parseInt(parts[4])||1,make:parts[5]||'',model:parts[6]||'',description:parts[7]||'',vin:parts[8]||''};});showToast('✅ '+bulkImportData.length+' '+l('bulkCount'));};
-window.importBulkParts=async function(){if(!bulkImportData.length){showToast(l('toastFillFields'),true);return;}var btn=document.getElementById('bulkImportBtn');btn.textContent=l('registerLoading');btn.disabled=true;var imported=0;try{for(var p of bulkImportData){if(!p.name||!p.price)continue;var fits=(p.make&&p.model)?p.make+' '+p.model:'';await db.collection("parts").add({name:{sq:p.name,en:p.name},basePrice:p.price,fits,category:p.category,condition:p.condition,stock:p.stock,description:p.description,vin:(p.vin||'').toUpperCase(),emoji:getCatEmoji(p.category),sellerName:currentBiz?.businessName||currentBiz?.name||'',sellerCity:currentBiz?.city||'',uid:currentUser.uid,status:p.stock>0?'active':'inactive',views:0,sales:0,rating:5,images:[],createdAt:firebase.firestore.FieldValue.serverTimestamp()});imported++;}showToast('✅ '+imported+' pjesë u importuan!');bulkImportData=[];document.getElementById('bulkText').value='';}catch(e){showToast(l('toastError')+': '+e.message,true);}btn.textContent=l('bulkImportBtn');btn.disabled=false;};
-
-document.addEventListener('DOMContentLoaded',function(){document.querySelectorAll('.modal-overlay').forEach(function(o){o.addEventListener('click',function(e){if(e.target===o)o.classList.remove('open');});});document.addEventListener('keypress',function(e){if(e.key==='Enter'&&document.getElementById('loginScreen').style.display!=='none')doLogin();});});
-</script>
 <style>
-:root{--bg:#fef7f0;--panel:#ffffff;--card:#ffffff;--border:#f0d9c0;--red:#d97706;--red-dark:#b45309;--red-glow:rgba(217,119,6,0.08);--chrome:#8a7a6a;--white:#2d1f10;--yellow:#f59e0b;--green:#65a30d;--green-dim:rgba(101,163,13,0.12);--blue:#2563eb;--orange:#d97706;--radius:14px;--sw:240px;}
 *{margin:0;padding:0;box-sizing:border-box;}
-body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--white);min-height:100vh;}
-::-webkit-scrollbar{width:5px;}::-webkit-scrollbar-track{background:var(--panel);}::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}::-webkit-scrollbar-thumb:hover{background:var(--red);}
+:root{
+  --bg:#f8f9fa; --panel:#ffffff; --card:#ffffff; --border:#e9ecef;
+  --primary:#d97706; --primary-dark:#b45309; --primary-light:#fff3e6;
+  --text-secondary:#6c757d; --text-primary:#212529; --success:#28a745;
+  --warning:#ffc107; --danger:#dc3545; --info:#17a2b8;
+  --radius:8px; --sidebar-width:260px;
+}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text-primary);}
 .login-screen{position:fixed;inset:0;background:var(--bg);z-index:1000;display:flex;align-items:center;justify-content:center;}
-.login-box{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:2.5rem;width:100%;max-width:440px;}
-.login-logo{font-family:'Bebas Neue',sans-serif;font-size:2rem;letter-spacing:3px;margin-bottom:1.5rem;text-align:center;}.login-logo span{color:var(--red);}.login-logo a{color:inherit;text-decoration:none;}
-.auth-tabs{display:flex;margin-bottom:1.5rem;background:var(--panel);border-radius:10px;overflow:hidden;}
-.auth-tab{flex:1;padding:10px;text-align:center;cursor:pointer;font-weight:800;font-size:0.85rem;border:none;background:transparent;color:var(--chrome);font-family:'Nunito',sans-serif;transition:all 0.2s;}.auth-tab.active{background:var(--red);color:white;}
-.login-lang{display:flex;gap:0.5rem;justify-content:center;margin-bottom:1.5rem;}
-.ll-btn{background:var(--panel);border:1px solid var(--border);color:var(--chrome);padding:5px 14px;border-radius:6px;font-size:0.78rem;font-weight:800;cursor:pointer;font-family:'Nunito',sans-serif;transition:all 0.2s;}.ll-btn.active{background:var(--red);border-color:var(--red);color:white;}
-.inp-group{margin-bottom:1rem;}.inp-group label{display:block;font-size:0.75rem;font-weight:800;color:var(--chrome);margin-bottom:5px;text-transform:uppercase;letter-spacing:1px;}
-.inp-group input,.inp-group select{width:100%;background:var(--panel);border:1px solid var(--border);border-radius:8px;color:var(--white);padding:11px 14px;font-family:'Nunito',sans-serif;font-size:0.9rem;outline:none;}.inp-group input:focus,.inp-group select:focus{border-color:var(--red);}
+.login-box{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:2rem;width:100%;max-width:400px;}
+.login-logo{font-weight:800;font-size:1.3rem;margin-bottom:0.5rem;text-align:center;}.login-logo span{color:var(--primary);}
+.login-sub{text-align:center;color:var(--text-secondary);font-size:0.75rem;margin-bottom:1.5rem;}
+.auth-tabs{display:flex;margin-bottom:1.5rem;background:var(--bg);border-radius:8px;overflow:hidden;}
+.auth-tab{flex:1;padding:10px;text-align:center;cursor:pointer;font-weight:600;font-size:0.8rem;border:none;background:transparent;color:var(--text-secondary);}
+.auth-tab.active{background:var(--primary);color:white;}
+.inp-group{margin-bottom:1rem;}
+.inp-group label{display:block;font-size:0.7rem;font-weight:600;color:var(--text-secondary);margin-bottom:4px;}
+.inp-group input{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:10px 12px;outline:none;}
 .inp-row{display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;}
-.auth-btn{width:100%;background:var(--red);color:white;border:none;border-radius:10px;padding:13px;font-family:'Bebas Neue',sans-serif;font-size:1.2rem;letter-spacing:3px;cursor:pointer;}.auth-btn:hover{background:var(--red-dark);}.auth-btn:disabled{opacity:0.6;cursor:not-allowed;}
+.auth-btn{width:100%;background:var(--primary);color:white;border:none;border-radius:6px;padding:12px;font-weight:600;cursor:pointer;}
 #app{display:none;min-height:100vh;}
-.sidebar{width:var(--sw);background:var(--panel);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100vh;z-index:50;transition:transform 0.3s;}
-.sidebar-logo{padding:1.25rem 1.5rem;border-bottom:1px solid var(--border);font-family:'Bebas Neue',sans-serif;font-size:1.4rem;letter-spacing:2px;}.sidebar-logo span{color:var(--red);}
-.sidebar-logo small{display:block;font-family:'Nunito',sans-serif;font-size:0.65rem;font-weight:800;color:var(--chrome);letter-spacing:1px;margin-top:2px;}
+.sidebar{width:var(--sidebar-width);background:var(--panel);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100vh;z-index:50;}
+.sidebar-logo{padding:1.25rem 1.5rem;border-bottom:1px solid var(--border);font-weight:800;font-size:1.2rem;}
+.sidebar-logo span{color:var(--primary);}
+.sidebar-logo small{display:block;font-size:0.6rem;font-weight:500;color:var(--text-secondary);}
 .sidebar-nav{flex:1;padding:0.75rem 0;overflow-y:auto;}
-.nav-section{padding:0.5rem 1.5rem;font-size:0.65rem;font-weight:800;color:#444;text-transform:uppercase;letter-spacing:2px;margin-top:0.5rem;}
-.nav-item{display:flex;align-items:center;gap:0.75rem;padding:0.7rem 1.5rem;cursor:pointer;transition:all 0.2s;font-weight:700;font-size:0.85rem;color:var(--chrome);border-left:3px solid transparent;text-decoration:none;}
-.nav-item:hover{color:var(--white);background:rgba(255,255,255,0.04);}.nav-item.active{color:var(--red);border-left-color:var(--red);background:var(--red-glow);}
-.nav-item .ico{font-size:1rem;width:20px;text-align:center;}
+.nav-section{padding:0.5rem 1.5rem;font-size:0.6rem;font-weight:600;color:var(--text-secondary);text-transform:uppercase;}
+.nav-item{display:flex;align-items:center;gap:0.75rem;padding:0.6rem 1.5rem;cursor:pointer;font-weight:500;font-size:0.85rem;color:var(--text-secondary);border-left:3px solid transparent;}
+.nav-item:hover{background:rgba(0,0,0,0.02);}
+.nav-item.active{color:var(--primary);border-left-color:var(--primary);background:var(--primary-light);}
 .sidebar-bottom{padding:1.25rem;border-top:1px solid var(--border);}
-.biz-badge{background:var(--red-glow);border:1px solid rgba(224,32,32,0.3);border-radius:10px;padding:0.75rem;margin-bottom:0.75rem;}
-.biz-badge .biz-name{font-weight:800;font-size:0.88rem;}.biz-badge .biz-plan{font-size:0.7rem;color:var(--red);font-weight:700;}
-.back-link{display:block;text-align:center;color:var(--chrome);font-size:0.75rem;font-weight:800;text-decoration:none;margin-bottom:0.5rem;padding:6px;border:1px solid var(--border);border-radius:8px;}.back-link:hover{border-color:var(--red);color:var(--red);}
-.logout-btn{width:100%;background:transparent;border:1px solid var(--border);color:var(--chrome);border-radius:8px;padding:8px;font-family:'Nunito',sans-serif;font-weight:700;font-size:0.8rem;cursor:pointer;}.logout-btn:hover{border-color:var(--red);color:var(--red);}
-.main{margin-left:var(--sw);flex:1;display:flex;flex-direction:column;min-height:100vh;}
-.topbar{background:var(--panel);border-bottom:1px solid var(--border);padding:0 2rem;height:58px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:40;}
-.topbar-title{font-family:'Bebas Neue',sans-serif;font-size:1.3rem;letter-spacing:2px;}
-.lang-toggle{display:flex;background:var(--bg);border:1px solid var(--border);border-radius:8px;overflow:hidden;}
-.lang-btn{padding:5px 12px;font-size:0.72rem;font-weight:800;cursor:pointer;border:none;background:transparent;color:var(--chrome);font-family:'Nunito',sans-serif;}.lang-btn.active{background:var(--red);color:white;}
-.sidebar-toggle{display:none;background:none;border:none;color:var(--white);font-size:1.3rem;cursor:pointer;}
-.page{padding:1.75rem;display:none;}.page.active{display:block;}
-.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:1.25rem;margin-bottom:1.75rem;}
-.stat-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:1.5rem;position:relative;overflow:hidden;}.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;}
-.green::before{background:var(--green);}.red::before{background:var(--red);}.blue::before{background:var(--blue);}.orange::before{background:var(--orange);}
-.stat-ico{font-size:1.6rem;margin-bottom:0.75rem;}.stat-val{font-family:'Bebas Neue',sans-serif;font-size:1.8rem;letter-spacing:2px;margin-bottom:0.25rem;}
-.stat-lbl{font-size:0.75rem;color:var(--chrome);text-transform:uppercase;letter-spacing:1px;}.stat-chg{font-size:0.75rem;font-weight:800;margin-top:0.5rem;color:var(--green);}
-.charts-row{display:grid;grid-template-columns:2fr 1fr;gap:1.25rem;margin-bottom:1.75rem;}
-.chart-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:1.5rem;}
-.chart-title{font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:2px;margin-bottom:1.25rem;}
-.donut-wrap{display:flex;flex-direction:column;align-items:center;gap:1rem;}
-.donut-center{display:flex;flex-direction:column;align-items:center;justify-content:center;}
-.donut-pct{font-family:'Bebas Neue',sans-serif;font-size:1.5rem;}.donut-sub{font-size:0.62rem;color:var(--chrome);}
-.table-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);overflow:auto;margin-bottom:1.5rem;}
-.table-header{padding:1.1rem 1.5rem;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:0.75rem;}
-.table-header h3{font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:2px;}
-.tbl-btn{background:var(--red);color:white;border:none;border-radius:8px;padding:7px 16px;font-family:'Nunito',sans-serif;font-weight:800;font-size:0.78rem;cursor:pointer;}.tbl-btn:hover{background:var(--red-dark);}
-.tbl-btn.outline{background:transparent;border:1px solid var(--border);color:var(--chrome);}
-table{width:100%;border-collapse:collapse;min-width:800px;}
-thead th{padding:0.7rem 1.25rem;text-align:left;font-size:0.7rem;font-weight:800;color:var(--chrome);text-transform:uppercase;letter-spacing:1px;background:rgba(255,255,255,0.02);border-bottom:1px solid var(--border);}
-tbody tr{border-bottom:1px solid var(--border);}tbody tr:hover{background:rgba(255,255,255,0.03);}
-tbody td{padding:0.85rem 1.25rem;font-size:0.85rem;vertical-align:middle;}
-.status-badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:0.7rem;font-weight:800;}
-.badge-active{background:rgba(101,163,13,0.12);color:var(--green);}.badge-used{background:rgba(245,158,11,0.12);color:var(--orange);}
-.badge-pending{background:rgba(245,158,11,0.12);color:var(--orange);}.badge-sold{background:rgba(59,130,246,0.12);color:var(--blue);}
-.badge-inactive{background:rgba(255,255,255,0.06);color:var(--chrome);}
-.icon-btn{background:transparent;border:1px solid var(--border);color:var(--chrome);border-radius:6px;padding:4px 8px;cursor:pointer;font-size:0.78rem;transition:all 0.2s;}.icon-btn:hover{border-color:var(--red);color:var(--red);}
-.form-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:1.5rem;margin-bottom:1.5rem;}
-.form-card h3{font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:2px;margin-bottom:1.25rem;}
-.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.1rem;}.form-full{grid-column:1/-1;}
-.field-group label{display:block;font-size:0.75rem;font-weight:800;color:var(--chrome);margin-bottom:5px;text-transform:uppercase;letter-spacing:1px;}
-.field-group input,.field-group select,.field-group textarea{width:100%;background:var(--panel);border:1px solid var(--border);border-radius:8px;color:var(--white);padding:10px 13px;font-family:'Nunito',sans-serif;font-size:0.9rem;outline:none;}
-.field-group input:focus,.field-group select:focus,.field-group textarea:focus{border-color:var(--red);}
-.toggle-row{display:flex;align-items:center;gap:0.5rem;}.toggle-row input[type=checkbox]{width:18px;height:18px;accent-color:var(--red);cursor:pointer;}
-.fee-preview{background:var(--red-glow);border:1px solid rgba(224,32,32,0.3);border-radius:10px;padding:1rem 1.25rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;}
-.fpi{text-align:center;}.fpi .fv{font-family:'Bebas Neue',sans-serif;font-size:1.3rem;}.fpi .fl{font-size:0.68rem;color:var(--chrome);text-transform:uppercase;letter-spacing:1px;}.fpi.hi .fv{color:var(--green);}
-.fee-divider{font-size:1.3rem;color:var(--chrome);}
-.image-upload-zone{background:var(--panel);border:2px dashed var(--border);border-radius:10px;padding:1.5rem;text-align:center;cursor:pointer;transition:all 0.2s;}.image-upload-zone:hover{border-color:var(--red);background:rgba(217,119,6,0.05);}
-.order-timeline{display:flex;gap:0.5rem;margin-bottom:1.5rem;flex-wrap:wrap;}
-.ot-btn{background:var(--card);border:1px solid var(--border);color:var(--chrome);padding:6px 16px;border-radius:20px;font-size:0.78rem;font-weight:800;cursor:pointer;font-family:'Nunito',sans-serif;transition:all 0.2s;}.ot-btn.active{background:var(--red);border-color:var(--red);color:white;}
-.settings-row{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;}
-.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:200;align-items:center;justify-content:center;padding:1rem;}.modal-overlay.open{display:flex;}
-.modal{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:2rem;max-width:500px;width:100%;position:relative;max-height:90vh;overflow-y:auto;}
-.modal-close{position:absolute;top:1rem;right:1rem;background:none;border:none;color:var(--chrome);font-size:1.3rem;cursor:pointer;transition:color 0.2s;}.modal-close:hover{color:var(--red);}
-.dash-card{background:var(--bg);border-radius:10px;padding:1rem;text-align:center;}.dash-num{font-family:'Bebas Neue',sans-serif;font-size:1.6rem;color:var(--red);}.dash-lbl{font-size:0.72rem;color:var(--chrome);text-transform:uppercase;letter-spacing:1px;}
-.toast{position:fixed;bottom:2rem;right:2rem;color:white;padding:1rem 1.5rem;border-radius:10px;font-weight:800;font-size:0.85rem;display:none;z-index:300;box-shadow:0 8px 24px rgba(0,0,0,0.4);}.toast.show{display:block;animation:sIn 0.3s ease;}
-@keyframes sIn{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
-.spinner{width:40px;height:40px;border:3px solid var(--border);border-top-color:var(--red);border-radius:50%;animation:spin 0.6s linear infinite;margin:0 auto;}
+.workshop-badge{background:var(--primary-light);border-radius:8px;padding:0.75rem;margin-bottom:0.75rem;}
+.workshop-badge .ws-name{font-weight:600;font-size:0.85rem;}
+.workshop-badge .ws-role{font-size:0.65rem;color:var(--primary);font-weight:600;}
+.logout-btn{width:100%;background:transparent;border:1px solid var(--border);border-radius:6px;padding:7px;font-weight:500;cursor:pointer;text-decoration:none;display:block;text-align:center;margin-bottom:0.5rem;}
+.main{margin-left:var(--sidebar-width);flex:1;display:flex;flex-direction:column;min-height:100vh;}
+.topbar{background:var(--panel);border-bottom:1px solid var(--border);padding:0 1.5rem;height:56px;display:flex;align-items:center;justify-content:space-between;}
+.topbar-title{font-weight:700;font-size:1rem;}
+.sidebar-toggle{display:none;background:none;border:none;font-size:1.2rem;cursor:pointer;}
+.page{padding:1.5rem;display:none;}.page.active{display:block;}
+.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem;margin-bottom:1.5rem;}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:1rem;}
+.stat-card .stat-val{font-weight:800;font-size:1.3rem;}
+.stat-card .stat-lbl{font-size:0.65rem;color:var(--text-secondary);}
+.info-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem;margin-bottom:1.5rem;}
+.info-card h3{font-weight:600;font-size:0.9rem;margin-bottom:1rem;}
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
+.info-item{background:var(--bg);border-radius:8px;padding:1rem;text-align:center;}
+.info-val{font-weight:800;font-size:1.2rem;color:var(--success);}
+.info-lbl{font-size:0.65rem;color:var(--text-secondary);margin-top:4px;}
+.table-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);overflow-x:auto;}
+.table-header{padding:0.75rem 1rem;display:flex;justify-content:space-between;border-bottom:1px solid var(--border);}
+.table-header h3{font-weight:600;font-size:0.85rem;}
+table{width:100%;border-collapse:collapse;min-width:600px;}
+thead th{padding:0.5rem 0.75rem;text-align:left;font-size:0.65rem;font-weight:600;color:var(--text-secondary);border-bottom:1px solid var(--border);}
+tbody td{padding:0.6rem 0.75rem;font-size:0.75rem;border-bottom:1px solid var(--border);}
+.toast{position:fixed;bottom:1rem;right:1rem;color:white;padding:0.75rem 1.25rem;border-radius:8px;display:none;z-index:300;}
+.toast.show{display:block;animation:toastIn 0.3s ease;}
+@keyframes toastIn{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
+.spinner{width:28px;height:28px;border:2px solid var(--border);border-top-color:var(--primary);border-radius:50%;animation:spin 0.6s linear infinite;margin:0 auto;}
 @keyframes spin{to{transform:rotate(360deg)}}
-@media(max-width:768px){.sidebar{transform:translateX(-100%);}.sidebar.open{transform:translateX(0);}.main{margin-left:0;}.sidebar-toggle{display:block;}.charts-row,.settings-row,.form-grid{grid-template-columns:1fr;}.topbar{padding:0 1rem;}.page{padding:1rem;}.stats-row{grid-template-columns:1fr 1fr;gap:0.75rem;}.stat-card{padding:1rem;}.table-card{overflow-x:auto;}.form-grid{grid-template-columns:1fr;}.inp-row{grid-template-columns:1fr;}}
+@media(max-width:768px){.sidebar{transform:translateX(-100%);}.sidebar.open{transform:translateX(0);}.main{margin-left:0;}.sidebar-toggle{display:block;}.stats-row{grid-template-columns:1fr 1fr;}.info-grid{grid-template-columns:1fr;}}
 </style>
 </head>
 <body>
 
 <div class="login-screen" id="loginScreen">
   <div class="login-box">
-    <div class="login-lang"><button class="ll-btn active" onclick="setLoginLang('sq')">🇦🇱 Shqip</button><button class="ll-btn" onclick="setLoginLang('en')">🇬🇧 English</button></div>
-    <div class="login-logo"><a href="index.html">Car<span>deals</span>.al</a></div>
-    <div class="auth-tabs"><button class="auth-tab active" onclick="showTab('login',this)" data-l="loginTitle">HYRJA NË LLOGARI</button><button class="auth-tab" onclick="showTab('register',this)" data-l="registerTitle">REGJISTRO BIZNESIN</button></div>
-    <div id="loginForm"><div class="inp-group"><label data-l="emailLabel">EMAIL</label><input type="email" id="loginEmail" /></div><div class="inp-group"><label data-l="passwordLabel">FJALËKALIMI</label><input type="password" id="loginPass" /></div><button class="auth-btn" id="loginBtn" onclick="doLogin()" data-l="loginBtn">HYRJA →</button></div>
-    <div id="registerForm" style="display:none"><div class="inp-group"><label data-l="bizNameLabel">EMRI I BIZNESIT *</label><input type="text" id="regBizName" /></div><div class="inp-row"><div class="inp-group"><label data-l="emailLabel">EMAIL *</label><input type="email" id="regEmail" /></div><div class="inp-group"><label data-l="phoneLabel">TELEFON *</label><input type="text" id="regPhone" /></div></div><div class="inp-group"><label data-l="cityLabel">QYTETI</label><select id="regCity"><option>Tiranë</option><option>Durrës</option><option>Shkodër</option><option>Vlorë</option><option>Korçë</option><option>Fier</option><option>Berat</option></select></div><div class="inp-row"><div class="inp-group"><label data-l="passwordLabel">FJALËKALIMI *</label><input type="password" id="regPass" /></div><div class="inp-group"><label data-l="confirmPassLabel">KONFIRMO *</label><input type="password" id="regPass2" /></div></div><button class="auth-btn" id="regBtn" onclick="doRegister()" data-l="registerBtn">KRIJO LLOGARINË →</button></div>
+    <div class="login-logo">Car<span>deals</span>.al</div>
+    <div class="login-sub">Service Point Panel</div>
+    <div class="auth-tabs">
+      <button class="auth-tab active" onclick="showTab('login')">LOGIN</button>
+      <button class="auth-tab" onclick="showTab('register')">REGISTER</button>
+    </div>
+    <div id="loginForm">
+      <div class="inp-group"><label>EMAIL</label><input type="email" id="loginEmail" /></div>
+      <div class="inp-group"><label>PASSWORD</label><input type="password" id="loginPass" /></div>
+      <button class="auth-btn" onclick="doLogin()">LOGIN →</button>
+    </div>
+    <div id="registerForm" style="display:none">
+      <div class="inp-group"><label>SERVICE POINT NAME *</label><input type="text" id="regName" /></div>
+      <div class="inp-row"><div class="inp-group"><label>EMAIL *</label><input type="email" id="regEmail" /></div><div class="inp-group"><label>PHONE *</label><input type="text" id="regPhone" /></div></div>
+      <div class="inp-group"><label>CITY</label><input type="text" id="regCity" /></div>
+      <div class="inp-row"><div class="inp-group"><label>PASSWORD *</label><input type="password" id="regPass" /></div><div class="inp-group"><label>CONFIRM *</label><input type="password" id="regPass2" /></div></div>
+      <button class="auth-btn" onclick="doRegister()">REGISTER →</button>
+    </div>
   </div>
 </div>
 
 <div id="app" style="display:none;">
   <aside class="sidebar" id="sidebar">
-    <div class="sidebar-logo">Car<span>deals</span>.al<small id="sidebarSub" data-l="sidebarSub">PANELI I BIZNESIT</small></div>
+    <div class="sidebar-logo">Car<span>deals</span>.al<small>SERVICE POINT PANEL</small></div>
     <nav class="sidebar-nav">
-      <div class="nav-section" data-l="secOverview">KRYEFAQJA</div><a class="nav-item active" onclick="showPage('dashboard')" id="nav-dashboard"><span class="ico">📊</span> <span data-l="navDash">Pasqyra</span></a>
-      <div class="nav-section" data-l="secCatalog">KATALOG</div><a class="nav-item" onclick="showPage('parts')" id="nav-parts"><span class="ico">🔩</span> <span data-l="navParts">Pjesët e Mia</span></a>
-      <a class="nav-item" onclick="showPage('addpart')" id="nav-addpart"><span class="ico">➕</span> <span data-l="navAdd">Shto Pjesë</span></a>
-      <a class="nav-item" onclick="showPage('bulkimport')" id="nav-bulkimport"><span class="ico">📦</span> <span data-l="navBulk">Importo me Shumicë</span></a>
-      <div class="nav-section" data-l="secSales">SHITJE</div><a class="nav-item" onclick="showPage('orders')" id="nav-orders"><span class="ico">📦</span> <span data-l="navOrders">Porositë</span> <span id="ordersBadge" style="background:var(--red);color:white;font-size:0.6rem;padding:2px 7px;border-radius:10px;margin-left:auto;display:none;">0</span></a>
-      <a class="nav-item" onclick="showPage('earnings')" id="nav-earnings"><span class="ico">💰</span> <span data-l="navEarn">Fitimet</span></a>
-      <div class="nav-section" data-l="secAccount">LLOGARIA</div><a class="nav-item" onclick="showPage('settings')" id="nav-settings"><span class="ico">⚙️</span> <span data-l="navSet">Cilësimet</span></a>
+      <div class="nav-section">PANEL</div>
+      <a class="nav-item active" onclick="showPage('dashboard')" id="nav-dashboard"><span class="ico">-</span> Dashboard</a>
+      <a class="nav-item" onclick="showPage('orders')" id="nav-orders"><span class="ico">-</span> My Purchases</a>
+      <a class="nav-item" onclick="showPage('cashback')" id="nav-cashback"><span class="ico">-</span> Cashback</a>
     </nav>
     <div class="sidebar-bottom">
-      <div class="biz-badge"><div class="biz-name" id="bizName">—</div><div class="biz-plan" id="bizPlan">PLAN STANDARD · 8%</div></div>
-      <a href="index.html" class="back-link" target="_blank" data-l="backMarketplace">🌐 Cardeals.al ↗</a>
-      <a href="privacy.html" class="back-link" target="_blank" data-l="backPrivacy">📜 Politika e Privatësisë</a>
-      <button class="logout-btn" onclick="doLogout()" data-l="logout">Dil nga Llogaria</button>
+      <div class="workshop-badge"><div class="ws-name" id="workshopName">—</div><div class="ws-role">SERVICE POINT · 2% CASHBACK</div></div>
+      <a href="index.html" class="logout-btn">Marketplace →</a>
+      <button class="logout-btn" onclick="doLogout()">Sign Out</button>
     </div>
   </aside>
 
   <div class="main">
-    <div class="topbar"><div style="display:flex;align-items:center;gap:1rem;"><button class="sidebar-toggle" onclick="toggleSidebar()">☰</button><div class="topbar-title" id="topbarTitle">PASQYRA</div></div><div class="topbar-right"><div class="lang-toggle"><button class="lang-btn active" onclick="setLang('sq')">🇦🇱 SQ</button><button class="lang-btn" onclick="setLang('en')">🇬🇧 EN</button></div></div></div>
+    <div class="topbar">
+      <div style="display:flex;align-items:center;gap:1rem;">
+        <button class="sidebar-toggle" onclick="toggleSidebar()">☰</button>
+        <div class="topbar-title">SERVICE POINT PANEL</div>
+      </div>
+    </div>
 
     <div class="page active" id="page-dashboard">
-      <div class="stats-row"><div class="stat-card green"><div class="stat-ico">💰</div><div class="stat-val" id="statEarn">0 L</div><div class="stat-lbl" data-l="statEarn">Fitimet Tuaja</div><div class="stat-chg" data-l="statLive">↑ Live</div></div><div class="stat-card red"><div class="stat-ico">📦</div><div class="stat-val" id="statSales">0</div><div class="stat-lbl" data-l="statSales">Shitje Totale</div><div class="stat-chg" data-l="statLive">↑ Live</div></div><div class="stat-card blue"><div class="stat-ico">👁️</div><div class="stat-val" id="statViews">0</div><div class="stat-lbl" data-l="statViews">Shikime</div><div class="stat-chg" data-l="statLive">↑ Live</div></div><div class="stat-card orange"><div class="stat-ico">🔩</div><div class="stat-val" id="statParts">0</div><div class="stat-lbl" data-l="statParts">Pjesë Aktive</div><div class="stat-chg" data-l="statLive">↑ Live</div></div></div>
-      <div class="charts-row"><div class="chart-card"><div class="chart-title" data-l="chartSales">SHITJET — 7 DITËT E FUNDIT</div><canvas id="salesChart"></canvas></div><div class="chart-card"><div class="chart-title" data-l="chartCategory">SIPAS KATEGORISË</div><div class="donut-wrap"><div class="donut-center"><div class="donut-pct" id="donutTotal">0</div><div class="donut-sub" data-l="chartDonut">SHITJE</div></div><canvas id="categoryChart" style="display:none;"></canvas></div></div></div>
-      <div class="table-card"><div class="table-header"><h3 data-l="recentOrdersTitle">POROSITË E FUNDIT</h3><button class="tbl-btn outline" onclick="showPage('orders')" data-l="viewAll">Shiko Të Gjitha</button></div><table><thead><tr><th data-l="thOrderNum">#</th><th data-l="thPart">Pjesa</th><th data-l="thBuyer">Blerësi</th><th data-l="thSeller">Shitësi</th><th data-l="thPrice">Çmimi</th><th data-l="thStatus">Statusi</th><th data-l="thPayMethod">Pagesa</th><th data-l="thActions">Veprime</th></tr></thead><tbody id="recentOrdersBody"></tbody></table></div>
-    </div>
-
-    <div class="page" id="page-parts">
-      <div class="table-card">
-        <div class="table-header">
-          <h3 data-l="navParts">PJESËT E MIA</h3>
-          <button class="tbl-btn" onclick="showPage('addpart')" data-l="addPartBtn">+ Shto Pjesë</button>
-        </div>
-        <div style="overflow-x:auto;">
-          <table style="width:100%; min-width:800px;">
-            <thead>
-              <tr>
-                <th data-l="thPart">Pjesa</th>
-                <th data-l="thCategory">Kategoria</th>
-                <th data-l="thCondition">Gjendja</th>
-                <th data-l="thBasePrice">Çmimi Bazë</th>
-                <th data-l="thFinalPrice">Çmimi Final</th>
-                <th data-l="thStock">Stoku</th>
-                <th data-l="thStatus">Statusi</th>
-                <th data-l="thActions">Veprime</th>
-              </tr>
-            </thead>
-            <tbody id="myPartsBody">
-              <tr>
-                <td colspan="8" style="text-align:center;padding:3rem;">
-                  <div class="spinner"></div>
-                  <p style="margin-top:1rem; color:var(--chrome);">Duke ngarkuar pjesët...</p>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-
-    <div class="page" id="page-addpart">
-      <div class="form-card"><h3 id="addPartTitle" data-l="addPartTitle">SHTO PJESË TË RE</h3>
-        <div class="form-grid">
-          <div class="field-group"><label data-l="partNameLabel">Emri i Pjesës *</label><input type="text" id="fName" oninput="calcFee()" placeholder="p.sh. Set Frenash Para" /></div>
-          <div class="field-group"><label data-l="categoryLabel">Kategoria *</label><select id="fCat"><option value="brakes">Frena</option><option value="engine">Motor</option><option value="electrical">Elektrik</option><option value="suspension">Amortizatorë</option><option value="body">Karroceri</option><option value="ac">Klimë</option></select></div>
-          <div class="field-group"><label data-l="conditionLabel">Gjendja *</label><select id="fCond"><option value="new">E Re</option><option value="used">E Përdorur</option></select></div>
-          <div class="field-group"><label data-l="makeLabel">Marka e Makinës *</label><select id="partMake" onchange="onPartMakeChange()"><option value="">Zgjidh Markën</option></select></div>
-          <div class="field-group"><label data-l="modelLabel">Modeli *</label><select id="partModel" disabled><option value="">Zgjidh Modelin</option></select></div>
-          <div class="field-group"><label data-l="vinLabel">Numri i Shasisë (VIN)</label><input type="text" id="fVin" data-l-placeholder="vinPlaceholder" placeholder="Opcionale: VIN 17 karaktere" style="text-transform:uppercase;" maxlength="17" /></div>
-          <div class="field-group"><label data-l="priceLabel">Çmimi Juaj (Lekë) *</label><input type="number" id="fPrice" oninput="calcFee()" placeholder="5000" /></div>
-          <div class="field-group"><label data-l="stockLabel">Sasia në Stok</label><input type="number" id="fStock" value="1" /></div>
-          <div class="field-group form-full"><label data-l="descLabel">Përshkrimi</label><textarea id="fDesc" rows="3" data-l-placeholder="descPlaceholder" placeholder="Gjendja, marka, OEM apo aftermarket..."></textarea></div>
-          <input type="hidden" id="fFits" value="" />
-          <div class="field-group form-full"><label data-l="promoLabel">🏷️ Promocionet</label>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.6rem;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:1rem;">
-              <div class="toggle-row"><input type="checkbox" id="fDiscount" onchange="document.getElementById('fDiscountVal').style.display=this.checked?'inline-block':'none';calcFee();" /><label for="fDiscount" data-l="discountLabel">🟢 Zbritje %</label></div><div><input type="number" id="fDiscountVal" value="10" min="1" max="99" style="width:70px;display:none;" oninput="calcFee()" /></div>
-              <div class="toggle-row"><input type="checkbox" id="fFeatured" /><label for="fFeatured" data-l="featuredLabel">⭐ E veçuar (max 3)</label></div><div></div>
-              <div class="toggle-row"><input type="checkbox" id="fSpecialOffer" /><label for="fSpecialOffer" data-l="specialLabel">🔥 Ofertë Speciale</label></div><div></div>
-              <div class="toggle-row"><input type="checkbox" id="fFreeShipping" /><label for="fFreeShipping" data-l="shippingLabel">🚚 Transport Falas</label></div><div></div>
-              <div class="toggle-row"><input type="checkbox" id="fLimitedStock" /><label for="fLimitedStock" data-l="limitedLabel">⚡ Stok i Limituar</label></div><div></div>
-              <div class="toggle-row"><input type="checkbox" id="fBestSeller" /><label for="fBestSeller" data-l="bestLabel">🏆 Më i Shituri</label></div><div></div>
-            </div>
-          </div>
-          <div class="field-group form-full"><label data-l="photosLabel">📸 Fotot e Pjesës</label><div class="image-upload-zone" onclick="triggerImageUpload()"><div style="font-size:2.5rem;" data-l="photoUpload">📷</div><div style="font-weight:800;" data-l="photoClick">Kliko këtu</div><button type="button" class="tbl-btn" style="margin-top:0.75rem;" data-l="photoBtn">📸 ZGJIDH FOTOT</button></div><input type="file" id="imageInput" accept="image/*" multiple style="display:none;" onchange="handleImageSelect(event)" /><div id="imagePreviews" style="margin-top:0.75rem;"></div></div>
-        </div>
-      </div>
-      <div class="form-card"><h3 data-l="feeCalcTitle">LLOGARITËSI I ÇMIMIT</h3><div class="fee-preview"><div class="fpi"><div class="fv" id="fpBase">0 L</div><div class="fl" data-l="feeBase">Çmimi Juaj</div></div><div class="fee-divider">+</div><div class="fpi"><div class="fv" id="fpFee">0 L</div><div class="fl" data-l="feeFee">Tarifa (8%)</div></div><div class="fee-divider">=</div><div class="fpi hi"><div class="fv" id="fpTotal">0 L</div><div class="fl" data-l="feeTotal">Çmimi Final</div></div></div></div>
-      <div style="display:flex;gap:1rem;"><button class="tbl-btn" style="padding:12px 2rem;" id="submitPartBtn" onclick="submitPart()" data-l="submitBtn">📦 PUBLIKO PJESËN</button><button class="tbl-btn outline" style="padding:12px 2rem;" onclick="showPage('parts')" data-l="cancelBtn">Anulo</button></div>
-    </div>
-
-    <div class="page" id="page-bulkimport"><div class="form-card"><h3 data-l="bulkTitle">📦 IMPORTO PJESË ME SHUMICË</h3><p style="color:var(--chrome);font-size:0.85rem;" data-l="bulkDesc">Formati: Emri | Kategoria | Gjendja | Çmimi | Stoku | Marka | Modeli | Përshkrimi | VIN</p><div class="field-group form-full"><textarea id="bulkText" rows="8" data-l-placeholder="bulkPlaceholder" placeholder="Set Frenash Para | brakes | new | 5000 | 10 | Volkswagen | Golf | Frenat origjinale | WVGZZZ1KZAW123456"></textarea></div><div style="display:flex;gap:1rem;"><button class="tbl-btn" onclick="parseBulkImport()" data-l="bulkPreviewBtn">🔍 SHIKO PARAPAMJEN</button><button class="tbl-btn" id="bulkImportBtn" onclick="importBulkParts()" style="background:#22c55e;" data-l="bulkImportBtn">📦 IMPORTO TË GJITHA</button><span id="bulkCount">0 pjesë</span></div></div><div class="table-card"><div class="table-header"><h3 data-l="bulkPreviewTitle">📋 PARAPAMJA</h3></div><tr><thead><tr><th data-l="thPart">Pjesa</th><th data-l="thCategory">Kategoria</th><th data-l="thCondition">Gjendja</th><th data-l="thPrice">Çmimi</th><th data-l="thStock">Stoku</th><th>Makina</th><th data-l="descLabel">Përshkrimi</th><th>VIN</th></tr></thead><tbody id="bulkPreviewBody"><tr><td colspan="8" data-l="bulkEmpty">Asnjë pjesë</span></tr></tbody></table></div></div>
-
-    <div class="page" id="page-orders"><div class="order-timeline"><button class="ot-btn active" onclick="filterOrders('all',this)" data-l="orderTimelineAll">Të Gjitha</button><button class="ot-btn" onclick="filterOrders('pending',this)" data-l="orderTimelinePending">Në Pritje</button><button class="ot-btn" onclick="filterOrders('sold',this)" data-l="orderTimelineSold">Shitur</button><button class="ot-btn" onclick="filterOrders('pickup',this)" data-l="orderTimelinePickup">Marrje</button></div><div class="table-card"><div class="table-header"><h3 data-l="allOrdersTitle">TË GJITHA POROSITË</h3><span id="orderCount"></span></div><table><thead><tr><th data-l="thOrderNum">#</th><th data-l="thPart">Pjesa</th><th data-l="thBuyer">Blerësi</th><th data-l="thSeller">Shitësi</th><th data-l="thDate">Data</th><th data-l="thPrice">Çmimi</th><th data-l="thStatus">Statusi</th><th data-l="thPayMethod">Pagesa</th><th data-l="thActions">Veprime</th></tr></thead><tbody id="allOrdersBody"></tbody></table></div></div>
-
-    <div class="page" id="page-earnings">
       <div class="stats-row">
-        <div class="stat-card green"><div class="stat-ico">💵</div><div class="stat-val" id="earnTotalVal">0 L</div><div class="stat-lbl" data-l="earnNetTotal">Fitim Neto Total</div></div>
-        <div class="stat-card blue"><div class="stat-ico">📦</div><div class="stat-val" id="earnTotalOrders">0</div><div class="stat-lbl" data-l="earnTotalSales">Shitje të Konfirmuara</div></div>
-        <div class="stat-card orange"><div class="stat-ico">💸</div><div class="stat-val" id="earnFeeVal">0 L</div><div class="stat-lbl" data-l="earnFeesTotal">Tarifa Cardeals (8%)</div></div>
+        <div class="stat-card"><div class="stat-val" id="statTotal">0 L</div><div class="stat-lbl">Total Purchases</div></div>
+        <div class="stat-card"><div class="stat-val" id="statOrders">0</div><div class="stat-lbl">Total Orders</div></div>
+        <div class="stat-card"><div class="stat-val" id="statMonth">0 L</div><div class="stat-lbl">This Month</div></div>
+        <div class="stat-card"><div class="stat-val" id="statCashback">0 L</div><div class="stat-lbl">Expected Cashback</div></div>
       </div>
-      <div class="table-card"><div class="table-header"><h3 data-l="earnMonthlyTitle">📅 PËRMBLEDHJA MUJORE</h3></div><table><thead><tr><th data-l="thMonth">Muaji</th><th data-l="thNr">Nr.</th><th data-l="thGross">Vlera</th><th data-l="thFee">Tarifa</th><th data-l="thNet">Neto</th><th></th></tr></thead><tbody id="earningsBody"></tbody></table></div>
+      <div class="info-card" style="background:var(--primary-light);">
+        <h3>Credit Balance</h3>
+        <div style="font-weight:800;font-size:1.8rem;color:var(--success);" id="statBalance">0 L</div>
+        <div style="color:var(--text-secondary);font-size:0.7rem;">Available credit for future purchases</div>
+      </div>
+      <div class="table-card">
+        <div class="table-header"><h3>Recent Purchases</h3></div>
+        <table><thead><tr><th>Part</th><th>Price</th><th>Status</th><th>Date</th></tr></thead><tbody id="recentOrdersBody"></tbody></table>
+      </div>
     </div>
 
-    <div class="page" id="page-settings"><div class="settings-row"><div class="form-card"><h3 data-l="settingsProfile">PROFILI I BIZNESIT</h3><div class="field-group"><label data-l="setBizName">Emri i Biznesit</label><input type="text" id="setBizName" /></div><div class="field-group"><label data-l="setPhone">Telefon</label><input type="text" id="setPhone" /></div><div class="field-group"><label data-l="setWhatsappPhone">WhatsApp</label><input type="text" id="setWhatsappPhone" placeholder="+355 69 123 4567" /></div><div class="field-group"><label data-l="setEmail">Email</label><input type="email" id="setEmail2" disabled /></div><div class="field-group"><label data-l="setCity">Qyteti</label><select id="setCity"><option>Tiranë</option><option>Durrës</option><option>Shkodër</option><option>Vlorë</option><option>Korçë</option><option>Fier</option><option>Berat</option></select></div><button class="tbl-btn" onclick="saveSettings()" data-l="saveSettingsBtn">RUAJ NDRYSHIMET</button></div><div class="form-card" style="grid-column:1/-1;"><h3 data-l="settingsPlanTitle">⭐ PLANI JUAJ & UPGRADET</h3><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;" id="planCards"></div></div></div></div>
+    <div class="page" id="page-orders">
+      <div class="table-card">
+        <div class="table-header"><h3>All Purchases</h3></div>
+        <table><thead><tr><th>Order #</th><th>Part</th><th>Seller</th><th>Price</th><th>Cashback</th><th>Status</th><th>Date</th></tr></thead><tbody id="allOrdersBody"></tbody></table>
+      </div>
+    </div>
+
+    <div class="page" id="page-cashback">
+      <div class="info-card">
+        <h3>Current Period (30 days)</h3>
+        <div class="info-grid">
+          <div class="info-item"><div class="info-val" id="periodStart">—</div><div class="info-lbl">Period Start</div></div>
+          <div class="info-item"><div class="info-val" id="daysLeft">—</div><div class="info-lbl">Days Remaining</div></div>
+          <div class="info-item"><div class="info-val" id="periodTotal">0 L</div><div class="info-lbl">Total Purchases</div></div>
+          <div class="info-item"><div class="info-val" id="periodCashback">0 L</div><div class="info-lbl">Expected Cashback (2%)</div></div>
+        </div>
+      </div>
+      <div class="info-card" style="background:var(--primary-light);">
+        <h3>Current Credit Balance</h3>
+        <div style="font-weight:800;font-size:2rem;color:var(--success);" id="currentBalance">0 L</div>
+        <div style="color:var(--text-secondary);font-size:0.7rem;">Credit is calculated every 30 days as 2% of your purchases.</div>
+      </div>
+    </div>
   </div>
 </div>
 
-<div class="modal-overlay" id="promoteModal"><div class="modal" style="max-width:520px;"><button class="modal-close" onclick="closeModal('promoteModal')">✕</button><h3 data-l="promoteTitle">🚀 Promovo Pjesën</h3><p id="promotePartName" style="color:var(--chrome);margin-bottom:1rem;"></p><input type="hidden" id="promotePartId" /><input type="hidden" id="promoteSelectedTier" value="" /><div id="promoTierOptions" style="display:flex;flex-direction:column;gap:0.75rem;margin-bottom:1.25rem;"></div><p style="font-size:0.8rem;color:#888;margin-bottom:1rem;" data-l="promoteWait">⚠️ Pasi të aprovohet nga administratori, promocioni aktivizohet menjëherë.</p><div style="display:flex;gap:1rem;"><button class="tbl-btn" id="confirmPromoteBtn" style="flex:1;padding:11px;background:var(--yellow);color:#000;opacity:0.5;" disabled onclick="confirmPromote()" data-l="promoteBtn">🚀 PROMOVO</button><button class="tbl-btn outline" style="flex:1;padding:11px;" onclick="closeModal('promoteModal')" data-l="promoteCancel">Anulo</button></div></div></div>
-<div class="modal-overlay" id="orderDetailModal"><div class="modal"><button class="modal-close" onclick="closeModal('orderDetailModal')">✕</button><h3 data-l="orderDetailTitle">📦 Detajet e Porosisë</h3><div id="orderDetailContent"></div></div></div>
-<div class="modal-overlay" id="deleteModal"><div class="modal"><button class="modal-close" onclick="closeModal('deleteModal')">✕</button><h3 data-l="deleteTitle">FSHI PJESËN?</h3><p style="color:#8892a4;" data-l="deleteDesc">Kjo veprim nuk mund të zhbëhet.</p><div style="display:flex;gap:1rem;"><button class="tbl-btn" style="flex:1;background:var(--red);" onclick="confirmDelete()" data-l="deleteConfirm">PO, FSHI</button><button class="tbl-btn outline" style="flex:1;" onclick="closeModal('deleteModal')" data-l="deleteCancel">Anulo</button></div></div></div>
-<div class="modal-overlay" id="updateStockModal"><div class="modal"><button class="modal-close" onclick="closeModal('updateStockModal')">✕</button><h3 data-l="stockTitle">📦 Përditëso Stokun</h3><p id="updateStockPartName" style="color:var(--chrome);"></p><input type="hidden" id="updateStockPartId" /><div class="field-group"><label data-l="stockCurrent">Stoku Aktual</label><input type="number" id="currentStockDisplay" disabled /></div><div class="field-group"><label data-l="stockAdd">Shto Copë (+)</label><input type="number" id="stockToAdd" value="1" /></div><div class="field-group"><label data-l="stockNew">Stoku i Ri</label><input type="number" id="newStockDisplay" disabled style="color:#22c55e;" /></div><div style="display:flex;gap:1rem;"><button class="tbl-btn" style="flex:1;" onclick="confirmUpdateStock()" data-l="stockUpdateBtn">✅ PËRDITËSO</button><button class="tbl-btn outline" style="flex:1;" onclick="closeModal('updateStockModal')" data-l="promoteCancel">Anulo</button></div></div></div>
 <div class="toast" id="toast"></div>
+
+<script>
+firebase.initializeApp({apiKey:"AIzaSyAU8hVTqury1MbC0Sx-CXGY1YQrr5VJhyE",authDomain:"cardeals-al.firebaseapp.com",projectId:"cardeals-al",storageBucket:"cardeals-al.firebasestorage.app",messagingSenderId:"839953227675",appId:"1:839953227675:web:6fb6aa9350bd3bd507cb3e"});
+const auth=firebase.auth(),db=firebase.firestore();
+
+let currentUser=null,currentWorkshop=null,myOrders=[],currentPage='dashboard';
+
+function g(id){return document.getElementById(id);}
+function showToast(msg,isErr){const t=g('toast');if(!t)return;t.textContent=msg;t.style.background=isErr?'#dc3545':'#28a745';t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000);}
+
+auth.onAuthStateChanged(async user=>{
+  if(user){
+    currentUser=user;
+    try{
+      var doc=await db.collection("workshops").doc(user.uid).get();
+      if(doc.exists){
+        currentWorkshop=doc.data();
+        currentWorkshop.id=user.uid;
+        showApp();
+      }else{
+        await auth.signOut();
+        showToast('Account not found. Please register!',true);
+      }
+    }catch(e){
+      console.error(e);
+      showToast('Error: '+e.message,true);
+    }
+  }else{
+    currentUser=null;currentWorkshop=null;
+  }
+});
+
+function showApp(){g('loginScreen').style.display='none';g('app').style.display='flex';g('workshopName').textContent=currentWorkshop?.name||'Service Point';loadMyOrders();showPage('dashboard');}
+
+// LOGIN
+window.doLogin=async function(){
+  var e=g('loginEmail').value.trim(),p=g('loginPass').value,btn=g('loginBtn');
+  if(!e||!p){showToast('Fill all fields!',true);return;}
+  btn.textContent='Logging in...';btn.disabled=true;
+  try{await auth.signInWithEmailAndPassword(e,p);}
+  catch(err){showToast('Wrong email or password!',true);btn.textContent='LOGIN →';btn.disabled=false;}
+};
+
+// REGISTER
+window.doRegister=function(){
+  var email=document.getElementById('regEmail').value.trim();
+  var pass=document.getElementById('regPass').value;
+  var pass2=document.getElementById('regPass2').value;
+  var name=document.getElementById('regName').value.trim();
+  
+  if(!name||!email||!pass||!pass2){
+    showToast('Fill all fields!',true);
+    return;
+  }
+  if(pass!==pass2){
+    showToast('Passwords do not match!',true);
+    return;
+  }
+  if(pass.length<6){
+    showToast('Password must be at least 6 characters!',true);
+    return;
+  }
+  
+  var btn=document.getElementById('regBtn');
+  btn.textContent='Registering...';
+  btn.disabled=true;
+  
+  auth.createUserWithEmailAndPassword(email,pass)
+  .then(function(cred){
+    return db.collection("workshops").doc(cred.user.uid).set({
+      name:document.getElementById('regName').value,
+      email:email,
+      phone:document.getElementById('regPhone').value,
+      city:document.getElementById('regCity').value,
+      creditBalance:0,totalPurchases:0,
+      currentPeriodStart:new Date(),currentPeriodTotal:0,
+      lastPayout:null,createdAt:firebase.firestore.FieldValue.serverTimestamp()
+    });
+  })
+  .then(function(){
+    showToast('Account created!');
+    btn.textContent='REGISTER →';
+    btn.disabled=false;
+  })
+  .catch(function(err){
+    console.error(err);
+    showToast('Error: '+err.message,true);
+    btn.textContent='REGISTER →';
+    btn.disabled=false;
+  });
+};
+
+window.doLogout=async()=>{await auth.signOut();};
+
+window.showTab=function(tab){
+  if(tab==='login'){
+    g('tabLogin').style.background='var(--primary)';
+    g('tabLogin').style.color='white';
+    g('tabRegister').style.background='transparent';
+    g('tabRegister').style.color='var(--text-secondary)';
+    g('loginForm').style.display='block';
+    g('registerForm').style.display='none';
+  }else{
+    g('tabRegister').style.background='var(--primary)';
+    g('tabRegister').style.color='white';
+    g('tabLogin').style.background='transparent';
+    g('tabLogin').style.color='var(--text-secondary)';
+    g('registerForm').style.display='block';
+    g('loginForm').style.display='none';
+  }
+};
+
+async function loadMyOrders(){
+  if(!currentUser)return;
+  db.collection("orders").where("buyerUid","==",currentUser.uid).orderBy("createdAt","desc").onSnapshot(snap=>{
+    myOrders=snap.docs.map(d=>({id:d.id,...d.data()}));
+    if(currentPage==='dashboard')updateDashboard();
+    if(currentPage==='orders')renderAllOrders();
+    if(currentPage==='cashback')renderCashback();
+  });
+}
+
+function updateDashboard(){
+  var total=myOrders.reduce(function(s,o){return s+(o.totalPrice||0);},0);
+  var now=new Date();
+  var thisMonth=myOrders.filter(function(o){var d=o.createdAt?.toDate?o.createdAt.toDate():new Date();return d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear();});
+  var monthTotal=thisMonth.reduce(function(s,o){return s+(o.totalPrice||0);},0);
+  var cashback=Math.round(monthTotal*0.02);
+  g('statTotal').textContent=total.toLocaleString()+' L';
+  g('statOrders').textContent=myOrders.length;
+  g('statMonth').textContent=monthTotal.toLocaleString()+' L';
+  g('statCashback').textContent=cashback.toLocaleString()+' L';
+  g('statBalance').textContent=(currentWorkshop?.creditBalance||0).toLocaleString()+' L';
+  var recent=myOrders.slice(0,5);
+  var tbody=g('recentOrdersBody');
+  tbody.innerHTML=recent.length?recent.map(function(o){var date=o.createdAt?.toDate?o.createdAt.toDate().toLocaleDateString('sq-AL'):'—';var status=o.status==='sold'?'<span style="color:#28a745;">Sold</span>':o.status==='pending'?'<span style="color:#ffc107;">Pending</span>':'<span style="color:#dc3545;">Cancelled</span>';return '<tr><td>'+(o.partEmoji||'-')+' '+o.partName+'</span><td>'+(o.totalPrice||0).toLocaleString()+' L</span><td>'+status+'</span><td>'+date+'</span></tr>';}).join(''):'<tr><td colspan="4">No purchases yet.</span></tr>';
+}
+
+function renderAllOrders(){
+  var tbody=g('allOrdersBody');
+  tbody.innerHTML=myOrders.length?myOrders.map(function(o){var date=o.createdAt?.toDate?o.createdAt.toDate().toLocaleDateString('sq-AL'):'—';var cashback=Math.round((o.totalPrice||0)*0.02);var status=o.status==='sold'?'<span style="color:#28a745;">Sold</span>':o.status==='pending'?'<span style="color:#ffc107;">Pending</span>':'<span style="color:#dc3545;">Cancelled</span>';return '<tr><td style="color:#d97706;font-weight:800;">#'+(o.id||'').slice(-6).toUpperCase()+'</span><td>'+(o.partEmoji||'-')+' '+o.partName+'</span><td>'+(o.sellerName||'—')+'</span><td><td style="font-weight:800;">'+(o.totalPrice||0).toLocaleString()+' L</span><td><td style="color:#28a745;">+'+cashback.toLocaleString()+' L</span><td>'+status+'</span><td>'+date+'</span></tr>';}).join(''):'<tr><td colspan="7">No purchases yet.</span></tr>';
+}
+
+function renderCashback(){
+  var periodStart=currentWorkshop?.currentPeriodStart?.toDate?currentWorkshop.currentPeriodStart.toDate():new Date();
+  var now=new Date();var daysLeft=30-Math.floor((now-periodStart)/(1000*60*60*24));if(daysLeft<0)daysLeft=0;
+  var periodOrders=myOrders.filter(function(o){var d=o.createdAt?.toDate?o.createdAt.toDate():new Date();return d>=periodStart;});
+  var periodTotal=periodOrders.reduce(function(s,o){return s+(o.totalPrice||0);},0);
+  var projectedCashback=Math.round(periodTotal*0.02);
+  g('periodStart').textContent=periodStart.toLocaleDateString('sq-AL');
+  g('daysLeft').textContent=daysLeft+' days';
+  g('periodTotal').textContent=periodTotal.toLocaleString()+' L';
+  g('periodCashback').textContent=projectedCashback.toLocaleString()+' L';
+  g('currentBalance').textContent=(currentWorkshop?.creditBalance||0).toLocaleString()+' L';
+}
+
+window.showPage=function(page){
+  currentPage=page;
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  g('page-'+page).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  g('nav-'+page).classList.add('active');
+  if(page==='dashboard')updateDashboard();
+  if(page==='orders')renderAllOrders();
+  if(page==='cashback')renderCashback();
+  if(window.innerWidth<=768)g('sidebar')?.classList.remove('open');
+};
+window.toggleSidebar=function(){g('sidebar')?.classList.toggle('open');};
+</script>
 </body>
 </html>
