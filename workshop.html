@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Cardeals.al — Service Point Panel</title>
+<title>Cardeals.al — Paneli i Pikës së Shërbimit</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
@@ -19,7 +19,7 @@
 }
 body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text-primary);}
 .login-screen{position:fixed;inset:0;background:var(--bg);z-index:1000;display:flex;align-items:center;justify-content:center;}
-.login-box{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:2rem;width:100%;max-width:400px;}
+.login-box{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:2rem;width:100%;max-width:440px;}
 .login-logo{font-weight:800;font-size:1.3rem;margin-bottom:0.5rem;text-align:center;}.login-logo span{color:var(--primary);}
 .login-sub{text-align:center;color:var(--text-secondary);font-size:0.75rem;margin-bottom:1.5rem;}
 .auth-tabs{display:flex;margin-bottom:1.5rem;background:var(--bg);border-radius:8px;overflow:hidden;}
@@ -69,8 +69,6 @@ tbody td{padding:0.6rem 0.75rem;font-size:0.75rem;border-bottom:1px solid var(--
 .toast{position:fixed;bottom:1rem;right:1rem;color:white;padding:0.75rem 1.25rem;border-radius:8px;display:none;z-index:300;}
 .toast.show{display:block;animation:toastIn 0.3s ease;}
 @keyframes toastIn{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
-.spinner{width:28px;height:28px;border:2px solid var(--border);border-top-color:var(--primary);border-radius:50%;animation:spin 0.6s linear infinite;margin:0 auto;}
-@keyframes spin{to{transform:rotate(360deg)}}
 @media(max-width:768px){.sidebar{transform:translateX(-100%);}.sidebar.open{transform:translateX(0);}.main{margin-left:0;}.sidebar-toggle{display:block;}.stats-row{grid-template-columns:1fr 1fr;}.info-grid{grid-template-columns:1fr;}}
 </style>
 </head>
@@ -79,33 +77,266 @@ tbody td{padding:0.6rem 0.75rem;font-size:0.75rem;border-bottom:1px solid var(--
 <div class="login-screen" id="loginScreen">
   <div class="login-box">
     <div class="login-logo">Car<span>deals</span>.al</div>
-    <div class="login-sub">Service Point Panel</div>
+    <div class="login-sub">Paneli i Pikës së Shërbimit</div>
     <div class="auth-tabs">
-      <button class="auth-tab active" onclick="showTab('login')">LOGIN</button>
-      <button class="auth-tab" onclick="showTab('register')">REGISTER</button>
+      <button class="auth-tab active" id="tabLogin" onclick="showTab('login')">HYRJA</button>
+      <button class="auth-tab" id="tabRegister" onclick="showTab('register')">REGJISTROHU</button>
     </div>
     <div id="loginForm">
       <div class="inp-group"><label>EMAIL</label><input type="email" id="loginEmail" /></div>
-      <div class="inp-group"><label>PASSWORD</label><input type="password" id="loginPass" /></div>
-      <button class="auth-btn" onclick="doLogin()">LOGIN →</button>
+      <div class="inp-group"><label>FJALËKALIMI</label><input type="password" id="loginPass" /></div>
+      <button class="auth-btn" id="loginBtn" onclick="doLogin()">HYRJA →</button>
     </div>
     <div id="registerForm" style="display:none">
-      <div class="inp-group"><label>SERVICE POINT NAME *</label><input type="text" id="regName" /></div>
-      <div class="inp-row"><div class="inp-group"><label>EMAIL *</label><input type="email" id="regEmail" /></div><div class="inp-group"><label>PHONE *</label><input type="text" id="regPhone" /></div></div>
-      <div class="inp-group"><label>CITY</label><input type="text" id="regCity" /></div>
-      <div class="inp-row"><div class="inp-group"><label>PASSWORD *</label><input type="password" id="regPass" /></div><div class="inp-group"><label>CONFIRM *</label><input type="password" id="regPass2" /></div></div>
-      <button class="auth-btn" onclick="doRegister()">REGISTER →</button>
+      <div class="inp-group"><label>EMRI I PIKËS SË SHËRBIMIT *</label><input type="text" id="regName" placeholder="p.sh. Auto Servis Tirana" /></div>
+      <div class="inp-row"><div class="inp-group"><label>EMAIL *</label><input type="email" id="regEmail" /></div><div class="inp-group"><label>TELEFON *</label><input type="text" id="regPhone" /></div></div>
+      <div class="inp-group"><label>QYTETI</label><input type="text" id="regCity" placeholder="Tiranë" /></div>
+      <div class="inp-row"><div class="inp-group"><label>FJALËKALIMI *</label><input type="password" id="regPass" /></div><div class="inp-group"><label>KONFIRMO *</label><input type="password" id="regPass2" /></div></div>
+      <button class="auth-btn" id="regBtn" onclick="doRegister()">REGJISTROHU →</button>
     </div>
   </div>
 </div>
 
 <div id="app" style="display:none;">
   <aside class="sidebar" id="sidebar">
-    <div class="sidebar-logo">Car<span>deals</span>.al<small>SERVICE POINT PANEL</small></div>
+    <div class="sidebar-logo">Car<span>deals</span>.al<small>PIKA E SHËRBIMIT</small></div>
     <nav class="sidebar-nav">
-      <div class="nav-section">PANEL</div>
-      <a class="nav-item active" onclick="showPage('dashboard')" id="nav-dashboard"><span class="ico">-</span> Dashboard</a>
-      <a class="nav-item" onclick="showPage('orders')" id="nav-orders"><span class="ico">-</span> My Purchases</a>
+      <div class="nav-section">PANELI</div>
+      <a class="nav-item active" onclick="showPage('dashboard')" id="nav-dashboard"><span class="ico">-</span> Pasqyra</a>
+      <a class="nav-item" onclick="showPage('orders')" id="nav-orders"><span class="ico">-</span> Blerjet e Mia</a>
+      <a class="nav-item" onclick="showPage('cashback')" id="nav-cashback"><span class="ico">-</span> Cashback</a>
+    </nav>
+    <div class="sidebar-bottom">
+      <div class="workshop-badge"><div class="ws-name" id="workshopName">—</div><div class="ws-role">PIKË SHËRBIMI · 2% CASHBACK</div></div>
+      <a href="index.html" class="logout-btn">Cardeals.al →</a>
+      <button class="logout-btn" onclick="doLogout()">Dil nga Llogaria</button>
+    </div>
+  </aside>
+
+  <div class="main">
+    <div class="topbar">
+      <div style="display:flex;align-items:center;gap:1rem;">
+        <button class="sidebar-toggle" onclick="toggleSidebar()">☰</button>
+        <div class="topbar-title">PANELI I PIKËS SË SHËRBIMIT</div>
+      </div>
+    </div>
+
+    <div class="page active" id="page-dashboard">
+      <div class="stats-row">
+        <div class="stat-card"><div class="stat-val" id="statTotal">0 L</div><div class="stat-lbl">Total Blerjeve</div></div>
+        <div class="stat-card"><div class="stat-val" id="statOrders">0</div><div class="stat-lbl">Blerje Gjithsej</div></div>
+        <div class="stat-card"><div class="stat-val" id="statMonth">0 L</div><div class="stat-lbl">Këtë Muaj</div></div>
+        <div class="stat-card"><div class="stat-val" id="statCashback">0 L</div><div class="stat-lbl">Cashback i Pritshëm</div></div>
+      </div>
+      <div class="info-card" style="background:var(--primary-light);">
+        <h3>BALANCI I KREDISË</h3>
+        <div style="font-weight:800;font-size:1.8rem;color:var(--success);" id="statBalance">0 L</div>
+        <div style="color:var(--text-secondary);font-size:0.7rem;">Kredit i disponueshëm për blerjet e ardhshme</div>
+      </div>
+      <div class="table-card">
+        <div class="table-header"><h3>BLERJET E FUNDIT</h3></div>
+        <table><thead><tr><th>Pjesa</th><th>Çmimi</th><th>Statusi</th><th>Data</th></tr></thead><tbody id="recentOrdersBody"></tbody></table>
+      </div>
+    </div>
+
+    <div class="page" id="page-orders">
+      <div class="table-card">
+        <div class="table-header"><h3>TË GJITHA BLERJET</h3></div>
+        <table><thead><tr><th>#</th><th>Pjesa</th><th>Shitësi</th><th>Çmimi</th><th>Cashback</th><th>Statusi</th><th>Data</th></tr></thead><tbody id="allOrdersBody"></tbody><tr>
+      </div>
+    </div>
+
+    <div class="page" id="page-cashback">
+      <div class="info-card">
+        <h3>PERIUDHA AKTUALE (30 DITË)</h3>
+        <div class="info-grid">
+          <div class="info-item"><div class="info-val" id="periodStart">—</div><div class="info-lbl">Fillimi i Periudhës</div></div>
+          <div class="info-item"><div class="info-val" id="daysLeft">—</div><div class="info-lbl">Ditë të Mbetura</div></div>
+          <div class="info-item"><div class="info-val" id="periodTotal">0 L</div><div class="info-lbl">Total Blerjeve</div></div>
+          <div class="info-item"><div class="info-val" id="periodCashback">0 L</div><div class="info-lbl">Cashback i Pritshëm (2%)</div></div>
+        </div>
+      </div>
+      <div class="info-card" style="background:var(--primary-light);">
+        <h3>BALANCI AKTUAL I KREDISË</h3>
+        <div style="font-weight:800;font-size:2rem;color:var(--success);" id="currentBalance">0 L</div>
+        <div style="color:var(--text-secondary);font-size:0.7rem;">Krediti llogaritet çdo 30 ditë si 2% e blerjeve tuaja.</div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+firebase.initializeApp({apiKey:"AIzaSyAU8hVTqury1MbC0Sx-CXGY1YQrr5VJhyE",authDomain:"cardeals-al.firebaseapp.com",projectId:"cardeals-al",storageBucket:"cardeals-al.firebasestorage.app",messagingSenderId:"839953227675",appId:"1:839953227675:web:6fb6aa9350bd3bd507cb3e"});
+const auth=firebase.auth(),db=firebase.firestore();
+
+let currentUser=null,currentWorkshop=null,myOrders=[],currentPage='dashboard';
+
+function g(id){return document.getElementById(id);}
+function showToast(msg,isErr){const t=g('toast');if(!t)return;t.textContent=msg;t.style.background=isErr?'#e02020':'#22c55e';t.classList.add('show');setTimeout(()=>t.classList.remove('show'),4000);}
+
+auth.onAuthStateChanged(async user=>{
+  if(user){
+    currentUser=user;
+    try{
+      var doc=await db.collection("workshops").doc(user.uid).get();
+      if(doc.exists){
+        currentWorkshop=doc.data();
+        currentWorkshop.id=user.uid;
+        showApp();
+      }else{
+        await auth.signOut();
+        showToast('Kjo llogari nuk është Pikë Shërbimi. Regjistrohu!',true);
+      }
+    }catch(e){
+      console.error('Workshop lookup error:',e);
+      showToast('Gabim: '+e.message,true);
+    }
+  }else{
+    currentUser=null;currentWorkshop=null;
+  }
+});
+
+function showApp(){g('loginScreen').style.display='none';g('app').style.display='flex';g('workshopName').textContent=currentWorkshop?.name||'Pikë Shërbimi';loadMyOrders();showPage('dashboard');}
+
+// LOGIN
+window.doLogin=async function(){
+  var e=g('loginEmail').value.trim(),p=g('loginPass').value,btn=g('loginBtn');
+  if(!e||!p){showToast('Plotëso të gjitha fushat!',true);return;}
+  btn.textContent='Duke hyrë...';btn.disabled=true;
+  try{await auth.signInWithEmailAndPassword(e,p);}
+  catch(err){showToast('Email ose fjalëkalim i gabuar!',true);btn.textContent='HYRJA →';btn.disabled=false;}
+};
+
+// REGISTER
+window.doRegister=function(){
+  var email=document.getElementById('regEmail').value.trim();
+  var pass=document.getElementById('regPass').value;
+  var pass2=document.getElementById('regPass2').value;
+  var name=document.getElementById('regName').value.trim();
+  
+  if(!name||!email||!pass||!pass2){
+    showToast('Plotëso të gjitha fushat!',true);
+    return;
+  }
+  if(pass!==pass2){
+    showToast('Fjalëkalimet nuk përputhen!',true);
+    return;
+  }
+  if(pass.length<6){
+    showToast('Fjalëkalimi duhet të jetë së paku 6 karaktere!',true);
+    return;
+  }
+  
+  var btn=document.getElementById('regBtn');
+  btn.textContent='Duke u regjistruar...';
+  btn.disabled=true;
+  
+  auth.createUserWithEmailAndPassword(email,pass)
+  .then(function(cred){
+    return db.collection("workshops").doc(cred.user.uid).set({
+      name:document.getElementById('regName').value,
+      email:email,
+      phone:document.getElementById('regPhone').value,
+      city:document.getElementById('regCity').value,
+      creditBalance:0,totalPurchases:0,
+      currentPeriodStart:new Date(),currentPeriodTotal:0,
+      lastPayout:null,createdAt:firebase.firestore.FieldValue.serverTimestamp()
+    });
+  })
+  .then(function(){
+    showToast('Llogaria u krijua!');
+    btn.textContent='REGJISTROHU →';
+    btn.disabled=false;
+  })
+  .catch(function(err){
+    console.error(err);
+    showToast(err.message,true);
+    btn.textContent='REGJISTROHU →';
+    btn.disabled=false;
+  });
+};
+
+window.doLogout=async()=>{await auth.signOut();};
+
+// SWITCH BETWEEN LOGIN AND REGISTER
+window.showTab=function(tab){
+  if(tab==='login'){
+    g('tabLogin').style.background='var(--primary)';
+    g('tabLogin').style.color='white';
+    g('tabRegister').style.background='transparent';
+    g('tabRegister').style.color='var(--text-secondary)';
+    g('loginForm').style.display='block';
+    g('registerForm').style.display='none';
+  }else{
+    g('tabRegister').style.background='var(--primary)';
+    g('tabRegister').style.color='white';
+    g('tabLogin').style.background='transparent';
+    g('tabLogin').style.color='var(--text-secondary)';
+    g('registerForm').style.display='block';
+    g('loginForm').style.display='none';
+  }
+};
+
+async function loadMyOrders(){
+  if(!currentUser)return;
+  db.collection("orders").where("buyerUid","==",currentUser.uid).orderBy("createdAt","desc").onSnapshot(snap=>{
+    myOrders=snap.docs.map(d=>({id:d.id,...d.data()}));
+    if(currentPage==='dashboard')updateDashboard();
+    if(currentPage==='orders')renderAllOrders();
+    if(currentPage==='cashback')renderCashback();
+  });
+}
+
+function updateDashboard(){
+  var total=myOrders.reduce(function(s,o){return s+(o.totalPrice||0);},0);
+  var now=new Date();
+  var thisMonth=myOrders.filter(function(o){var d=o.createdAt?.toDate?o.createdAt.toDate():new Date();return d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear();});
+  var monthTotal=thisMonth.reduce(function(s,o){return s+(o.totalPrice||0);},0);
+  var cashback=Math.round(monthTotal*0.02);
+  g('statTotal').textContent=total.toLocaleString()+' L';
+  g('statOrders').textContent=myOrders.length;
+  g('statMonth').textContent=monthTotal.toLocaleString()+' L';
+  g('statCashback').textContent=cashback.toLocaleString()+' L';
+  g('statBalance').textContent=(currentWorkshop?.creditBalance||0).toLocaleString()+' L';
+  var recent=myOrders.slice(0,5);
+  var tbody=g('recentOrdersBody');
+  tbody.innerHTML=recent.length?recent.map(function(o){var date=o.createdAt?.toDate?o.createdAt.toDate().toLocaleDateString('sq-AL'):'—';var status=o.status==='sold'?'<span style="color:#22c55e;">Shitur</span>':o.status==='pending'?'<span style="color:#f59e0b;">Në Pritje</span>':'<span style="color:#e02020;">Anuluar</span>';return '<tr><td>'+(o.partEmoji||'🔩')+' '+o.partName+'</td><td>'+(o.totalPrice||0).toLocaleString()+' L</td><td>'+status+'</td><td>'+date+'</td></tr>';}).join(''):'<tr><td colspan="4">Ende nuk keni blerje.</td></tr>';
+}
+
+function renderAllOrders(){
+  var tbody=g('allOrdersBody');
+  tbody.innerHTML=myOrders.length?myOrders.map(function(o){var date=o.createdAt?.toDate?o.createdAt.toDate().toLocaleDateString('sq-AL'):'—';var cashback=Math.round((o.totalPrice||0)*0.02);var status=o.status==='sold'?'<span style="color:#22c55e;">Shitur</span>':o.status==='pending'?'<span style="color:#f59e0b;">Në Pritje</span>':'<span style="color:#e02020;">Anuluar</span>';return '<tr><td style="color:#e02020;font-weight:800;">#'+(o.id||'').slice(-6).toUpperCase()+'</td><td>'+(o.partEmoji||'🔩')+' '+o.partName+'</td><td>'+(o.sellerName||'—')+'</td><td style="font-weight:800;">'+(o.totalPrice||0).toLocaleString()+' L</td><td style="color:#22c55e;">+'+cashback.toLocaleString()+' L</td><td>'+status+'</td><td>'+date+'</td></tr>';}).join(''):'<tr><td colspan="7">Ende nuk keni blerje.</td></tr>';
+}
+
+function renderCashback(){
+  var periodStart=currentWorkshop?.currentPeriodStart?.toDate?currentWorkshop.currentPeriodStart.toDate():new Date();
+  var now=new Date();var daysLeft=30-Math.floor((now-periodStart)/(1000*60*60*24));if(daysLeft<0)daysLeft=0;
+  var periodOrders=myOrders.filter(function(o){var d=o.createdAt?.toDate?o.createdAt.toDate():new Date();return d>=periodStart;});
+  var periodTotal=periodOrders.reduce(function(s,o){return s+(o.totalPrice||0);},0);
+  var projectedCashback=Math.round(periodTotal*0.02);
+  g('periodStart').textContent=periodStart.toLocaleDateString('sq-AL');
+  g('daysLeft').textContent=daysLeft+' ditë';
+  g('periodTotal').textContent=periodTotal.toLocaleString()+' L';
+  g('periodCashback').textContent=projectedCashback.toLocaleString()+' L';
+  g('currentBalance').textContent=(currentWorkshop?.creditBalance||0).toLocaleString()+' L';
+}
+
+window.showPage=function(page){
+  currentPage=page;
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  g('page-'+page).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  g('nav-'+page).classList.add('active');
+  if(page==='dashboard')updateDashboard();
+  if(page==='orders')renderAllOrders();
+  if(page==='cashback')renderCashback();
+  if(window.innerWidth<=768)g('sidebar')?.classList.remove('open');
+};
+window.toggleSidebar=function(){g('sidebar')?.classList.toggle('open');};
+</script>
+</body>
+</html>      <a class="nav-item" onclick="showPage('orders')" id="nav-orders"><span class="ico">-</span> My Purchases</a>
       <a class="nav-item" onclick="showPage('cashback')" id="nav-cashback"><span class="ico">-</span> Cashback</a>
     </nav>
     <div class="sidebar-bottom">
