@@ -1,8 +1,10 @@
-const CACHE_NAME = 'cardeals-v1';
+const CACHE_NAME = 'cardeals-v3';
 const urlsToCache = [
   '/index.html',
   '/cardeals-backoffice.html',
   '/admin.html',
+  '/dyqani.html',
+  '/workshop.html',
   '/manifest.json'
 ];
 
