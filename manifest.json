@@ -4,8 +4,8 @@
   "description": "Platforma #1 e Pjesëve të Këmbimit në Shqipëri",
   "start_url": "/index.html",
   "display": "standalone",
-  "background_color": "#0a0c10",
-  "theme_color": "#e02020",
+  "background_color": "#1a1a2e",
+  "theme_color": "#b45309",
   "orientation": "portrait-primary",
   "icons": [
     {
