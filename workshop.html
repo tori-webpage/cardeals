@@ -4,204 +4,106 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Cardeals.al — Paneli i Pikës së Shërbimit</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet">
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 <script>
 firebase.initializeApp({apiKey:"AIzaSyAU8hVTqury1MbC0Sx-CXGY1YQrr5VJhyE",authDomain:"cardeals-al.firebaseapp.com",projectId:"cardeals-al",storageBucket:"cardeals-al.firebasestorage.app",messagingSenderId:"839953227675",appId:"1:839953227675:web:6fb6aa9350bd3bd507cb3e"});
 const auth=firebase.auth(),db=firebase.firestore();
-
 let currentUser=null,currentWorkshop=null,myOrders=[],currentPage='dashboard';
-
 function g(id){return document.getElementById(id);}
-function showToast(msg,isErr){const t=g('toast');if(!t)return;t.textContent=msg;t.style.background=isErr?'#dc2626':'#059669';t.classList.add('show');setTimeout(()=>t.classList.remove('show'),4000);}
-
+function showToast(msg,isErr){const t=g('toast');if(!t)return;t.textContent=msg;t.style.background=isErr?'#c62828':'#2e7d32';t.classList.add('show');setTimeout(()=>t.classList.remove('show'),4000);}
 auth.onAuthStateChanged(async user=>{
-  if(user){
-    currentUser=user;
-    try{
-      var doc=await db.collection("workshops").doc(user.uid).get();
-      if(doc.exists){
-        currentWorkshop=doc.data();
-        currentWorkshop.id=user.uid;
-        showApp();
-      }else{
-        await auth.signOut();
-        showToast('Kjo llogari nuk është Pikë Shërbimi. Regjistrohu!',true);
-      }
+  if(user){currentUser=user;
+    try{var doc=await db.collection("workshops").doc(user.uid).get();
+      if(doc.exists){currentWorkshop=doc.data();currentWorkshop.id=user.uid;showApp();}
+      else{await auth.signOut();showToast('Kjo llogari nuk është Pikë Shërbimi. Regjistrohu!',true);}
     }catch(e){console.error(e);showToast('Gabim: '+e.message,true);}
   }else{currentUser=null;currentWorkshop=null;}
 });
-
 function showApp(){g('loginScreen').style.display='none';g('app').style.display='flex';g('workshopName').textContent=currentWorkshop?.name||'Pikë Shërbimi';loadMyOrders();showPage('dashboard');}
-
-window.doLogin=async function(){
-  var e=g('loginEmail').value.trim(),p=g('loginPass').value,btn=g('loginBtn');
-  if(!e||!p){showToast('Plotëso të gjitha fushat!',true);return;}
-  btn.textContent='Duke hyrë...';btn.disabled=true;
-  try{await auth.signInWithEmailAndPassword(e,p);}
-  catch(err){showToast('❌ Email ose fjalëkalim i gabuar!',true);btn.textContent='HYRJA →';btn.disabled=false;}
-};
-
-window.doRegister=function(){
-  var email=document.getElementById('regEmail').value.trim();
-  var pass=document.getElementById('regPass').value;
-  var pass2=document.getElementById('regPass2').value;
-  var name=document.getElementById('regName').value.trim();
-  if(!name||!email||!pass||!pass2){showToast('Plotëso të gjitha fushat!',true);return;}
-  if(pass!==pass2){showToast('❌ Fjalëkalimet nuk përputhen!',true);return;}
-  if(pass.length<6){showToast('❌ Fjalëkalimi duhet të jetë së paku 6 karaktere!',true);return;}
-  var btn=document.getElementById('regBtn');
-  btn.textContent='Duke u regjistruar...';btn.disabled=true;
-  auth.createUserWithEmailAndPassword(email,pass)
-  .then(function(cred){
-    return db.collection("workshops").doc(cred.user.uid).set({
-      name:document.getElementById('regName').value,email:email,
-      phone:document.getElementById('regPhone').value,
-      city:document.getElementById('regCity').value,
-      creditBalance:0,totalPurchases:0,
-      currentPeriodStart:new Date(),currentPeriodTotal:0,
-      lastPayout:null,createdAt:firebase.firestore.FieldValue.serverTimestamp()
-    });
-  })
-  .then(function(){showToast('✅ Llogaria u krijua!');btn.textContent='REGJISTROHU →';btn.disabled=false;})
-  .catch(function(err){console.error(err);showToast('❌ '+err.message,true);btn.textContent='REGJISTROHU →';btn.disabled=false;});
-};
-
+window.doLogin=async function(){var e=g('loginEmail').value.trim(),p=g('loginPass').value,btn=g('loginBtn');if(!e||!p){showToast('Plotëso të gjitha fushat!',true);return;}btn.textContent='Duke hyrë...';btn.disabled=true;try{await auth.signInWithEmailAndPassword(e,p);}catch(err){showToast('❌ Email ose fjalëkalim i gabuar!',true);btn.textContent='HYRJA →';btn.disabled=false;}};
+window.doRegister=function(){var email=document.getElementById('regEmail').value.trim();var pass=document.getElementById('regPass').value;var pass2=document.getElementById('regPass2').value;var name=document.getElementById('regName').value.trim();if(!name||!email||!pass||!pass2){showToast('Plotëso të gjitha fushat!',true);return;}if(pass!==pass2){showToast('❌ Fjalëkalimet nuk përputhen!',true);return;}if(pass.length<6){showToast('❌ Fjalëkalimi duhet të jetë së paku 6 karaktere!',true);return;}var btn=document.getElementById('regBtn');btn.textContent='Duke u regjistruar...';btn.disabled=true;auth.createUserWithEmailAndPassword(email,pass).then(function(cred){return db.collection("workshops").doc(cred.user.uid).set({name:document.getElementById('regName').value,email:email,phone:document.getElementById('regPhone').value,city:document.getElementById('regCity').value,creditBalance:0,totalPurchases:0,currentPeriodStart:new Date(),currentPeriodTotal:0,lastPayout:null,createdAt:firebase.firestore.FieldValue.serverTimestamp()});}).then(function(){showToast('✅ Llogaria u krijua!');btn.textContent='REGJISTROHU →';btn.disabled=false;}).catch(function(err){console.error(err);showToast('❌ '+err.message,true);btn.textContent='REGJISTROHU →';btn.disabled=false;});};
 window.doLogout=async()=>{await auth.signOut();};
-
-window.showTab=function(tab){
-  if(tab==='login'){g('tabLogin').style.background='var(--red)';g('tabLogin').style.color='white';g('tabRegister').style.background='transparent';g('tabRegister').style.color='var(--chrome)';g('loginForm').style.display='block';g('registerForm').style.display='none';}
-  else{g('tabRegister').style.background='var(--red)';g('tabRegister').style.color='white';g('tabLogin').style.background='transparent';g('tabLogin').style.color='var(--chrome)';g('registerForm').style.display='block';g('loginForm').style.display='none';}
-};
-
-async function loadMyOrders(){
-  if(!currentUser)return;
-  db.collection("orders").where("buyerUid","==",currentUser.uid).orderBy("createdAt","desc").onSnapshot(snap=>{
-    myOrders=snap.docs.map(d=>({id:d.id,...d.data()}));
-    if(currentPage==='dashboard')updateDashboard();
-    if(currentPage==='orders')renderAllOrders();
-    if(currentPage==='cashback')renderCashback();
-  });
-}
-
-function updateDashboard(){
-  var total=myOrders.reduce(function(s,o){return s+(o.totalPrice||0);},0);
-  var now=new Date();
-  var thisMonth=myOrders.filter(function(o){var d=o.createdAt?.toDate?o.createdAt.toDate():new Date();return d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear();});
-  var monthTotal=thisMonth.reduce(function(s,o){return s+(o.totalPrice||0);},0);
-  var cashback=Math.round(monthTotal*0.02);
-  g('statTotal').textContent=total.toLocaleString()+' L';
-  g('statOrders').textContent=myOrders.length;
-  g('statMonth').textContent=monthTotal.toLocaleString()+' L';
-  g('statCashback').textContent=cashback.toLocaleString()+' L';
-  g('statBalance').textContent=(currentWorkshop?.creditBalance||0).toLocaleString()+' L';
-  var recent=myOrders.slice(0,5);
-  var tbody=g('recentOrdersBody');
-  tbody.innerHTML=recent.length?recent.map(function(o){var date=o.createdAt?.toDate?o.createdAt.toDate().toLocaleDateString('sq-AL'):'—';var status=o.status==='sold'?'<span style="color:#059669;">Shitur</span>':o.status==='pending'?'<span style="color:#f59e0b;">Në Pritje</span>':'<span style="color:#dc2626;">Anuluar</span>';return '<tr><td>'+(o.partEmoji||'🔩')+' '+o.partName+'</td><td>'+(o.totalPrice||0).toLocaleString()+' L</td><td>'+status+'</td><td>'+date+'</td></tr>';}).join(''):'<tr><td colspan="4">Ende nuk keni blerje.</td></tr>';
-}
-
-function renderAllOrders(){
-  var tbody=g('allOrdersBody');
-  tbody.innerHTML=myOrders.length?myOrders.map(function(o){var date=o.createdAt?.toDate?o.createdAt.toDate().toLocaleDateString('sq-AL'):'—';var cashback=Math.round((o.totalPrice||0)*0.02);var status=o.status==='sold'?'<span style="color:#059669;">Shitur</span>':o.status==='pending'?'<span style="color:#f59e0b;">Në Pritje</span>':'<span style="color:#dc2626;">Anuluar</span>';return '<tr><td style="color:#0d9488;font-weight:600;">#'+(o.id||'').slice(-6).toUpperCase()+'</td><td>'+(o.partEmoji||'🔩')+' '+o.partName+'</td><td>'+(o.sellerName||'—')+'</td><td style="font-weight:600;">'+(o.totalPrice||0).toLocaleString()+' L</td><td style="color:#059669;">+'+cashback.toLocaleString()+' L</td><td>'+status+'</td><td>'+date+'</td></tr>';}).join(''):'<tr><td colspan="7">Ende nuk keni blerje.</td></tr>';
-}
-
-function renderCashback(){
-  var periodStart=currentWorkshop?.currentPeriodStart?.toDate?currentWorkshop.currentPeriodStart.toDate():new Date();
-  var now=new Date();var daysLeft=30-Math.floor((now-periodStart)/(1000*60*60*24));if(daysLeft<0)daysLeft=0;
-  var periodOrders=myOrders.filter(function(o){var d=o.createdAt?.toDate?o.createdAt.toDate():new Date();return d>=periodStart;});
-  var periodTotal=periodOrders.reduce(function(s,o){return s+(o.totalPrice||0);},0);
-  var projectedCashback=Math.round(periodTotal*0.02);
-  g('periodStart').textContent=periodStart.toLocaleDateString('sq-AL');
-  g('daysLeft').textContent=daysLeft+' ditë';
-  g('periodTotal').textContent=periodTotal.toLocaleString()+' L';
-  g('periodCashback').textContent=projectedCashback.toLocaleString()+' L';
-  g('currentBalance').textContent=(currentWorkshop?.creditBalance||0).toLocaleString()+' L';
-}
-
-window.showPage=function(page){
-  currentPage=page;
-  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-  g('page-'+page).classList.add('active');
-  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
-  g('nav-'+page).classList.add('active');
-  if(page==='dashboard')updateDashboard();
-  if(page==='orders')renderAllOrders();
-  if(page==='cashback')renderCashback();
-  if(window.innerWidth<=768)g('sidebar')?.classList.remove('open');
-};
+window.showTab=function(tab){if(tab==='login'){g('tabLogin').style.background='var(--primary)';g('tabLogin').style.color='white';g('tabRegister').style.background='transparent';g('tabRegister').style.color='var(--text-muted)';g('loginForm').style.display='block';g('registerForm').style.display='none';}else{g('tabRegister').style.background='var(--primary)';g('tabRegister').style.color='white';g('tabLogin').style.background='transparent';g('tabLogin').style.color='var(--text-muted)';g('registerForm').style.display='block';g('loginForm').style.display='none';}};
+async function loadMyOrders(){if(!currentUser)return;db.collection("orders").where("buyerUid","==",currentUser.uid).orderBy("createdAt","desc").onSnapshot(snap=>{myOrders=snap.docs.map(d=>({id:d.id,...d.data()}));if(currentPage==='dashboard')updateDashboard();if(currentPage==='orders')renderAllOrders();if(currentPage==='cashback')renderCashback();});}
+function updateDashboard(){var total=myOrders.reduce(function(s,o){return s+(o.totalPrice||0);},0);var now=new Date();var thisMonth=myOrders.filter(function(o){var d=o.createdAt?.toDate?o.createdAt.toDate():new Date();return d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear();});var monthTotal=thisMonth.reduce(function(s,o){return s+(o.totalPrice||0);},0);var cashback=Math.round(monthTotal*0.02);g('statTotal').textContent=total.toLocaleString()+' L';g('statOrders').textContent=myOrders.length;g('statMonth').textContent=monthTotal.toLocaleString()+' L';g('statCashback').textContent=cashback.toLocaleString()+' L';g('statBalance').textContent=(currentWorkshop?.creditBalance||0).toLocaleString()+' L';var recent=myOrders.slice(0,5);var tbody=g('recentOrdersBody');tbody.innerHTML=recent.length?recent.map(function(o){var date=o.createdAt?.toDate?o.createdAt.toDate().toLocaleDateString('sq-AL'):'—';var status=o.status==='sold'?'<span style="color:#2e7d32;">Shitur</span>':o.status==='pending'?'<span style="color:#f57c00;">Në Pritje</span>':'<span style="color:#c62828;">Anuluar</span>';return '<tr><td>'+(o.partEmoji||'')+' '+o.partName+'</td><td>'+(o.totalPrice||0).toLocaleString()+' L</td><td>'+status+'</td><td>'+date+'</td></tr>';}).join(''):'<tr><td colspan="4">Ende nuk keni blerje.</td></tr>';}
+function renderAllOrders(){var tbody=g('allOrdersBody');tbody.innerHTML=myOrders.length?myOrders.map(function(o){var date=o.createdAt?.toDate?o.createdAt.toDate().toLocaleDateString('sq-AL'):'—';var cashback=Math.round((o.totalPrice||0)*0.02);var status=o.status==='sold'?'<span style="color:#2e7d32;">Shitur</span>':o.status==='pending'?'<span style="color:#f57c00;">Në Pritje</span>':'<span style="color:#c62828;">Anuluar</span>';return '<tr><td style="color:#b45309;font-weight:600;">#'+(o.id||'').slice(-6).toUpperCase()+'</td><td>'+(o.partEmoji||'')+' '+o.partName+'</td><td>'+(o.sellerName||'—')+'</td><td style="font-weight:600;">'+(o.totalPrice||0).toLocaleString()+' L</td><td style="color:#2e7d32;">+'+cashback.toLocaleString()+' L</td><td>'+status+'</td><td>'+date+'</td></tr>';}).join(''):'<tr><td colspan="7">Ende nuk keni blerje.</td></tr>';}
+function renderCashback(){var periodStart=currentWorkshop?.currentPeriodStart?.toDate?currentWorkshop.currentPeriodStart.toDate():new Date();var now=new Date();var daysLeft=30-Math.floor((now-periodStart)/(1000*60*60*24));if(daysLeft<0)daysLeft=0;var periodOrders=myOrders.filter(function(o){var d=o.createdAt?.toDate?o.createdAt.toDate():new Date();return d>=periodStart;});var periodTotal=periodOrders.reduce(function(s,o){return s+(o.totalPrice||0);},0);var projectedCashback=Math.round(periodTotal*0.02);g('periodStart').textContent=periodStart.toLocaleDateString('sq-AL');g('daysLeft').textContent=daysLeft+' ditë';g('periodTotal').textContent=periodTotal.toLocaleString()+' L';g('periodCashback').textContent=projectedCashback.toLocaleString()+' L';g('currentBalance').textContent=(currentWorkshop?.creditBalance||0).toLocaleString()+' L';}
+window.showPage=function(page){currentPage=page;document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));g('page-'+page).classList.add('active');document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));g('nav-'+page).classList.add('active');if(page==='dashboard')updateDashboard();if(page==='orders')renderAllOrders();if(page==='cashback')renderCashback();if(window.innerWidth<=768)g('sidebar')?.classList.remove('open');};
 window.toggleSidebar=function(){g('sidebar')?.classList.toggle('open');};
 </script>
 <style>
 :root {
-  --bg: #fafaf9;
-  --panel: #ffffff;
-  --card: #ffffff;
-  --border: #e7e5e4;
-  --red: #0d9488;
-  --red-dark: #0f766e;
-  --red-glow: rgba(13, 148, 136, 0.06);
-  --chrome: #78716c;
-  --white: #1c1917;
-  --yellow: #f59e0b;
-  --green: #059669;
-  --green-dim: rgba(5, 150, 105, 0.1);
-  --blue: #0d9488;
-  --orange: #d97706;
+  --bg: #f5f5f5;
+  --surface: #ffffff;
+  --border: #e5e5e5;
+  --text: #1a1a1a;
+  --text-secondary: #555555;
+  --text-muted: #888888;
+  --primary: #b45309;
+  --primary-hover: #92400e;
+  --primary-glow: rgba(180,83,9,0.06);
+  --success: #2e7d32;
+  --warning: #f57c00;
+  --danger: #c62828;
+  --navy: #1a1a2e;
+  --radius-sm: 6px;
   --radius: 10px;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
   --sw: 240px;
 }
 *{margin:0;padding:0;box-sizing:border-box;}
-body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--white);min-height:100vh;line-height:1.6;}
+body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;line-height:1.5;}
 .login-screen{position:fixed;inset:0;background:var(--bg);z-index:1000;display:flex;align-items:center;justify-content:center;}
-.login-box{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:2.5rem;width:100%;max-width:440px;box-shadow:0 4px 24px rgba(0,0,0,0.06);}
-.login-logo{font-family:'Plus Jakarta Sans',sans-serif;font-size:1.6rem;font-weight:700;letter-spacing:-0.5px;margin-bottom:0.5rem;text-align:center;}.login-logo span{color:var(--red);}
-.login-sub{text-align:center;color:var(--chrome);font-size:0.85rem;margin-bottom:1.5rem;}
-.auth-tabs{display:flex;margin-bottom:1.5rem;background:var(--bg);border-radius:8px;overflow:hidden;}
-.auth-tab{flex:1;padding:10px;text-align:center;cursor:pointer;font-weight:600;font-size:0.85rem;border:none;background:transparent;color:var(--chrome);font-family:'Inter',sans-serif;}.auth-tab.active{background:var(--red);color:white;}
+.login-box{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:2.5rem;width:100%;max-width:440px;box-shadow:var(--shadow-sm);}
+.login-logo{font-family:'Oswald',sans-serif;font-size:1.5rem;font-weight:700;text-transform:uppercase;letter-spacing:-0.5px;margin-bottom:0.5rem;text-align:center;color:var(--navy);}.login-logo span{color:var(--primary);}
+.login-sub{text-align:center;color:var(--text-muted);font-size:0.85rem;margin-bottom:1.5rem;}
+.auth-tabs{display:flex;margin-bottom:1.5rem;background:var(--bg);border-radius:var(--radius-sm);overflow:hidden;}
+.auth-tab{flex:1;padding:10px;text-align:center;cursor:pointer;font-weight:600;font-size:0.85rem;border:none;background:transparent;color:var(--text-muted);font-family:'Inter',sans-serif;}.auth-tab.active{background:var(--primary);color:white;}
 .inp-group{margin-bottom:1rem;}
-.inp-group label{display:block;font-size:0.75rem;font-weight:600;color:var(--chrome);margin-bottom:5px;text-transform:uppercase;letter-spacing:0.5px;}
-.inp-group input{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--white);padding:11px 14px;font-family:'Inter',sans-serif;font-size:0.9rem;outline:none;}.inp-group input:focus{border-color:var(--red);}
+.inp-group label{display:block;font-size:0.72rem;font-weight:700;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:5px;}
+.inp-group input{width:100%;background:var(--bg);border:2px solid var(--border);border-radius:var(--radius-sm);color:var(--text);padding:11px 14px;font-family:'Inter',sans-serif;font-size:0.9rem;outline:none;}.inp-group input:focus{border-color:var(--primary);}
 .inp-row{display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;}
-.auth-btn{width:100%;background:var(--red);color:white;border:none;border-radius:8px;padding:13px;font-family:'Inter',sans-serif;font-size:1rem;font-weight:600;cursor:pointer;margin-top:0.5rem;}.auth-btn:hover{background:var(--red-dark);}.auth-btn:disabled{opacity:0.6;}
+.auth-btn{width:100%;background:var(--primary);color:white;border:none;border-radius:var(--radius-sm);padding:13px;font-family:'Inter',sans-serif;font-size:1rem;font-weight:700;cursor:pointer;margin-top:0.5rem;}.auth-btn:hover{background:var(--primary-hover);}.auth-btn:disabled{opacity:0.6;}
 #app{display:none;min-height:100vh;}
-.sidebar{width:var(--sw);background:var(--panel);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100vh;z-index:50;transition:transform 0.3s;}
-.sidebar-logo{padding:1.25rem 1.5rem;border-bottom:1px solid var(--border);font-family:'Plus Jakarta Sans',sans-serif;font-size:1.3rem;font-weight:700;letter-spacing:-0.5px;}.sidebar-logo span{color:var(--red);}
-.sidebar-logo small{display:block;font-family:'Inter',sans-serif;font-size:0.65rem;font-weight:600;color:var(--chrome);letter-spacing:0.5px;margin-top:2px;}
+.sidebar{width:var(--sw);background:var(--navy);border-right:1px solid rgba(255,255,255,0.1);display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100vh;z-index:50;transition:transform 0.3s;color:white;}
+.sidebar-logo{padding:1.25rem 1.5rem;border-bottom:1px solid rgba(255,255,255,0.1);font-family:'Oswald',sans-serif;font-size:1.3rem;font-weight:700;text-transform:uppercase;letter-spacing:-0.5px;}.sidebar-logo span{color:var(--primary);}
+.sidebar-logo small{display:block;font-family:'Inter',sans-serif;font-size:0.65rem;font-weight:500;opacity:0.7;letter-spacing:0.5px;margin-top:2px;text-transform:none;}
 .sidebar-nav{flex:1;padding:0.75rem 0;overflow-y:auto;}
-.nav-section{padding:0.5rem 1.5rem;font-size:0.62rem;font-weight:600;color:var(--chrome);text-transform:uppercase;letter-spacing:1px;margin-top:0.5rem;}
-.nav-item{display:flex;align-items:center;gap:0.75rem;padding:0.65rem 1.5rem;cursor:pointer;transition:all 0.2s;font-weight:500;font-size:0.85rem;color:var(--chrome);border-left:3px solid transparent;text-decoration:none;}
-.nav-item:hover{color:var(--white);background:rgba(0,0,0,0.02);}.nav-item.active{color:var(--red);border-left-color:var(--red);background:var(--red-glow);}
+.nav-section{padding:0.5rem 1.5rem;font-size:0.62rem;font-weight:700;opacity:0.5;text-transform:uppercase;letter-spacing:1px;margin-top:0.5rem;}
+.nav-item{display:flex;align-items:center;gap:0.75rem;padding:0.65rem 1.5rem;cursor:pointer;font-weight:500;font-size:0.85rem;opacity:0.8;border-left:3px solid transparent;text-decoration:none;color:white;transition:all 0.2s;}
+.nav-item:hover{opacity:1;background:rgba(255,255,255,0.05);}.nav-item.active{opacity:1;color:var(--primary);border-left-color:var(--primary);background:rgba(180,83,9,0.1);}
 .nav-item .ico{font-size:1rem;width:20px;text-align:center;}
-.sidebar-bottom{padding:1.25rem;border-top:1px solid var(--border);}
-.workshop-badge{background:var(--red-glow);border:1px solid rgba(13,148,136,0.15);border-radius:10px;padding:0.75rem;margin-bottom:0.75rem;}
-.workshop-badge .ws-name{font-weight:600;font-size:0.88rem;}.workshop-badge .ws-role{font-size:0.7rem;color:var(--red);font-weight:600;text-transform:uppercase;letter-spacing:0.5px;}
-.logout-btn{width:100%;background:transparent;border:1px solid var(--border);color:var(--chrome);border-radius:8px;padding:8px;font-family:'Inter',sans-serif;font-weight:500;font-size:0.8rem;cursor:pointer;text-decoration:none;display:block;text-align:center;margin-bottom:0.5rem;}.logout-btn:hover{border-color:var(--red);color:var(--red);}
+.sidebar-bottom{padding:1.25rem;border-top:1px solid rgba(255,255,255,0.1);}
+.workshop-badge{background:rgba(180,83,9,0.15);border:1px solid rgba(180,83,9,0.3);border-radius:8px;padding:0.75rem;margin-bottom:0.75rem;}
+.workshop-badge .ws-name{font-weight:600;font-size:0.88rem;}.workshop-badge .ws-role{font-size:0.7rem;color:var(--primary);font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-top:2px;}
+.logout-btn{width:100%;background:transparent;border:1px solid rgba(255,255,255,0.2);color:rgba(255,255,255,0.7);border-radius:var(--radius-sm);padding:8px;font-family:'Inter',sans-serif;font-weight:500;font-size:0.8rem;cursor:pointer;text-decoration:none;display:block;text-align:center;margin-bottom:0.5rem;}.logout-btn:hover{border-color:var(--primary);color:var(--primary);}
 .main{margin-left:var(--sw);flex:1;display:flex;flex-direction:column;min-height:100vh;}
-.topbar{background:var(--panel);border-bottom:1px solid var(--border);padding:0 2rem;height:58px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:40;}
-.topbar-title{font-family:'Plus Jakarta Sans',sans-serif;font-size:1.1rem;font-weight:600;letter-spacing:-0.5px;}
-.sidebar-toggle{display:none;background:none;border:none;color:var(--white);font-size:1.3rem;cursor:pointer;}
+.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:0 2rem;height:58px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:40;}
+.topbar-title{font-family:'Oswald',sans-serif;font-size:1.1rem;font-weight:600;text-transform:uppercase;letter-spacing:-0.3px;}
+.sidebar-toggle{display:none;background:none;border:none;color:var(--text);font-size:1.3rem;cursor:pointer;}
 .page{padding:1.75rem;display:none;}.page.active{display:block;}
 .stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1.25rem;margin-bottom:1.75rem;}
-.stat-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem;position:relative;overflow:hidden;box-shadow:0 1px 2px rgba(0,0,0,0.03);}.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;}
-.green::before{background:var(--green);}.red::before{background:var(--red);}.blue::before{background:var(--blue);}.orange::before{background:var(--orange);}
-.stat-ico{font-size:1.3rem;margin-bottom:0.5rem;}.stat-val{font-family:'Plus Jakarta Sans',sans-serif;font-size:1.4rem;font-weight:700;letter-spacing:-0.5px;margin-bottom:0.2rem;}
-.stat-lbl{font-size:0.72rem;color:var(--chrome);text-transform:uppercase;letter-spacing:0.5px;font-weight:500;}
-.info-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:1.5rem;margin-bottom:1.5rem;box-shadow:0 1px 2px rgba(0,0,0,0.03);}
-.info-card h3{font-family:'Plus Jakarta Sans',sans-serif;font-size:0.95rem;font-weight:600;letter-spacing:-0.3px;margin-bottom:1rem;}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem;position:relative;overflow:hidden;box-shadow:var(--shadow-sm);}.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;}
+.green::before{background:var(--success);}.red::before{background:var(--primary);}.blue::before{background:#2563eb;}.orange::before{background:var(--warning);}
+.stat-ico{font-size:1.3rem;margin-bottom:0.5rem;}.stat-val{font-family:'Oswald',sans-serif;font-size:1.4rem;font-weight:600;letter-spacing:-0.3px;margin-bottom:0.2rem;}
+.stat-lbl{font-size:0.72rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;font-weight:500;}
+.info-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.5rem;margin-bottom:1.5rem;box-shadow:var(--shadow-sm);}
+.info-card h3{font-family:'Oswald',sans-serif;font-size:0.9rem;font-weight:600;text-transform:uppercase;letter-spacing:-0.3px;margin-bottom:1rem;}
 .info-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
-.info-item{background:var(--bg);border-radius:10px;padding:1rem;text-align:center;}
-.info-val{font-family:'Plus Jakarta Sans',sans-serif;font-size:1.3rem;font-weight:700;color:var(--green);}
-.info-lbl{font-size:0.7rem;color:var(--chrome);margin-top:4px;}
-.table-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:1.5rem;box-shadow:0 1px 2px rgba(0,0,0,0.03);}
+.info-item{background:#fafafa;border-radius:var(--radius-sm);padding:1rem;text-align:center;}
+.info-val{font-family:'Oswald',sans-serif;font-size:1.3rem;font-weight:700;color:var(--success);}
+.info-lbl{font-size:0.7rem;color:var(--text-muted);margin-top:4px;}
+.table-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:1.5rem;box-shadow:var(--shadow-sm);}
 .table-header{padding:1rem 1.5rem;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);}
-.table-header h3{font-family:'Plus Jakarta Sans',sans-serif;font-size:0.95rem;font-weight:600;letter-spacing:-0.3px;}
+.table-header h3{font-family:'Oswald',sans-serif;font-size:0.9rem;font-weight:600;text-transform:uppercase;letter-spacing:-0.3px;}
 table{width:100%;border-collapse:collapse;}
-thead th{padding:0.65rem 1.25rem;text-align:left;font-size:0.7rem;font-weight:600;color:var(--chrome);text-transform:uppercase;letter-spacing:0.5px;background:rgba(0,0,0,0.01);}
-tbody tr{border-top:1px solid var(--border);}tbody tr:hover{background:rgba(0,0,0,0.015);}
+thead th{padding:0.65rem 1.25rem;text-align:left;font-size:0.7rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;background:#fafafa;}
+tbody tr{border-top:1px solid var(--border);}tbody tr:hover{background:#fafafa;}
 tbody td{padding:0.8rem 1.25rem;font-size:0.83rem;}
-.toast{position:fixed;bottom:2rem;right:2rem;color:white;padding:1rem 1.5rem;border-radius:8px;font-weight:500;font-size:0.85rem;display:none;z-index:300;}.toast.show{display:block;animation:sIn 0.3s ease;}
+.toast{position:fixed;bottom:2rem;right:2rem;color:white;padding:1rem 1.5rem;border-radius:var(--radius-sm);font-weight:600;font-size:0.85rem;display:none;z-index:300;box-shadow:0 4px 16px rgba(0,0,0,0.2);}.toast.show{display:block;animation:sIn 0.3s ease;}
 @keyframes sIn{from{transform:translateY(16px);opacity:0}to{transform:translateY(0);opacity:1}}
 @media(max-width:768px){.sidebar{transform:translateX(-100%);}.sidebar.open{transform:translateX(0);}.main{margin-left:0;}.sidebar-toggle{display:block;}.page{padding:1rem;}.stats-row{grid-template-columns:1fr 1fr;gap:0.75rem;}.info-grid{grid-template-columns:1fr;}.table-card{overflow-x:auto;}}
 </style>
@@ -212,52 +114,26 @@ tbody td{padding:0.8rem 1.25rem;font-size:0.83rem;}
   <div class="login-box">
     <div class="login-logo">Car<span>deals</span>.al</div>
     <div class="login-sub">🔧 Paneli i Pikës së Shërbimit</div>
-    <div class="auth-tabs">
-      <button class="auth-tab active" id="tabLogin" onclick="showTab('login')">HYRJA</button>
-      <button class="auth-tab" id="tabRegister" onclick="showTab('register')">REGJISTROHU</button>
-    </div>
-    <div id="loginForm">
-      <div class="inp-group"><label>EMAIL</label><input type="email" id="loginEmail" /></div>
-      <div class="inp-group"><label>FJALËKALIMI</label><input type="password" id="loginPass" /></div>
-      <button class="auth-btn" id="loginBtn" onclick="doLogin()">HYRJA →</button>
-    </div>
-    <div id="registerForm" style="display:none">
-      <div class="inp-group"><label>EMRI I PIKËS SË SHËRBIMIT *</label><input type="text" id="regName" placeholder="p.sh. Auto Servis Tirana" /></div>
-      <div class="inp-row"><div class="inp-group"><label>EMAIL *</label><input type="email" id="regEmail" /></div><div class="inp-group"><label>TELEFON *</label><input type="text" id="regPhone" /></div></div>
-      <div class="inp-group"><label>QYTETI</label><input type="text" id="regCity" placeholder="Tiranë" /></div>
-      <div class="inp-row"><div class="inp-group"><label>FJALËKALIMI *</label><input type="password" id="regPass" /></div><div class="inp-group"><label>KONFIRMO *</label><input type="password" id="regPass2" /></div></div>
-      <button class="auth-btn" id="regBtn" onclick="doRegister()">REGJISTROHU →</button>
-    </div>
+    <div class="auth-tabs"><button class="auth-tab active" id="tabLogin" onclick="showTab('login')">HYRJA</button><button class="auth-tab" id="tabRegister" onclick="showTab('register')">REGJISTROHU</button></div>
+    <div id="loginForm"><div class="inp-group"><label>EMAIL</label><input type="email" id="loginEmail" /></div><div class="inp-group"><label>FJALËKALIMI</label><input type="password" id="loginPass" /></div><button class="auth-btn" id="loginBtn" onclick="doLogin()">HYRJA →</button></div>
+    <div id="registerForm" style="display:none"><div class="inp-group"><label>EMRI I PIKËS SË SHËRBIMIT *</label><input type="text" id="regName" placeholder="p.sh. Auto Servis Tirana" /></div><div class="inp-row"><div class="inp-group"><label>EMAIL *</label><input type="email" id="regEmail" /></div><div class="inp-group"><label>TELEFON *</label><input type="text" id="regPhone" /></div></div><div class="inp-group"><label>QYTETI</label><input type="text" id="regCity" placeholder="Tiranë" /></div><div class="inp-row"><div class="inp-group"><label>FJALËKALIMI *</label><input type="password" id="regPass" /></div><div class="inp-group"><label>KONFIRMO *</label><input type="password" id="regPass2" /></div></div><button class="auth-btn" id="regBtn" onclick="doRegister()">REGJISTROHU →</button></div>
   </div>
 </div>
 
 <div id="app" style="display:none;">
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-logo">Car<span>deals</span>.al<small>PIKA E SHËRBIMIT</small></div>
-    <nav class="sidebar-nav">
-      <div class="nav-section">PANELI</div>
-      <a class="nav-item active" onclick="showPage('dashboard')" id="nav-dashboard"><span class="ico">📊</span> Pasqyra</a>
-      <a class="nav-item" onclick="showPage('orders')" id="nav-orders"><span class="ico">📦</span> Blerjet e Mia</a>
-      <a class="nav-item" onclick="showPage('cashback')" id="nav-cashback"><span class="ico">💰</span> Cashback</a>
-    </nav>
-    <div class="sidebar-bottom">
-      <div class="workshop-badge"><div class="ws-name" id="workshopName">—</div><div class="ws-role">PIKË SHËRBIMI · 2% CASHBACK</div></div>
-      <a href="index.html" class="logout-btn">🌐 Cardeals.al ↗</a>
-      <button class="logout-btn" onclick="doLogout()">Dil nga Llogaria</button>
-    </div>
+    <nav class="sidebar-nav"><div class="nav-section">PANELI</div><a class="nav-item active" onclick="showPage('dashboard')" id="nav-dashboard"><span class="ico">📊</span> Pasqyra</a><a class="nav-item" onclick="showPage('orders')" id="nav-orders"><span class="ico">📦</span> Blerjet e Mia</a><a class="nav-item" onclick="showPage('cashback')" id="nav-cashback"><span class="ico">💰</span> Cashback</a></nav>
+    <div class="sidebar-bottom"><div class="workshop-badge"><div class="ws-name" id="workshopName">—</div><div class="ws-role">PIKË SHËRBIMI · 2% CASHBACK</div></div><a href="index.html" class="logout-btn">🌐 Cardeals.al ↗</a><button class="logout-btn" onclick="doLogout()">Dil nga Llogaria</button></div>
   </aside>
   <div class="main">
     <div class="topbar"><div style="display:flex;align-items:center;gap:1rem;"><button class="sidebar-toggle" onclick="toggleSidebar()">☰</button><div class="topbar-title">PANELI I PIKËS SË SHËRBIMIT</div></div></div>
-    <div class="page active" id="page-dashboard">
-      <div class="stats-row"><div class="stat-card blue"><div class="stat-ico">💰</div><div class="stat-val" id="statTotal">0 L</div><div class="stat-lbl">Total Blerjeve</div></div><div class="stat-card red"><div class="stat-ico">📦</div><div class="stat-val" id="statOrders">0</div><div class="stat-lbl">Blerje Gjithsej</div></div><div class="stat-card orange"><div class="stat-ico">📅</div><div class="stat-val" id="statMonth">0 L</div><div class="stat-lbl">Këtë Muaj</div></div><div class="stat-card green"><div class="stat-ico">💵</div><div class="stat-val" id="statCashback">0 L</div><div class="stat-lbl">Cashback i Pritshëm</div></div></div>
-      <div class="info-card" style="background:var(--red-glow);border-color:rgba(13,148,136,0.15);"><h3>💳 BALANCI I KREDISË</h3><div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:1.8rem;font-weight:700;color:var(--green);" id="statBalance">0 L</div><div style="color:var(--chrome);font-size:0.8rem;">Kredit i disponueshëm për blerjet e ardhshme</div></div>
+    <div class="page active" id="page-dashboard"><div class="stats-row"><div class="stat-card blue"><div class="stat-ico">💰</div><div class="stat-val" id="statTotal">0 L</div><div class="stat-lbl">Total Blerjeve</div></div><div class="stat-card red"><div class="stat-ico">📦</div><div class="stat-val" id="statOrders">0</div><div class="stat-lbl">Blerje Gjithsej</div></div><div class="stat-card orange"><div class="stat-ico">📅</div><div class="stat-val" id="statMonth">0 L</div><div class="stat-lbl">Këtë Muaj</div></div><div class="stat-card green"><div class="stat-ico">💵</div><div class="stat-val" id="statCashback">0 L</div><div class="stat-lbl">Cashback i Pritshëm</div></div></div>
+      <div class="info-card" style="background:var(--primary-glow);border-color:rgba(180,83,9,0.2);"><h3>💳 BALANCI I KREDISË</h3><div style="font-family:'Oswald',sans-serif;font-size:1.8rem;font-weight:700;color:var(--success);" id="statBalance">0 L</div><div style="color:var(--text-muted);font-size:0.8rem;">Kredit i disponueshëm për blerjet e ardhshme</div></div>
       <div class="table-card"><div class="table-header"><h3>🛒 BLERJET E FUNDIT</h3></div><table><thead><tr><th>Pjesa</th><th>Çmimi</th><th>Statusi</th><th>Data</th></tr></thead><tbody id="recentOrdersBody"></tbody></table></div>
     </div>
     <div class="page" id="page-orders"><div class="table-card"><div class="table-header"><h3>📦 TË GJITHA BLERJET</h3></div><table><thead><tr><th>#</th><th>Pjesa</th><th>Shitësi</th><th>Çmimi</th><th>Cashback</th><th>Statusi</th><th>Data</th></tr></thead><tbody id="allOrdersBody"></tbody></table></div></div>
-    <div class="page" id="page-cashback">
-      <div class="info-card"><h3>📅 PERIUDHA AKTUALE (30 DITË)</h3><div class="info-grid"><div class="info-item"><div class="info-val" id="periodStart">—</div><div class="info-lbl">Fillimi i Periudhës</div></div><div class="info-item"><div class="info-val" id="daysLeft">—</div><div class="info-lbl">Ditë të Mbetura</div></div><div class="info-item"><div class="info-val" id="periodTotal">0 L</div><div class="info-lbl">Total Blerjeve</div></div><div class="info-item"><div class="info-val" id="periodCashback">0 L</div><div class="info-lbl">Cashback i Pritshëm (2%)</div></div></div></div>
-      <div class="info-card" style="background:var(--red-glow);border-color:rgba(13,148,136,0.15);"><h3>💳 BALANCI AKTUAL I KREDISË</h3><div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:2rem;font-weight:700;color:var(--green);" id="currentBalance">0 L</div><div style="color:var(--chrome);font-size:0.85rem;margin-top:0.5rem;">Krediti llogaritet çdo 30 ditë si 2% e blerjeve tuaja.</div></div>
-    </div>
+    <div class="page" id="page-cashback"><div class="info-card"><h3>📅 PERIUDHA AKTUALE (30 DITË)</h3><div class="info-grid"><div class="info-item"><div class="info-val" id="periodStart">—</div><div class="info-lbl">Fillimi i Periudhës</div></div><div class="info-item"><div class="info-val" id="daysLeft">—</div><div class="info-lbl">Ditë të Mbetura</div></div><div class="info-item"><div class="info-val" id="periodTotal">0 L</div><div class="info-lbl">Total Blerjeve</div></div><div class="info-item"><div class="info-val" id="periodCashback">0 L</div><div class="info-lbl">Cashback i Pritshëm (2%)</div></div></div></div><div class="info-card" style="background:var(--primary-glow);border-color:rgba(180,83,9,0.2);"><h3>💳 BALANCI AKTUAL I KREDISË</h3><div style="font-family:'Oswald',sans-serif;font-size:2rem;font-weight:700;color:var(--success);" id="currentBalance">0 L</div><div style="color:var(--text-muted);font-size:0.85rem;margin-top:0.5rem;">Krediti llogaritet çdo 30 ditë si 2% e blerjeve tuaja.</div></div></div>
   </div>
 </div>
 <div class="toast" id="toast"></div>
