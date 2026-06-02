@@ -333,8 +333,39 @@ function resetAdvancedFilters(){['filterYearFrom','filterYearTo','filterGenerati
 
 const L={sq:{heroTitle:'Pjesë Këmbimi për <span>Çdo Makinë</span>',heroSub:'Mbi <strong id="heroPartCount">0</strong> pjesë nga shitës të verifikuar · Krahaso çmimet · Bli online',searchPlaceholder:'Kërko pjesë, markë, VIN...',condAll:'Të gjitha',condNew:'Të Reja',condUsed:'Të Përdorura',searchBtn:'KËRKO',searchPartsBtn:'KËRKO PJESËT',selectMake:'Të gjitha Markat',catAll:'Të gjitha',catEngine:'Motor',catBrakes:'Frena',catElectrical:'Elektrik',catSuspension:'Amortizatorë',catBody:'Karroceri',catAC:'Klimë',dealsTitle:'Oferta <span>Speciale</span>',partsTitle:'Të Gjitha <span>Pjesët</span>',register:'Regjistrohu',navWorkshop:'Pika Shërbimi',navSell:'Shit Këtu',footerAbout:'Rreth Nesh',footerWorkshop:'Pika Shërbimi',footerSell:'Shit Me Ne',footerContact:'Kontakt',footerPrivacy:'Politika e Privatësisë',footerCopy:'© 2026 Cardeals.al — Të gjitha të drejtat e rezervuara.'},en:{heroTitle:'Auto Parts for <span>Every Car</span>',heroSub:'Over <strong id="heroPartCount">0</strong> parts from verified sellers · Compare prices · Buy online',searchPlaceholder:'Search parts, brand, VIN...',condAll:'All',condNew:'New',condUsed:'Used',searchBtn:'SEARCH',searchPartsBtn:'SEARCH PARTS',selectMake:'All Brands',catAll:'All',catEngine:'Engine',catBrakes:'Brakes',catElectrical:'Electrical',catSuspension:'Suspension',catBody:'Body',catAC:'AC & Heat',dealsTitle:'Special <span>Offers</span>',partsTitle:'All <span>Parts</span>',register:'Sign Up',navWorkshop:'Workshop',navSell:'Sell Here',footerAbout:'About Us',footerWorkshop:'Workshop',footerSell:'Sell With Us',footerContact:'Contact',footerPrivacy:'Privacy Policy',footerCopy:'© 2026 Cardeals.al — All rights reserved.'}};
 
-function setLang(lg){currentLang=lg;document.querySelectorAll('.lang-btn').forEach(b=>b.classList.remove('active'));document.querySelector(`.lang-btn[onclick="setLang('${lg}')"]`)?.classList.add('active');document.querySelectorAll('[data-l]').forEach(el=>{const key=el.dataset.l;if(L[lg]&&L[lg][key]){if(key==='heroTitle')el.innerHTML=L[lg][key];else el.textContent=L[lg][key];}});document.querySelectorAll('[data-l-placeholder]').forEach(el=>{const key=el.dataset.lPlaceholder;if(L[lg]&&L[lg][key])el.placeholder=L[lg][key];});if(L[lg]&&L[lg].heroSub){const heroP=document.querySelector('.hero p');if(heroP)heroP.innerHTML=L[lg].heroSub;}const cf=g('condFilter');if(cf&&L[lg]){cf.options[0].textContent=L[lg].condAll;cf.options[1].textContent=L[lg].condNew;cf.options[2].textContent=L[lg].condUsed;}}
-
+function setLang(lg){
+  currentLang=lg;
+  document.querySelectorAll('.lang-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelector(`.lang-btn[onclick="setLang('${lg}')"]`)?.classList.add('active');
+  
+  // Update all [data-l] elements - use innerHTML to preserve spans
+  document.querySelectorAll('[data-l]').forEach(el=>{
+    const key=el.dataset.l;
+    if(L[lg]&&L[lg][key]){
+      el.innerHTML = L[lg][key];
+    }
+  });
+  
+  // Update placeholders
+  document.querySelectorAll('[data-l-placeholder]').forEach(el=>{
+    const key=el.dataset.lPlaceholder;
+    if(L[lg]&&L[lg][key])el.placeholder=L[lg][key];
+  });
+  
+  // Update hero sub (contains <strong> tag)
+  if(L[lg]&&L[lg].heroSub){
+    const heroP=document.querySelector('.hero p');
+    if(heroP)heroP.innerHTML=L[lg].heroSub;
+  }
+  
+  // Update condition filter dropdown
+  const cf=g('condFilter');
+  if(cf&&L[lg]){
+    cf.options[0].textContent=L[lg].condAll;
+    cf.options[1].textContent=L[lg].condNew;
+    cf.options[2].textContent=L[lg].condUsed;
+  }
+}
 const carBrands=['Abarth','Acura','Alfa Romeo','Alpine','Aston Martin','Audi','Bentley','BMW','Bugatti','Buick','BYD','Cadillac','Chery','Chevrolet','Chrysler','Citroën','Cupra','Dacia','Daewoo','Daihatsu','Dodge','DS Automobiles','Ferrari','Fiat','Ford','Genesis','GMC','Great Wall','Honda','Hummer','Hyundai','Infiniti','Isuzu','Jaguar','Jeep','Kia','Lamborghini','Lancia','Land Rover','Lexus','Lincoln','Lotus','Maserati','Maybach','Mazda','McLaren','Mercedes-Benz','MG','Mini','Mitsubishi','Nissan','Opel','Peugeot','Polestar','Pontiac','Porsche','Renault','Rolls-Royce','Saab','Seat','Škoda','Smart','SsangYong','Subaru','Suzuki','Tata','Tesla','Toyota','Triumph','Volkswagen','Volvo'];
 const carModels={Abarth:['500','595','695','124 Spider','Punto'],Acura:['ILX','MDX','RDX','TLX','NSX','Integra'],'Alfa Romeo':['Giulia','Giulietta','Stelvio','Tonale','Mito'],Audi:['A1','A2','A3','A4','A5','A6','A7','A8','Q2','Q3','Q5','Q7','Q8','TT','R8'],BMW:['1 Series','2 Series','3 Series','4 Series','5 Series','6 Series','7 Series','X1','X2','X3','X4','X5','X6','X7','Z4','i3','i4','iX','M2','M3','M4','M5'],Chevrolet:['Aveo','Camaro','Captiva','Corvette','Cruze','Spark','Trax'],Citroën:['C1','C2','C3','C4','C5','Berlingo','Saxo','Xsara'],Dacia:['Duster','Logan','Sandero','Spring'],Fiat:['500','Bravo','Doblo','Panda','Punto','Tipo'],Ford:['Ecosport','Fiesta','Focus','Fusion','Kuga','Mondeo','Mustang','Puma','Ranger','Transit'],Honda:['Accord','Civic','CR-V','HR-V','Jazz'],Hyundai:['Accent','Elantra','i10','i20','i30','i40','Kona','Santa Fe','Tucson'],Kia:['Ceed','Picanto','Rio','Sorento','Soul','Sportage','Stonic'],Mazda:['2','3','5','6','CX-3','CX-5','CX-30','MX-5'],'Mercedes-Benz':['A-Class','B-Class','C-Class','CLA','CLS','E-Class','G-Class','GLA','GLB','GLC','GLE','GLS','S-Class'],Nissan:['Juke','Micra','Navara','Note','Pathfinder','Patrol','Qashqai','X-Trail'],Opel:['Astra','Corsa','Crossland','Grandland','Insignia','Mokka','Zafira'],Peugeot:['2008','206','207','208','3008','301','306','307','308','407','5008','508'],Renault:['Captur','Clio','Espace','Kadjar','Kangoo','Koleos','Laguna','Master','Megane','Scenic','Talisman','Trafic','Twingo','Zoe'],Seat:['Alhambra','Altea','Arona','Ateca','Ibiza','Leon','Tarraco','Toledo'],Škoda:['Fabia','Kamiq','Karoq','Kodiaq','Octavia','Rapid','Scala','Superb'],Tesla:['Model 3','Model S','Model X','Model Y'],Toyota:['Auris','Avensis','Aygo','C-HR','Camry','Corolla','Hilux','Land Cruiser','Prius','RAV4','Yaris'],Volkswagen:['Arteon','Beetle','Bora','Caddy','Crafter','Golf','ID.3','ID.4','Jetta','Passat','Polo','T-Cross','T-Roc','Tiguan','Touareg','Touran','Transporter','up!'],Volvo:['C40','S40','S60','S90','V40','V60','V90','XC40','XC60','XC90']};
 function populateCarMakes(){const sel=g('carMakeSelect');sel.innerHTML='<option value="">'+(L[currentLang]?.selectMake||'Të gjitha Markat')+'</option>';carBrands.forEach(b=>{const o=document.createElement('option');o.value=b;o.textContent=b;sel.appendChild(o);});}
