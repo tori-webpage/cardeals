@@ -4,8 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Cardeals.al — Gjej & Krahaso Pjesë Këmbimi në Shqipëri</title>
-<link rel="icon" type="image/png" href="https://tori-webpage.github.io/cardeals/cardeals-icon.png" />
-<link rel="apple-touch-icon" href="https://tori-webpage.github.io/cardeals/cardeals-icon.png" />
 <meta name="description" content="Platforma #1 e pjesëve të këmbimit në Shqipëri. Gjej dhe krahaso çmime për pjesë auto nga shitës të verifikuar." />
 <meta name="keywords" content="pjesë këmbimi, pjesë auto, pjesë makine, Shqipëri, Tiranë, online, krahaso çmime" />
 <meta name="robots" content="index, follow" />
@@ -21,6 +19,8 @@
 <meta name="theme-color" content="#b45309" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+<link rel="icon" type="image/png" href="https://tori-webpage.github.io/cardeals/cardeals-icon.png" />
+<link rel="apple-touch-icon" href="https://tori-webpage.github.io/cardeals/cardeals-icon.png" />
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet">
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
@@ -103,7 +103,6 @@ nav{background:var(--surface);border-bottom:1px solid var(--border);padding:0 2r
 .part-card-img{width:100%;height:180px;background:#fafafa;display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;flex-shrink:0;}
 .part-card-img img{width:100%;height:100%;object-fit:contain;padding:1rem;}
 .part-card-img .no-img{display:flex;align-items:center;justify-content:center;width:100%;height:100%;}
-.part-card-img .no-img svg{width:64px;height:64px;color:#d0d0d0;stroke-width:1;}
 .cond-tag{position:absolute;top:8px;left:8px;padding:3px 8px;border-radius:3px;font-size:0.65rem;font-weight:700;text-transform:uppercase;color:white;}
 .cond-new{background:var(--success);}.cond-used{background:var(--warning);}
 .promo-tag{position:absolute;top:8px;right:8px;background:var(--primary);color:white;padding:3px 8px;border-radius:3px;font-size:0.62rem;font-weight:700;text-transform:uppercase;}
@@ -133,8 +132,8 @@ footer a{color:var(--primary);text-decoration:none;}footer a:hover{text-decorati
 .modal-close:hover{color:var(--danger);}
 .modal-part-img{width:100%;max-height:200px;object-fit:contain;border-radius:var(--radius-sm);margin-bottom:0.75rem;background:#fafafa;}
 .field{margin-bottom:0.9rem;}.field label{display:block;font-size:0.72rem;font-weight:700;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;}
-.field input,.field select{width:100%;padding:10px 12px;border:2px solid var(--border);border-radius:var(--radius-sm);font-family:'Inter',sans-serif;font-size:0.9rem;outline:none;color:var(--text);background:var(--bg);}
-.field input:focus,.field select:focus{border-color:var(--primary);}
+.field input,.field select,.field textarea{width:100%;padding:10px 12px;border:2px solid var(--border);border-radius:var(--radius-sm);font-family:'Inter',sans-serif;font-size:0.9rem;outline:none;color:var(--text);background:var(--bg);}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--primary);}
 .radio-group{display:flex;gap:1rem;margin-bottom:0.5rem;}
 .radio-group label{display:flex;align-items:center;gap:0.5rem;font-weight:500;text-transform:none;font-size:0.85rem;cursor:pointer;color:var(--text);}
 .radio-group input[type="radio"]{accent-color:var(--primary);width:auto;}
@@ -193,7 +192,7 @@ footer a{color:var(--primary);text-decoration:none;}footer a:hover{text-decorati
 
 <div class="hero">
   <div class="hero-content">
-    <h1 data-l="heroTitle">Pjesë Këmbimi për <span data-l="heroTitleSpan">Çdo Makinë</span></h1>
+    <h1 data-l="heroTitle">Pjesë Këmbimi për <span>Çdo Makinë</span></h1>
     <p data-l="heroSub">Mbi <strong id="heroPartCount">0</strong> pjesë nga shitës të verifikuar · Krahaso çmimet · Bli online</p>
     <div class="search-box">
       <input type="text" id="searchInput" data-l-placeholder="searchPlaceholder" placeholder="Kërko pjesë, markë, VIN..." />
@@ -243,10 +242,10 @@ footer a{color:var(--primary);text-decoration:none;}footer a:hover{text-decorati
 
 <div class="main-content">
   <div class="deals-strip" id="dealsStrip" style="display:none;">
-    <div class="section-head"><h2 class="section-title" data-l="dealsTitle">Oferta <span data-l="dealsTitleSpan">Speciale</span></h2><span class="deals-badge">LIVE</span></div>
+    <div class="section-head"><h2 class="section-title" data-l="dealsTitle">Oferta <span>Speciale</span></h2><span class="deals-badge">LIVE</span></div>
     <div class="deals-scroll" id="dealsScroll"></div>
   </div>
-  <div class="section-head"><h2 class="section-title" data-l="partsTitle">Të Gjitha <span data-l="partsTitleSpan">Pjesët</span></h2><span class="section-count" id="resultCount"></span></div>
+  <div class="section-head"><h2 class="section-title" data-l="partsTitle">Të Gjitha <span>Pjesët</span></h2><span class="section-count" id="resultCount"></span></div>
   <div class="parts-grid" id="partsGrid"><div class="empty-state"><div class="spinner"></div><p style="margin-top:0.75rem;">Duke ngarkuar pjesët...</p></div></div>
   <div class="pagination" id="paginationControls" style="display:none;">
     <button id="firstPageBtn" onclick="goToPage(1)">«</button><button id="prevPageBtn" onclick="prevPage()">‹</button>
@@ -254,7 +253,18 @@ footer a{color:var(--primary);text-decoration:none;}footer a:hover{text-decorati
   </div>
 </div>
 
-<footer id="contact">
+<!-- Contact Form -->
+<div style="max-width:600px;margin:0 auto 3rem;padding:0 2rem;" id="contact">
+  <h2 style="font-family:'Oswald',sans-serif;font-size:1.5rem;font-weight:600;text-transform:uppercase;text-align:center;margin-bottom:1rem;">Na <span style="color:var(--primary);">Kontaktoni</span></h2>
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.5rem;box-shadow:var(--shadow-sm);">
+    <div class="field"><label>Emri</label><input type="text" id="contactName" /></div>
+    <div class="field"><label>Email</label><input type="email" id="contactEmail" /></div>
+    <div class="field"><label>Mesazhi</label><textarea id="contactMsg" rows="3" style="width:100%;padding:10px;border:2px solid var(--border);border-radius:var(--radius-sm);font-family:'Inter',sans-serif;outline:none;resize:vertical;"></textarea></div>
+    <button class="btn btn-primary" style="width:100%;justify-content:center;" onclick="submitContact()">DËRGO MESAZHIN</button>
+  </div>
+</div>
+
+<footer id="footerContact">
   <div class="footer-links">
     <a href="#" data-l="footerAbout">Rreth Nesh</a>
     <a href="workshop.html" data-l="footerWorkshop">Pika Shërbimi</a>
@@ -333,41 +343,27 @@ function openRegisterModal(){g('authModal').classList.add('open');}
 function toggleAdvancedFilters(){g('advancedFilters').classList.toggle('open');}
 function resetAdvancedFilters(){['filterYearFrom','filterYearTo','filterGeneration','filterEngine','filterOem','filterMaxPrice'].forEach(id=>{const el=g(id);if(el)el.value='';});g('filterFuel').value='';renderParts();}
 
+// Contact form submit
+function submitContact(){
+  const n=g('contactName').value.trim(),e=g('contactEmail').value.trim(),m=g('contactMsg').value.trim();
+  if(!n||!e||!m){showToast('Plotëso të gjitha fushat!',true);return;}
+  db.collection('contact_messages').add({name:n,email:e,message:m,status:'unread',createdAt:firebase.firestore.FieldValue.serverTimestamp()})
+  .then(()=>{showToast('✅ Mesazhi u dërgua!');g('contactName').value='';g('contactEmail').value='';g('contactMsg').value='';})
+  .catch(err=>showToast('❌ Gabim',true));
+}
+
 const L={sq:{heroTitle:'Pjesë Këmbimi për <span>Çdo Makinë</span>',heroSub:'Mbi <strong id="heroPartCount">0</strong> pjesë nga shitës të verifikuar · Krahaso çmimet · Bli online',searchPlaceholder:'Kërko pjesë, markë, VIN...',condAll:'Të gjitha',condNew:'Të Reja',condUsed:'Të Përdorura',searchBtn:'KËRKO',searchPartsBtn:'KËRKO PJESËT',selectMake:'Të gjitha Markat',catAll:'Të gjitha',catEngine:'Motor',catBrakes:'Frena',catElectrical:'Elektrik',catSuspension:'Amortizatorë',catBody:'Karroceri',catAC:'Klimë',dealsTitle:'Oferta <span>Speciale</span>',partsTitle:'Të Gjitha <span>Pjesët</span>',register:'Regjistrohu',navWorkshop:'Pika Shërbimi',navSell:'Shit Këtu',footerAbout:'Rreth Nesh',footerWorkshop:'Pika Shërbimi',footerSell:'Shit Me Ne',footerContact:'Kontakt',footerPrivacy:'Politika e Privatësisë',footerCopy:'© 2026 Cardeals.al — Të gjitha të drejtat e rezervuara.'},en:{heroTitle:'Auto Parts for <span>Every Car</span>',heroSub:'Over <strong id="heroPartCount">0</strong> parts from verified sellers · Compare prices · Buy online',searchPlaceholder:'Search parts, brand, VIN...',condAll:'All',condNew:'New',condUsed:'Used',searchBtn:'SEARCH',searchPartsBtn:'SEARCH PARTS',selectMake:'All Brands',catAll:'All',catEngine:'Engine',catBrakes:'Brakes',catElectrical:'Electrical',catSuspension:'Suspension',catBody:'Body',catAC:'AC & Heat',dealsTitle:'Special <span>Offers</span>',partsTitle:'All <span>Parts</span>',register:'Sign Up',navWorkshop:'Workshop',navSell:'Sell Here',footerAbout:'About Us',footerWorkshop:'Workshop',footerSell:'Sell With Us',footerContact:'Contact',footerPrivacy:'Privacy Policy',footerCopy:'© 2026 Cardeals.al — All rights reserved.'}};
 
 function setLang(lg){
   currentLang=lg;
   document.querySelectorAll('.lang-btn').forEach(b=>b.classList.remove('active'));
   document.querySelector(`.lang-btn[onclick="setLang('${lg}')"]`)?.classList.add('active');
-  
-  // Update all [data-l] elements - use innerHTML to preserve spans
-  document.querySelectorAll('[data-l]').forEach(el=>{
-    const key=el.dataset.l;
-    if(L[lg]&&L[lg][key]){
-      el.innerHTML = L[lg][key];
-    }
-  });
-  
-  // Update placeholders
-  document.querySelectorAll('[data-l-placeholder]').forEach(el=>{
-    const key=el.dataset.lPlaceholder;
-    if(L[lg]&&L[lg][key])el.placeholder=L[lg][key];
-  });
-  
-  // Update hero sub (contains <strong> tag)
-  if(L[lg]&&L[lg].heroSub){
-    const heroP=document.querySelector('.hero p');
-    if(heroP)heroP.innerHTML=L[lg].heroSub;
-  }
-  
-  // Update condition filter dropdown
-  const cf=g('condFilter');
-  if(cf&&L[lg]){
-    cf.options[0].textContent=L[lg].condAll;
-    cf.options[1].textContent=L[lg].condNew;
-    cf.options[2].textContent=L[lg].condUsed;
-  }
+  document.querySelectorAll('[data-l]').forEach(el=>{const key=el.dataset.l;if(L[lg]&&L[lg][key]){el.innerHTML=L[lg][key];}});
+  document.querySelectorAll('[data-l-placeholder]').forEach(el=>{const key=el.dataset.lPlaceholder;if(L[lg]&&L[lg][key])el.placeholder=L[lg][key];});
+  if(L[lg]&&L[lg].heroSub){const heroP=document.querySelector('.hero p');if(heroP)heroP.innerHTML=L[lg].heroSub;}
+  const cf=g('condFilter');if(cf&&L[lg]){cf.options[0].textContent=L[lg].condAll;cf.options[1].textContent=L[lg].condNew;cf.options[2].textContent=L[lg].condUsed;}
 }
+
 const carBrands=['Abarth','Acura','Alfa Romeo','Alpine','Aston Martin','Audi','Bentley','BMW','Bugatti','Buick','BYD','Cadillac','Chery','Chevrolet','Chrysler','Citroën','Cupra','Dacia','Daewoo','Daihatsu','Dodge','DS Automobiles','Ferrari','Fiat','Ford','Genesis','GMC','Great Wall','Honda','Hummer','Hyundai','Infiniti','Isuzu','Jaguar','Jeep','Kia','Lamborghini','Lancia','Land Rover','Lexus','Lincoln','Lotus','Maserati','Maybach','Mazda','McLaren','Mercedes-Benz','MG','Mini','Mitsubishi','Nissan','Opel','Peugeot','Polestar','Pontiac','Porsche','Renault','Rolls-Royce','Saab','Seat','Škoda','Smart','SsangYong','Subaru','Suzuki','Tata','Tesla','Toyota','Triumph','Volkswagen','Volvo'];
 const carModels={Abarth:['500','595','695','124 Spider','Punto'],Acura:['ILX','MDX','RDX','TLX','NSX','Integra'],'Alfa Romeo':['Giulia','Giulietta','Stelvio','Tonale','Mito'],Audi:['A1','A2','A3','A4','A5','A6','A7','A8','Q2','Q3','Q5','Q7','Q8','TT','R8'],BMW:['1 Series','2 Series','3 Series','4 Series','5 Series','6 Series','7 Series','X1','X2','X3','X4','X5','X6','X7','Z4','i3','i4','iX','M2','M3','M4','M5'],Chevrolet:['Aveo','Camaro','Captiva','Corvette','Cruze','Spark','Trax'],Citroën:['C1','C2','C3','C4','C5','Berlingo','Saxo','Xsara'],Dacia:['Duster','Logan','Sandero','Spring'],Fiat:['500','Bravo','Doblo','Panda','Punto','Tipo'],Ford:['Ecosport','Fiesta','Focus','Fusion','Kuga','Mondeo','Mustang','Puma','Ranger','Transit'],Honda:['Accord','Civic','CR-V','HR-V','Jazz'],Hyundai:['Accent','Elantra','i10','i20','i30','i40','Kona','Santa Fe','Tucson'],Kia:['Ceed','Picanto','Rio','Sorento','Soul','Sportage','Stonic'],Mazda:['2','3','5','6','CX-3','CX-5','CX-30','MX-5'],'Mercedes-Benz':['A-Class','B-Class','C-Class','CLA','CLS','E-Class','G-Class','GLA','GLB','GLC','GLE','GLS','S-Class'],Nissan:['Juke','Micra','Navara','Note','Pathfinder','Patrol','Qashqai','X-Trail'],Opel:['Astra','Corsa','Crossland','Grandland','Insignia','Mokka','Zafira'],Peugeot:['2008','206','207','208','3008','301','306','307','308','407','5008','508'],Renault:['Captur','Clio','Espace','Kadjar','Kangoo','Koleos','Laguna','Master','Megane','Scenic','Talisman','Trafic','Twingo','Zoe'],Seat:['Alhambra','Altea','Arona','Ateca','Ibiza','Leon','Tarraco','Toledo'],Škoda:['Fabia','Kamiq','Karoq','Kodiaq','Octavia','Rapid','Scala','Superb'],Tesla:['Model 3','Model S','Model X','Model Y'],Toyota:['Auris','Avensis','Aygo','C-HR','Camry','Corolla','Hilux','Land Cruiser','Prius','RAV4','Yaris'],Volkswagen:['Arteon','Beetle','Bora','Caddy','Crafter','Golf','ID.3','ID.4','Jetta','Passat','Polo','T-Cross','T-Roc','Tiguan','Touareg','Touran','Transporter','up!'],Volvo:['C40','S40','S60','S90','V40','V60','V90','XC40','XC60','XC90']};
 function populateCarMakes(){const sel=g('carMakeSelect');sel.innerHTML='<option value="">'+(L[currentLang]?.selectMake||'Të gjitha Markat')+'</option>';carBrands.forEach(b=>{const o=document.createElement('option');o.value=b;o.textContent=b;sel.appendChild(o);});}
@@ -380,7 +376,7 @@ function loadParts(){db.collection('parts').where('status','==','active').onSnap
 
 function updateCategoryCounts(){const cats=['all','engine','brakes','electrical','suspension','body','ac'];cats.forEach(cat=>{const el=g('count'+(cat.charAt(0).toUpperCase()+cat.slice(1)));if(el){const count=cat==='all'?allParts.length:allParts.filter(p=>p.category===cat).length;el.textContent=count+' pjesë';}});}
 
-function renderDeals(){const deals=allParts.filter(p=>p.discount>0||p.weeklyPromo).slice(0,10);const strip=g('dealsStrip'),scroll=g('dealsScroll');if(!deals.length){strip.style.display='none';return;}strip.style.display='block';scroll.innerHTML=deals.map(p=>{const name=typeof p.name==='object'?p.name.sq||p.name.en:p.name;const dp=Math.round((p.basePrice||0)*(1-(p.discount||0)/100));const fin=dp+Math.round(dp*PLATFORM_FEE);const image=p.images?.length?p.images[0]:null;return `<div class="deal-card" onclick="openModal('${p.id}')"><div class="deal-card-img">${image?`<img src="${image}" alt="${name}" loading="lazy" />`:'<span class="no-img" style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;"><svg width="100%" height="100%" viewBox="0 0 200 140" xmlns="http://www.w3.org/2000/svg"><rect width="200" height="140" fill="#f0f0f0"/><text x="100" y="70" text-anchor="middle" font-family="\'Inter\', sans-serif" font-size="14" font-weight="700" fill="#d5d5d5" letter-spacing="3">PA FOTO</text></svg></span>'}</div><div class="deal-card-body"><div class="deal-card-name">${name}</div><div class="deal-card-price"><span class="deal-new">${fin.toLocaleString()} L</span>${p.discount>0?`<span class="deal-old">${(p.basePrice||0).toLocaleString()} L</span><span class="deal-disc">-${p.discount}%</span>`:''}</div></div></div>`;}).join('');}
+function renderDeals(){const deals=allParts.filter(p=>p.discount>0||p.weeklyPromo).slice(0,10);const strip=g('dealsStrip'),scroll=g('dealsScroll');if(!deals.length){strip.style.display='none';return;}strip.style.display='block';scroll.innerHTML=deals.map(p=>{const name=typeof p.name==='object'?p.name.sq||p.name.en:p.name;const dp=Math.round((p.basePrice||0)*(1-(p.discount||0)/100));const fin=dp+Math.round(dp*PLATFORM_FEE);const image=p.images?.length?p.images[0]:null;return `<div class="deal-card" onclick="openModal('${p.id}')"><div class="deal-card-img">${image?`<img src="${image}" alt="${name}" loading="lazy" />`:'<span style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;"><svg width="100%" height="100%" viewBox="0 0 200 140" xmlns="http://www.w3.org/2000/svg"><rect width="200" height="140" fill="#f0f0f0"/><text x="100" y="70" text-anchor="middle" font-family="\'Inter\', sans-serif" font-size="14" font-weight="700" fill="#d5d5d5" letter-spacing="3">PA FOTO</text></svg></span>'}</div><div class="deal-card-body"><div class="deal-card-name">${name}</div><div class="deal-card-price"><span class="deal-new">${fin.toLocaleString()} L</span>${p.discount>0?`<span class="deal-old">${(p.basePrice||0).toLocaleString()} L</span><span class="deal-disc">-${p.discount}%</span>`:''}</div></div></div>`;}).join('');}
 
 function applyFilters(){
   const search=g('searchInput').value.toLowerCase(),brand=currentCarMake,model=currentCarModel.toLowerCase();
@@ -420,12 +416,13 @@ function renderParts(){
     const fee=Math.round(dp*PLATFORM_FEE),fin=dp+fee,stk=p.stock||0;
     const image=p.images?.length?p.images[0]:null;
     const promoted=p.weeklyPromo&&p.promoExpiresAt&&new Date()<(p.promoExpiresAt.toDate?p.promoExpiresAt.toDate():new Date(p.promoExpiresAt));
+    const catName=p.category==='engine'?'Motor':p.category==='brakes'?'Frena':p.category==='electrical'?'Elektrik':p.category==='suspension'?'Amortizatorë':p.category==='body'?'Karroceri':p.category==='ac'?'Klimë':'Pjesë Këmbimi';
     let metaHTML=[];
     if(p.year)metaHTML.push(p.year);
     if(p.generation)metaHTML.push(p.generation);
     if(p.engineType)metaHTML.push(p.engineType);
     return `<div class="part-card" onclick="openModal('${p.id}')">
-      <div class="part-card-img">${image?`<img src="${image}" alt="${name}" loading="lazy" />`:`<span class="no-img"><svg width="100%" height="100%" viewBox="0 0 200 180" xmlns="http://www.w3.org/2000/svg"><rect width="200" height="180" fill="#f8f8f8"/><text x="100" y="90" text-anchor="middle" font-family="'Inter', sans-serif" font-size="16" font-weight="700" fill="#d5d5d5" letter-spacing="3">PA FOTO</text><text x="100" y="115" text-anchor="middle" font-family="'Inter', sans-serif" font-size="11" font-weight="500" fill="#d0d0d0">${p.category==='engine'?'Motor':p.category==='brakes'?'Frena':p.category==='electrical'?'Elektrik':p.category==='suspension'?'Amortizatorë':p.category==='body'?'Karroceri':p.category==='ac'?'Klimë':'Pjesë Këmbimi'}</text></svg></span>`}
+      <div class="part-card-img">${image?`<img src="${image}" alt="${name}" loading="lazy" />`:`<span class="no-img"><svg width="100%" height="100%" viewBox="0 0 200 180" xmlns="http://www.w3.org/2000/svg"><rect width="200" height="180" fill="#f8f8f8"/><text x="100" y="90" text-anchor="middle" font-family="'Inter', sans-serif" font-size="16" font-weight="700" fill="#d5d5d5" letter-spacing="3">PA FOTO</text><text x="100" y="115" text-anchor="middle" font-family="'Inter', sans-serif" font-size="11" font-weight="500" fill="#d0d0d0">${catName}</text></svg></span>`}
         <span class="cond-tag ${p.condition==='new'?'cond-new':'cond-used'}">${p.condition==='new'?'E Re':'E Përdorur'}</span>${promoted?'<span class="promo-tag">Promo</span>':''}
       </div>
       <div class="part-card-body">
