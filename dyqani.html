@@ -11,38 +11,20 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="js/firebase.js"></script>
+<script src="js/utils.js"></script>
+<link rel="stylesheet" href="css/style.css" />
 <style>
-:root {
-  --bg: #f5f5f5;
-  --surface: #ffffff;
-  --border: #e5e5e5;
-  --text: #1a1a1a;
-  --text-secondary: #555555;
-  --text-muted: #888888;
-  --primary: #b45309;
-  --primary-hover: #92400e;
-  --primary-light: #fffbeb;
-  --success: #2e7d32;
-  --warning: #f57c00;
-  --danger: #c62828;
-  --navy: #1a1a2e;
-  --radius-sm: 6px;
-  --radius: 10px;
-  --shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
-  --shadow: 0 2px 8px rgba(0,0,0,0.08);
-}
-*{margin:0;padding:0;box-sizing:border-box;}
-body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;line-height:1.5;}
-nav{background:var(--navy);border-bottom:1px solid rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:space-between;padding:0 2rem;height:64px;position:sticky;top:0;z-index:100;}
-.logo{font-family:'Oswald',sans-serif;font-size:1.5rem;font-weight:700;text-transform:uppercase;letter-spacing:-0.5px;color:white;text-decoration:none;}
-.logo span{color:var(--primary);}
-.nav-right{display:flex;gap:1rem;align-items:center;}
+nav{background:var(--navy);border-bottom:1px solid rgba(255,255,255,0.1);}
+.logo{color:white;}
 .cart-btn{background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:var(--radius-sm);padding:8px 14px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;position:relative;font-family:'Inter',sans-serif;color:white;transition:all 0.2s;}
 .cart-btn:hover{background:rgba(255,255,255,0.2);}
 .cart-badge{background:var(--primary);color:white;font-size:0.6rem;padding:2px 7px;border-radius:10px;position:absolute;top:-8px;right:-8px;display:none;font-weight:700;}
 .container{max-width:1200px;margin:0 auto;padding:2rem;}
 .store-header{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:2rem;margin-bottom:1.5rem;display:flex;align-items:center;gap:1.5rem;flex-wrap:wrap;box-shadow:var(--shadow-sm);}
-.store-avatar{width:80px;height:80px;border-radius:50%;background:var(--primary);display:flex;align-items:center;justify-content:center;font-size:2.5rem;flex-shrink:0;color:white;}
+.store-avatar{width:80px;height:80px;border-radius:50%;background:var(--primary);display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden;}
+.store-avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%;}
+.store-avatar svg{width:40px;height:40px;}
 .store-info{flex:1;min-width:200px;}
 .store-name{font-family:'Oswald',sans-serif;font-size:1.75rem;font-weight:700;text-transform:uppercase;letter-spacing:-0.5px;}
 .store-city{color:var(--text-muted);font-size:0.9rem;margin-top:0.25rem;}
@@ -61,7 +43,7 @@ nav{background:var(--navy);border-bottom:1px solid rgba(255,255,255,0.1);display
 .parts-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1.25rem;}
 .part-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;transition:transform 0.2s,box-shadow 0.2s;box-shadow:var(--shadow-sm);}
 .part-card:hover{transform:translateY(-3px);box-shadow:var(--shadow);border-color:var(--primary);}
-.part-img{width:100%;height:160px;display:flex;align-items:center;justify-content:center;font-size:3rem;background:#fafafa;cursor:pointer;color:var(--text-muted);}
+.part-img{width:100%;height:160px;display:flex;align-items:center;justify-content:center;font-size:3rem;background:#fafafa;cursor:pointer;color:var(--text-muted);overflow:hidden;}
 .part-img img{width:100%;height:100%;object-fit:contain;padding:1rem;}
 .part-body{padding:1rem;}
 .part-name{font-weight:600;font-size:0.95rem;margin-bottom:0.25rem;}
@@ -75,38 +57,11 @@ nav{background:var(--navy);border-bottom:1px solid rgba(255,255,255,0.1);display
 .buy-btn:hover{background:var(--primary-hover);}
 .cart-add-btn{width:100%;background:var(--surface);border:2px solid var(--primary);color:var(--primary);border-radius:var(--radius-sm);padding:10px;font-weight:600;font-size:0.9rem;cursor:pointer;font-family:'Inter',sans-serif;margin-top:0.5rem;transition:all 0.2s;}
 .cart-add-btn:hover{background:var(--primary);color:white;}
-.spinner{width:40px;height:40px;border:3px solid var(--border);border-top-color:var(--primary);border-radius:50%;animation:spin 0.6s linear infinite;margin:2rem auto;}
-@keyframes spin{to{transform:rotate(360deg)}}
 .not-found{text-align:center;padding:4rem;color:var(--text-muted);}
 .back-link{display:inline-block;color:var(--primary);text-decoration:none;margin-bottom:1.5rem;font-weight:600;}
 .back-link:hover{text-decoration:underline;}
-.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:200;align-items:center;justify-content:center;padding:1rem;}
-.modal-overlay.open{display:flex;}
-.modal{background:var(--surface);border-radius:var(--radius);padding:2rem;max-width:520px;width:100%;position:relative;max-height:90vh;overflow-y:auto;box-shadow:0 20px 50px rgba(0,0,0,0.2);}
-.modal-x{position:absolute;top:1rem;right:1rem;background:none;border:none;color:var(--text-muted);font-size:1.3rem;cursor:pointer;}
-.modal-x:hover{color:var(--danger);}
-.cart-item{display:flex;align-items:center;gap:1rem;padding:0.75rem 0;border-bottom:1px solid var(--border);}
-.cart-item:last-child{border-bottom:none;}
-.cart-item-img{width:44px;height:44px;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;font-size:1.5rem;background:#f5f5f5;flex-shrink:0;overflow:hidden;}
-.cart-item-img img{width:44px;height:44px;object-fit:cover;border-radius:var(--radius-sm);}
-.cart-item-info{flex:1;}
-.cart-item-name{font-weight:600;font-size:0.85rem;}
-.cart-item-seller{font-size:0.72rem;color:var(--text-muted);}
-.cart-item-price{font-weight:700;color:var(--success);font-size:0.85rem;}
-.cart-item-qty{display:flex;align-items:center;gap:0.3rem;}
-.cart-item-qty button{width:24px;height:24px;border-radius:50%;border:2px solid var(--border);background:var(--surface);color:var(--text);cursor:pointer;font-size:0.8rem;font-weight:700;}
-.cart-item-qty span{min-width:20px;text-align:center;font-size:0.8rem;font-weight:600;}
-.cart-item-remove{background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:1rem;padding:4px;}
-.cart-item-remove:hover{color:var(--danger);}
 .address-section{background:#fafafa;border-radius:var(--radius-sm);padding:1rem;margin-bottom:1rem;}
 .address-section h4{font-size:0.85rem;margin-bottom:0.5rem;color:var(--primary);font-weight:700;}
-.field{margin-bottom:0.85rem;}
-.field label{display:block;font-size:0.72rem;font-weight:700;color:var(--text-secondary);margin-bottom:4px;text-transform:uppercase;letter-spacing:0.5px;}
-.field input,.field textarea{width:100%;background:var(--bg);border:2px solid var(--border);border-radius:var(--radius-sm);color:var(--text);padding:9px 12px;font-family:'Inter',sans-serif;font-size:0.88rem;outline:none;}
-.field input:focus,.field textarea:focus{border-color:var(--primary);}
-.toast{position:fixed;bottom:2rem;right:2rem;color:white;padding:1rem 1.5rem;border-radius:var(--radius-sm);font-weight:600;font-size:0.85rem;display:none;z-index:300;box-shadow:0 4px 16px rgba(0,0,0,0.2);}
-.toast.show{display:block;animation:toastIn 0.3s ease;}
-@keyframes toastIn{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
 @media(max-width:640px){.store-header{text-align:center;justify-content:center;}.filter-bar{flex-direction:column;}.filter-bar input{width:100%;}.container{padding:1rem;}.parts-grid{grid-template-columns:1fr;}nav{padding:0 1rem;}}
 </style>
 </head>
@@ -124,23 +79,17 @@ nav{background:var(--navy);border-bottom:1px solid rgba(255,255,255,0.1);display
   <div class="spinner"></div>
 </div>
 
-<div class="modal-overlay" id="cartModal"><div class="modal"><button class="modal-x" onclick="closeModal('cartModal')">✕</button><h3 style="font-family:'Oswald',sans-serif;font-weight:600;text-transform:uppercase;letter-spacing:-0.3px;margin-bottom:1rem;">Shporta</h3><div id="cartContent"><div style="text-align:center;padding:3rem;color:var(--text-muted);">Shporta është bosh</div></div><div id="cartCheckoutSection" style="display:none;margin-top:1rem;border-top:1px solid var(--border);padding-top:1rem;"><div style="display:flex;justify-content:space-between;font-weight:600;font-size:1rem;margin-bottom:0.5rem;"><span>Nëntotali</span><span id="cartSubtotal" style="color:var(--success);">0 L</span></div><div style="display:flex;justify-content:space-between;font-size:0.85rem;color:var(--text-muted);margin-bottom:0.5rem;"><span>Transporti</span><span id="cartShipping">0 L</span></div><div style="display:flex;justify-content:space-between;font-weight:700;font-size:1.1rem;margin-bottom:1rem;border-top:1px solid var(--border);padding-top:0.5rem;"><span>Totali</span><span id="cartGrandTotal" style="color:var(--success);">0 L</span></div><button class="buy-btn" onclick="proceedToAddress()">VAZHDONI ME POROSINË</button></div></div></div>
+<div class="modal-overlay" id="cartModal"><div class="modal"><button class="modal-close" onclick="closeModal('cartModal')">✕</button><h3 style="font-family:'Oswald',sans-serif;font-weight:600;text-transform:uppercase;letter-spacing:-0.3px;margin-bottom:1rem;">Shporta</h3><div id="cartContent"><div style="text-align:center;padding:3rem;color:var(--text-muted);">Shporta është bosh</div></div><div id="cartCheckoutSection" style="display:none;margin-top:1rem;border-top:1px solid var(--border);padding-top:1rem;"><div style="display:flex;justify-content:space-between;font-weight:600;font-size:1rem;margin-bottom:0.5rem;"><span>Nëntotali</span><span id="cartSubtotal" style="color:var(--success);">0 L</span></div><div style="display:flex;justify-content:space-between;font-size:0.85rem;color:var(--text-muted);margin-bottom:0.5rem;"><span>Transporti</span><span id="cartShipping">0 L</span></div><div style="display:flex;justify-content:space-between;font-weight:700;font-size:1.1rem;margin-bottom:1rem;border-top:1px solid var(--border);padding-top:0.5rem;"><span>Totali</span><span id="cartGrandTotal" style="color:var(--success);">0 L</span></div><button class="buy-btn" onclick="proceedToAddress()">VAZHDONI ME POROSINË</button></div></div></div>
 
-<div class="modal-overlay" id="addressModal"><div class="modal"><button class="modal-x" onclick="closeModal('addressModal')">✕</button><h3 style="font-family:'Oswald',sans-serif;font-weight:600;text-transform:uppercase;letter-spacing:-0.3px;margin-bottom:1rem;">Adresa e Dorëzimit</h3><div id="addressForm"><div class="field"><label>Adresa e plotë *</label><input type="text" id="deliveryAddress" placeholder="Rruga, ndërtesa, apartamenti" /></div><div class="field"><label>Qyteti *</label><input type="text" id="deliveryCity" placeholder="p.sh. Tiranë" /></div><div class="field"><label>Kodi Postar</label><input type="text" id="deliveryPostal" placeholder="Opsionale" /></div><div class="field"><label>Udhëzime për dërgesë</label><textarea id="deliveryInstructions" rows="2" placeholder="Porta, kati, afër xhamisë..."></textarea></div><div class="field"><label>Email për konfirmim *</label><input type="email" id="deliveryEmail" /></div><button class="buy-btn" id="confirmAddressBtn" onclick="confirmAddress()">KONFIRMO POROSINË</button></div></div></div>
+<div class="modal-overlay" id="addressModal"><div class="modal"><button class="modal-close" onclick="closeModal('addressModal')">✕</button><h3 style="font-family:'Oswald',sans-serif;font-weight:600;text-transform:uppercase;letter-spacing:-0.3px;margin-bottom:1rem;">Adresa e Dorëzimit</h3><div id="addressForm"><div class="field"><label>Adresa e plotë *</label><input type="text" id="deliveryAddress" placeholder="Rruga, ndërtesa, apartamenti" /></div><div class="field"><label>Qyteti *</label><input type="text" id="deliveryCity" placeholder="p.sh. Tiranë" /></div><div class="field"><label>Kodi Postar</label><input type="text" id="deliveryPostal" placeholder="Opsionale" /></div><div class="field"><label>Udhëzime për dërgesë</label><textarea id="deliveryInstructions" rows="2" placeholder="Porta, kati, afër xhamisë..."></textarea></div><div class="field"><label>Email për konfirmim *</label><input type="email" id="deliveryEmail" /></div><button class="buy-btn" id="confirmAddressBtn" onclick="confirmAddress()">KONFIRMO POROSINË</button></div></div></div>
 
 <div class="toast" id="toast"></div>
 
 <script>
-firebase.initializeApp({apiKey:"AIzaSyAU8hVTqury1MbC0Sx-CXGY1YQrr5VJhyE",authDomain:"cardeals-al.firebaseapp.com",projectId:"cardeals-al",storageBucket:"cardeals-al.firebasestorage.app",messagingSenderId:"839953227675",appId:"1:839953227675:web:6fb6aa9350bd3bd507cb3e"});
-const db=firebase.firestore(),auth=firebase.auth(),PLATFORM_FEE=0.08;
-const EUR_TO_LEK=120,FREE_SHIPPING_THRESHOLD_LEK=12000,SHIPPING_FEE_LEK=600;
-function calculateShipping(t,p){return p==='pickup'?0:t>=FREE_SHIPPING_THRESHOLD_LEK?0:SHIPPING_FEE_LEK;}
 var params=new URLSearchParams(window.location.search);
 var sellerId=params.get('id');
 var allParts=[],cart=[],currentBuyer=null,pendingCheckoutData=null;
-function g(id){return document.getElementById(id);}
-function showToast(msg,isErr){const t=g('toast');if(!t)return;t.textContent=msg;t.style.background=isErr?'#c62828':'#2e7d32';t.classList.add('show');setTimeout(()=>t.classList.remove('show'),4000);}
-function closeModal(id){document.getElementById(id).classList.remove('open');}
+
 auth.onAuthStateChanged(function(user){currentBuyer=user;if(user)prefillBuyerFields();});
 function prefillBuyerFields(){if(!currentBuyer)return;db.collection('buyers').doc(currentBuyer.uid).get().then(function(doc){if(doc.exists){var d=doc.data();if(d.address)g('deliveryAddress').value=d.address;if(d.city)g('deliveryCity').value=d.city;}});}
 if(!sellerId){document.getElementById('content').innerHTML='<div class="not-found"><h2>Dyqani nuk u gjet</h2><p>Mungon ID e shitësit.</p></div>';}else{loadStore(sellerId);}
@@ -154,8 +103,10 @@ async function loadStore(sellerId){
     document.title=biz.businessName+' — Cardeals.al';
     var phone=(biz.whatsappPhone||biz.phone||'').replace(/\D/g,'');
     var whatsappLink=phone?'<a href="https://wa.me/'+phone+'" target="_blank">WhatsApp</a>':'';
+    var avatarUrl=biz.photoURL||biz.logoURL||'';
+    var avatarHTML=avatarUrl?'<img src="'+avatarUrl+'" alt="'+biz.businessName+'" />':'<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>';
     var html='<a href="index.html" class="back-link">← Kthehu te Cardeals.al</a>';
-    html+='<div class="store-header"><div class="store-avatar">🏪</div><div class="store-info"><div class="store-name">'+(biz.businessName||biz.name||'Dyqan')+'</div><div class="store-city">📍 '+(biz.city||'Shqipëri')+'</div><div class="store-stats"><div class="store-stat"><div class="store-stat-num">'+allParts.length+'</div><div class="store-stat-lbl">Pjesë</div></div></div><div class="store-contact">'+whatsappLink+'</div></div></div>';
+    html+='<div class="store-header"><div class="store-avatar">'+avatarHTML+'</div><div class="store-info"><div class="store-name">'+(biz.businessName||biz.name||'Dyqan')+'</div><div class="store-city">📍 '+(biz.city||'Shqipëri')+'</div><div class="store-stats"><div class="store-stat"><div class="store-stat-num">'+allParts.length+'</div><div class="store-stat-lbl">Pjesë</div></div></div><div class="store-contact">'+whatsappLink+'</div></div></div>';
     html+='<div class="filter-bar"><input type="text" id="filterSearch" placeholder="🔍 Kërko pjesë..." oninput="filterParts()" /><select id="filterCondition" onchange="filterParts()"><option value="all">Të gjitha gjendjet</option><option value="new">Vetëm të Reja</option><option value="used">Vetëm të Përdorura</option></select><select id="filterCategory" onchange="filterParts()"><option value="all">Të gjitha kategoritë</option><option value="brakes">Frena</option><option value="engine">Motor</option><option value="electrical">Elektrik</option><option value="suspension">Amortizatorë</option><option value="body">Karroceri</option><option value="ac">Klimë</option></select><span class="filter-count" id="filterCount">'+allParts.length+' pjesë</span></div>';
     html+='<div class="parts-grid" id="partsGrid"></div>';
     document.getElementById('content').innerHTML=html;
