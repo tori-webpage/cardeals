@@ -109,6 +109,8 @@
 .pagination button.active{background:var(--primary);border-color:var(--primary);color:white;}
 .pagination span{display:flex;align-items:center;margin:0 0.5rem;color:var(--text-muted);font-size:0.85rem;font-weight:500;}
 .modal-part-img{width:100%;max-height:200px;object-fit:contain;border-radius:var(--radius-sm);margin-bottom:0.75rem;background:#fafafa;}
+.user-menu{position:relative;}
+#userDropdown a:hover{background:var(--primary-light);}
 @media(max-width:768px){.hero{padding:2rem 1rem;}.hero h1{font-size:1.6rem;}.search-box{flex-direction:column;}.search-box select{border-left:none;border-top:1px solid var(--border);padding:0.7rem 1rem;}.category-grid{grid-template-columns:repeat(3,1fr);}.parts-grid{grid-template-columns:1fr;}.main-content{padding:0 1rem 2rem;}.car-selector{flex-direction:column;align-items:center;}.filter-row{grid-template-columns:1fr 1fr;}}
 </style>
 </head>
@@ -126,7 +128,14 @@
       <button class="lang-btn" onclick="setLang('en')">EN</button>
     </div>
     <button class="btn btn-ghost" onclick="openCart()">🛒 <span id="cartBadge" style="background:var(--primary);color:white;font-size:0.6rem;padding:2px 6px;border-radius:10px;margin-left:2px;display:none;">0</span></button>
-    <button class="btn btn-primary" onclick="openRegisterModal()" id="registerBtn" data-l="register">Regjistrohu</button>
+    <div class="user-menu">
+      <button class="btn btn-primary" onclick="openRegisterModal()" id="registerBtn" data-l="register">Regjistrohu</button>
+      <div id="userDropdown" style="display:none;position:absolute;top:100%;right:0;margin-top:8px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);min-width:180px;box-shadow:var(--shadow-md);z-index:150;overflow:hidden;">
+        <a href="#" onclick="showMyOrders();return false;" style="display:block;padding:10px 14px;color:var(--text);text-decoration:none;font-weight:500;font-size:0.85rem;border-bottom:1px solid var(--border-light);">📦 Porositë e Mia</a>
+        <a href="#" onclick="showMyProfile();return false;" style="display:block;padding:10px 14px;color:var(--text);text-decoration:none;font-weight:500;font-size:0.85rem;border-bottom:1px solid var(--border-light);">⚙️ Profili</a>
+        <a href="#" onclick="buyerLogout();return false;" style="display:block;padding:10px 14px;color:#c62828;text-decoration:none;font-weight:500;font-size:0.85rem;">🚪 Dil</a>
+      </div>
+    </div>
   </div>
 </nav>
 
@@ -278,6 +287,21 @@
   <button class="btn btn-primary btn-full" onclick="confirmAddress()">KONFIRMO POROSINË</button>
 </div></div>
 
+<!-- My Orders Modal -->
+<div class="modal-overlay" id="myOrdersModal"><div class="modal" style="max-width:600px;">
+  <button class="modal-close" onclick="closeModal('myOrdersModal')">✕</button>
+  <h3 style="font-family:'Oswald',sans-serif;font-size:1.2rem;font-weight:600;text-transform:uppercase;margin-bottom:1rem;">Porositë e Mia</h3>
+  <div id="myOrdersContent"><div class="spinner"></div></div>
+</div></div>
+
+<!-- Profile Modal -->
+<div class="modal-overlay" id="profileModal"><div class="modal">
+  <button class="modal-close" onclick="closeModal('profileModal')">✕</button>
+  <h3 style="font-family:'Oswald',sans-serif;font-size:1.2rem;font-weight:600;text-transform:uppercase;margin-bottom:1rem;">Profili</h3>
+  <div class="field"><label>Emri</label><input type="text" id="profileName" disabled /></div>
+  <div class="field"><label>Email</label><input type="email" id="profileEmail" disabled /></div>
+</div></div>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -292,34 +316,26 @@ function resetAdvancedFilters(){['filterYearFrom','filterYearTo','filterGenerati
 
 function showAuthTab(tab){
   const lb=g('tabLogin'),rb=g('tabRegister'),lf=g('authLoginForm'),rf=g('authRegisterForm');
-  if(tab==='login'){
-    lb.style.background='var(--primary)';lb.style.color='white';
-    rb.style.background='transparent';rb.style.color='var(--text-secondary)';
-    lf.style.display='block';rf.style.display='none';
-  }else{
-    rb.style.background='var(--primary)';rb.style.color='white';
-    lb.style.background='transparent';lb.style.color='var(--text-secondary)';
-    rf.style.display='block';lf.style.display='none';
-  }
+  if(tab==='login'){lb.style.background='var(--primary)';lb.style.color='white';rb.style.background='transparent';rb.style.color='var(--text-secondary)';lf.style.display='block';rf.style.display='none';}
+  else{rb.style.background='var(--primary)';rb.style.color='white';lb.style.background='transparent';lb.style.color='var(--text-secondary)';rf.style.display='block';lf.style.display='none';}
 }
 
-function buyerRegister(){
-  const n=g('regName').value.trim(),e=g('regEmail').value.trim(),ph=g('regPhone').value.trim(),p=g('regPass').value;
-  if(!n||!e||!p||!ph){showToast('Plotëso të gjitha fushat!',true);return;}
-  if(p.length<6){showToast('Fjalëkalimi duhet 6+ karaktere',true);return;}
-  auth.createUserWithEmailAndPassword(e,p)
-  .then(cred=>db.collection('buyers').doc(cred.user.uid).set({name:n,email:e,phone:ph,createdAt:firebase.firestore.FieldValue.serverTimestamp()}))
-  .then(()=>{closeModal('authModal');showToast('✅ Llogaria u krijua!');})
-  .catch(err=>showToast('❌ '+err.message,true));
+function buyerRegister(){const n=g('regName').value.trim(),e=g('regEmail').value.trim(),ph=g('regPhone').value.trim(),p=g('regPass').value;if(!n||!e||!p||!ph){showToast('Plotëso të gjitha fushat!',true);return;}if(p.length<6){showToast('Fjalëkalimi duhet 6+ karaktere',true);return;}auth.createUserWithEmailAndPassword(e,p).then(cred=>db.collection('buyers').doc(cred.user.uid).set({name:n,email:e,phone:ph,createdAt:firebase.firestore.FieldValue.serverTimestamp()})).then(()=>{closeModal('authModal');showToast('✅ Llogaria u krijua!');}).catch(err=>showToast('❌ '+err.message,true));}
+function buyerLogin(){const e=g('authEmail').value.trim(),p=g('authPass').value;if(!e||!p){showToast('Plotëso të gjitha fushat!',true);return;}auth.signInWithEmailAndPassword(e,p).then(()=>{closeModal('authModal');showToast('✅ Mirë se vini!');}).catch(err=>showToast('❌ '+err.message,true));}
+
+function toggleUserMenu(){const dd=g('userDropdown');if(dd)dd.style.display=dd.style.display==='none'?'block':'none';}
+function buyerLogout(){auth.signOut();g('userDropdown').style.display='none';showToast('✅ U dol nga llogaria!');}
+
+function showMyOrders(){g('userDropdown').style.display='none';if(!currentBuyer){openRegisterModal();return;}g('myOrdersModal').classList.add('open');
+  const c=g('myOrdersContent');c.innerHTML='<div class="spinner"></div>';
+  db.collection("orders").where("buyerUid","==",currentBuyer.uid).orderBy("createdAt","desc").get()
+  .then(snap=>{if(snap.empty){c.innerHTML='<div style="text-align:center;padding:2rem;color:var(--text-muted);">📦 Nuk keni porosi.</div>';return;}
+    let h='<table style="width:100%;border-collapse:collapse;"><thead><tr><th style="text-align:left;padding:8px;font-size:0.7rem;color:var(--text-muted);">#</th><th style="text-align:left;padding:8px;font-size:0.7rem;color:var(--text-muted);">Pjesa</th><th style="text-align:left;padding:8px;font-size:0.7rem;color:var(--text-muted);">Shitësi</th><th style="text-align:left;padding:8px;font-size:0.7rem;color:var(--text-muted);">Çmimi</th><th style="text-align:left;padding:8px;font-size:0.7rem;color:var(--text-muted);">Statusi</th></tr></thead><tbody>';
+    snap.docs.forEach(d=>{const o=d.data();o.id=d.id;const sc=o.status==='sold'?'#2e7d32':o.status==='pending'?'#f57c00':'#c62828';const st=o.status==='sold'?'Shitur':o.status==='pending'?'Në Pritje':'Anuluar';h+='<tr><td style="padding:8px;font-size:0.8rem;color:#b45309;font-weight:600;">#'+o.id.slice(-6).toUpperCase()+'</td><td style="padding:8px;font-size:0.8rem;">'+o.partName+'</td><td style="padding:8px;font-size:0.8rem;">'+o.sellerName+'</td><td style="padding:8px;font-size:0.8rem;font-weight:600;">'+(o.totalPrice||0).toLocaleString()+' L</td><td style="padding:8px;font-size:0.8rem;color:'+sc+';font-weight:600;">'+st+'</td></tr>';});
+    h+='</tbody></table>';c.innerHTML=h;}).catch(err=>{c.innerHTML='<div style="text-align:center;padding:2rem;color:#c62828;">Gabim: '+err.message+'</div>';});
 }
 
-function buyerLogin(){
-  const e=g('authEmail').value.trim(),p=g('authPass').value;
-  if(!e||!p){showToast('Plotëso të gjitha fushat!',true);return;}
-  auth.signInWithEmailAndPassword(e,p)
-  .then(()=>{closeModal('authModal');showToast('✅ Mirë se vini!');})
-  .catch(err=>showToast('❌ '+err.message,true));
-}
+function showMyProfile(){g('userDropdown').style.display='none';if(!currentBuyer){openRegisterModal();return;}g('profileName').value=currentBuyer.email?.split('@')[0]||'';g('profileEmail').value=currentBuyer.email||'';g('profileModal').classList.add('open');}
 
 function submitContact(){const n=g('contactName').value.trim(),e=g('contactEmail').value.trim(),m=g('contactMsg').value.trim();if(!n||!e||!m){showToast('Plotëso të gjitha fushat!',true);return;}db.collection('contact_messages').add({name:n,email:e,message:m,status:'unread',createdAt:firebase.firestore.FieldValue.serverTimestamp()}).then(()=>{showToast('✅ Mesazhi u dërgua!');g('contactName').value='';g('contactEmail').value='';g('contactMsg').value='';}).catch(err=>showToast('❌ Gabim',true));}
 
@@ -355,7 +371,7 @@ var cart=[];function loadCart(){try{var saved=localStorage.getItem('cardeals_car
 function renderCart(){var c=g('cartContent'),cs=g('cartCheckoutSection');if(!cart.length){c.innerHTML='<div style="text-align:center;padding:2.5rem;color:var(--text-muted);">Shporta është bosh</div>';cs.style.display='none';return;}var subtotal=0,html='';cart.forEach((item,i)=>{var dp=item.discount>0?Math.round((item.basePrice||0)*(1-(item.discount||0)/100)):(item.basePrice||0);var fee=Math.round(dp*PLATFORM_FEE),fin=dp+fee,it=fin*(item.qty||1);subtotal+=it;html+=`<div class="cart-item"><div class="cart-item-img">${item.image?`<img src="${item.image}" alt="${item.partName}" />`:'<span style="font-size:0.7rem;font-weight:700;color:#d5d5d5;">PA FOTO</span>'}</div><div class="cart-item-info"><div class="cart-item-name">${item.partName}</div><div class="cart-item-seller">${item.sellerName} · ${item.sellerCity}</div><div class="cart-item-price">${it.toLocaleString()} L</div></div><div style="display:flex;align-items:center;gap:0.4rem;"><button class="qty-btn" onclick="updateCartQty(${i},-1)">−</button><span style="font-weight:700;font-size:0.85rem;">${item.qty}</span><button class="qty-btn" onclick="updateCartQty(${i},1)">+</button><button class="qty-btn" onclick="removeFromCart(${i})" style="color:#c62828;">✕</button></div></div>`;});c.innerHTML=html;var shipping=calculateShipping(subtotal,'online'),gt=subtotal+shipping;g('cartSubtotal').textContent=subtotal.toLocaleString()+' L';g('cartShipping').innerHTML=shipping>0?shipping.toLocaleString()+' L':'<span style="color:#2e7d32;">FALAS</span>';g('cartGrandTotal').textContent=gt.toLocaleString()+' L';cs.style.display='block';}
 function proceedToAddress(){if(!cart.length)return;closeModal('cartModal');g('addressModal').classList.add('open');}
 async function confirmAddress(){var addr=g('deliveryAddress').value.trim(),city=g('deliveryCity').value.trim(),phone=g('deliveryPhone').value.trim(),email=g('deliveryEmail').value.trim();var payMethod=document.querySelector('input[name="payMethod"]:checked')?.value||'cash';if(!addr||!city||!phone||!email){showToast('Plotëso të gjitha fushat!',true);return;}try{var batch=db.batch();for(var item of cart){var dp=item.discount>0?Math.round((item.basePrice||0)*(1-(item.discount||0)/100)):(item.basePrice||0);var fee=Math.round(dp*PLATFORM_FEE),total=(dp+fee)*(item.qty||1);batch.set(db.collection('orders').doc(),{partId:item.partId,partName:item.partName,partEmoji:'⚙️',sellerUid:item.sellerUid,sellerName:item.sellerName,sellerCity:item.sellerCity,basePrice:dp,quantity:item.qty||1,platformFee:fee*(item.qty||1),totalPrice:total,deliveryAddress:addr,deliveryCity:city,deliveryPhone:phone,deliveryEmail:email,payMethod:payMethod,status:'pending',createdAt:firebase.firestore.FieldValue.serverTimestamp(),buyerUid:currentBuyer?.uid||null,buyerName:currentBuyer?.email?.split('@')[0]||'Klient',buyerPhone:phone});}await batch.commit();cart=[];saveCart();closeModal('addressModal');showToast('✅ Porosia u regjistrua!');}catch(e){showToast('❌ '+e.message,true);}}
-auth.onAuthStateChanged(user=>{currentBuyer=user;const rb=g('registerBtn');if(rb)rb.textContent=user?user.email.split('@')[0]:L[currentLang]?.register||'Regjistrohu';});
+auth.onAuthStateChanged(user=>{currentBuyer=user;const rb=g('registerBtn');if(rb){if(user){rb.textContent=user.email.split('@')[0];rb.onclick=toggleUserMenu;}else{rb.textContent=L[currentLang]?.register||'Regjistrohu';rb.onclick=openRegisterModal;}}});
 loadCart();populateCarMakes();loadParts();
 </script>
 </body>
