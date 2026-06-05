@@ -115,8 +115,18 @@ function showLogin(){document.getElementById('loginScreen').style.display='flex'
 window.showPage=function(page){currentPage=page;document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));var pg=document.getElementById('page-'+page);if(pg)pg.classList.add('active');document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));var nav=document.getElementById('nav-'+page);if(nav)nav.classList.add('active');document.getElementById('topbarTitle').textContent=l('page'+page.charAt(0).toUpperCase()+page.slice(1));if(page==='earnings')renderEarnings();if(page==='settings')populateSettings();if(page==='dashboard')updateCharts();if(page==='addpart'&&!editPartId){populateCarMakes();document.getElementById('partModel').disabled=true;resetAddPartForm();}if(window.innerWidth<=768){document.getElementById('sidebar')?.classList.remove('open');document.getElementById('sidebarOverlay')?.classList.remove('show');}};
 window.filterOrders=function(f,btn){currentOrderFilter=f;document.querySelectorAll('.ot-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderOrders(f);};
 window.toggleSidebar=function(){var sidebar=document.getElementById('sidebar');var overlay=document.getElementById('sidebarOverlay');sidebar.classList.toggle('open');if(overlay)overlay.classList.toggle('show');};
-function populateSettings(){if(!currentBiz)return;document.getElementById('setBizName').value=currentBiz.businessName||'';document.getElementById('setPhone').value=currentBiz.phone||'';document.getElementById('setWhatsappPhone').value=currentBiz.whatsappPhone||currentBiz.phone||'';document.getElementById('setEmail2').value=currentUser?.email||'';var ce=document.getElementById('setCity');if(ce&&currentBiz.city)ce.value=currentBiz.city;if(currentBiz.photoURL){var preview=document.getElementById('storePhotoPreview');if(preview){preview.src=currentBiz.photoURL;preview.style.display='block';}}}
-
+function populateSettings(){
+  if(!currentBiz)return;
+  document.getElementById('setBizName').value=currentBiz.businessName||'';
+  document.getElementById('setPhone').value=currentBiz.phone||'';
+  document.getElementById('setWhatsappPhone').value=currentBiz.whatsappPhone||currentBiz.phone||'';
+  document.getElementById('setEmail2').value=currentUser?.email||'';
+  var ce=document.getElementById('setCity');if(ce&&currentBiz.city)ce.value=currentBiz.city;
+  if(currentBiz.photoURL){
+    var preview=document.getElementById('storePhotoPreview');
+    if(preview){preview.src=currentBiz.photoURL;preview.style.display='block';}
+  }
+}
 window.setLang=function(lg){lang=lg;document.querySelectorAll('.lang-btn').forEach(b=>b.classList.remove('active'));var btn=document.querySelector('.lang-btn[onclick="setLang(\''+lg+'\')"]');if(btn)btn.classList.add('active');renderMyParts();renderOrders(currentOrderFilter);if(currentPage==='earnings')renderEarnings();if(currentPage==='dashboard')updateCharts();};
 window.setLoginLang=function(lg){lang=lg;document.querySelectorAll('.ll-btn').forEach(b=>b.classList.remove('active'));var btn=document.querySelector('.ll-btn[onclick="setLoginLang(\''+lg+'\')"]');if(btn)btn.classList.add('active');};
 
