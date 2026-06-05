@@ -416,30 +416,6 @@ function proceedToAddress(){
   g('confirmAddressBtn').innerHTML='KONFIRMO POROSINË ('+totalItems+' pjesë)';
 }
   
-  var summaryHTML='<div style="background:var(--bg);border-radius:var(--radius-sm);padding:0.75rem;margin-bottom:1rem;font-size:0.82rem;">';
-  var totalOrders=0,grandTotal=0;
-  Object.values(groups).forEach(function(g){
-    totalOrders++;
-    var shipping=calculateShipping(g.subtotal,'online');
-    var groupTotal=g.subtotal+shipping;
-    grandTotal+=groupTotal;
-    summaryHTML+='<div style="margin-bottom:0.5rem;padding-bottom:0.5rem;border-bottom:1px solid var(--border-light);"><strong>🏪 '+g.sellerName+'</strong> · '+g.items.length+' pjesë<br>'+g.subtotal.toLocaleString()+' L + Transport '+(shipping>0?shipping.toLocaleString()+' L':'FALAS')+' = <strong style="color:var(--success);">'+groupTotal.toLocaleString()+' L</strong></div>';
-  });
-  summaryHTML+='<div style="font-weight:700;">Gjithsej: <span style="color:var(--success);">'+grandTotal.toLocaleString()+' L</span> · '+totalOrders+' porosi</div>';
-  summaryHTML+='</div>';
-  
-  // Insert summary before the form fields
-  var addressForm=g('addressForm');
-  var existingSummary=g('cartGroupSummary');
-  if(existingSummary)existingSummary.remove();
-  var summaryDiv=document.createElement('div');
-  summaryDiv.id='cartGroupSummary';
-  summaryDiv.innerHTML=summaryHTML;
-  addressForm.insertBefore(summaryDiv,addressForm.firstChild);
-  
-  g('confirmAddressBtn').innerHTML='KONFIRMO '+totalOrders+' POROSI ('+grandTotal.toLocaleString()+' L)';
-  g('addressModal').classList.add('open');
-}
 
 async function confirmAddress(){
   var addr=g('deliveryAddress').value.trim(),city=g('deliveryCity').value.trim(),phone=g('deliveryPhone').value.trim(),email=g('deliveryEmail').value.trim();
