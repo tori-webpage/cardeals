@@ -13,13 +13,14 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script src="js/firebase.js"></script>
 <script src="js/app.js"></script>
+<script src="js/error-handler.js"></script>
 <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
 
 <div class="login-screen" id="loginScreen">
   <div class="login-box">
-    <div class="login-lang" style="display:flex;gap:0.5rem;justify-content:center;margin-bottom:1.5rem;">
+    <div style="display:flex;gap:0.5rem;justify-content:center;margin-bottom:1.5rem;">
       <button class="lang-btn active" onclick="setLoginLang('sq')">🇦🇱 Shqip</button>
       <button class="lang-btn" onclick="setLoginLang('en')">🇬🇧 English</button>
     </div>
@@ -52,17 +53,14 @@
   <div class="main">
     <div class="topbar"><div style="display:flex;align-items:center;gap:1rem;"><button class="sidebar-toggle" onclick="toggleSidebar()">☰</button><div class="topbar-title" id="topbarTitle">PASQYRA</div></div><div class="topbar-right"><div class="lang-toggle"><button class="lang-btn active" onclick="setLang('sq')">🇦🇱 SQ</button><button class="lang-btn" onclick="setLang('en')">🇬🇧 EN</button></div></div></div>
 
-    <!-- DASHBOARD -->
     <div class="page active" id="page-dashboard">
       <div class="stats-row"><div class="stat-card green"><div class="stat-ico">💰</div><div class="stat-val" id="statEarn">0 L</div><div class="stat-lbl">Fitimet Tuaja</div></div><div class="stat-card red"><div class="stat-ico">📦</div><div class="stat-val" id="statSales">0</div><div class="stat-lbl">Shitje Totale</div></div><div class="stat-card blue"><div class="stat-ico">👁️</div><div class="stat-val" id="statViews">0</div><div class="stat-lbl">Shikime</div></div><div class="stat-card orange"><div class="stat-ico">🔩</div><div class="stat-val" id="statParts">0</div><div class="stat-lbl">Pjesë Aktive</div></div></div>
       <div class="charts-row"><div class="chart-card"><div class="chart-title">SHITJET — 7 DITËT E FUNDIT</div><canvas id="salesChart"></canvas></div></div>
       <div class="table-card"><div class="table-header"><h3>POROSITË E FUNDIT</h3><button class="tbl-btn outline" onclick="showPage('orders')">Shiko Të Gjitha</button></div><table><thead><tr><th>#</th><th>Pjesa</th><th>Blerësi</th><th>Çmimi</th><th>Statusi</th><th>Pagesa</th><th>Veprime</th></tr></thead><tbody id="recentOrdersBody"></tbody></table></div>
     </div>
 
-    <!-- MY PARTS -->
     <div class="page" id="page-parts"><div class="table-card"><div class="table-header"><h3>PJESËT E MIA</h3><button class="tbl-btn" onclick="showPage('addpart')">+ Shto Pjesë</button></div><table><thead><tr><th>Pjesa</th><th>Kategoria</th><th>Gjendja</th><th>Çmimi Bazë</th><th>Çmimi Final</th><th>Stoku</th><th>Statusi</th><th>Veprime</th></tr></thead><tbody id="myPartsBody"><tr><td colspan="8" style="text-align:center;padding:3rem;"><div class="spinner"></div></td></tr></tbody></table></div></div>
 
-    <!-- ADD/EDIT PART -->
     <div class="page" id="page-addpart">
       <div class="form-card"><h3 id="addPartTitle">SHTO PJESË TË RE</h3>
         <div class="form-grid">
@@ -88,21 +86,16 @@
       <div style="display:flex;gap:1rem;"><button class="tbl-btn" style="padding:12px 2rem;" id="submitPartBtn" onclick="submitPart()">PUBLIKO PJESËN</button><button class="tbl-btn outline" style="padding:12px 2rem;" onclick="showPage('parts')">Anulo</button></div>
     </div>
 
-    <!-- BULK IMPORT -->
     <div class="page" id="page-bulkimport"><div class="form-card"><h3>IMPORTO PJESË ME SHUMICË</h3><p style="color:var(--text-muted);font-size:0.85rem;">Formati: Emri | Kategoria | Gjendja | Çmimi | Stoku | Marka | Modeli | Përshkrimi | VIN</p><div class="field-group form-full"><textarea id="bulkText" rows="8"></textarea></div><div style="display:flex;gap:1rem;"><button class="tbl-btn" onclick="parseBulkImport()">SHIKO PARAPAMJEN</button><button class="tbl-btn" id="bulkImportBtn" onclick="importBulkParts()" style="background:var(--success);">IMPORTO TË GJITHA</button><span id="bulkCount">0 pjesë</span></div></div></div>
 
-    <!-- ORDERS -->
     <div class="page" id="page-orders"><div class="order-timeline"><button class="ot-btn active" onclick="filterOrders('all',this)">Të Gjitha</button><button class="ot-btn" onclick="filterOrders('pending',this)">Në Pritje</button><button class="ot-btn" onclick="filterOrders('sold',this)">Shitur</button><button class="ot-btn" onclick="filterOrders('pickup',this)">Marrje</button></div><div class="table-card"><div class="table-header"><h3>TË GJITHA POROSITË</h3><span id="orderCount"></span></div><table><thead><tr><th>#</th><th>Pjesa</th><th>Blerësi</th><th>Shitësi</th><th>Data</th><th>Çmimi</th><th>Statusi</th><th>Pagesa</th><th>Veprime</th></tr></thead><tbody id="allOrdersBody"></tbody></table></div></div>
 
-    <!-- EARNINGS -->
     <div class="page" id="page-earnings"><div class="stats-row"><div class="stat-card green"><div class="stat-ico">💵</div><div class="stat-val" id="earnTotalVal">0 L</div><div class="stat-lbl">Fitim Neto Total</div></div><div class="stat-card blue"><div class="stat-ico">📦</div><div class="stat-val" id="earnTotalOrders">0</div><div class="stat-lbl">Shitje të Konfirmuara</div></div><div class="stat-card orange"><div class="stat-ico">💸</div><div class="stat-val" id="earnFeeVal">0 L</div><div class="stat-lbl">Tarifa Cardeals (8%)</div></div></div><div class="table-card"><div class="table-header"><h3>PËRMBLEDHJA MUJORE</h3></div><table><thead><tr><th>Muaji</th><th>Nr.</th><th>Vlera</th><th>Tarifa</th><th>Neto</th><th></th></tr></thead><tbody id="earningsBody"></tbody></table></div></div>
 
-    <!-- SETTINGS -->
     <div class="page" id="page-settings"><div class="settings-row"><div class="form-card"><h3>PROFILI I BIZNESIT</h3><div class="field-group"><label>Emri i Biznesit</label><input type="text" id="setBizName" /></div><div class="field-group"><label>Telefon</label><input type="text" id="setPhone" /></div><div class="field-group"><label>WhatsApp</label><input type="text" id="setWhatsappPhone" /></div><div class="field-group"><label>Email</label><input type="email" id="setEmail2" disabled /></div><div class="field-group"><label>Qyteti</label><select id="setCity"><option>Tiranë</option><option>Durrës</option><option>Shkodër</option><option>Vlorë</option><option>Korçë</option><option>Fier</option><option>Berat</option></select></div><div class="field-group"><label>Foto e Dyqanit</label><div style="display:flex;align-items:center;gap:1rem;"><img id="storePhotoPreview" src="" style="width:60px;height:60px;border-radius:50%;object-fit:cover;background:#f5f5f5;display:none;" /><input type="file" id="storePhotoInput" accept="image/*" onchange="uploadStorePhoto()" style="padding:8px;" /></div></div><button class="tbl-btn" onclick="saveSettings()">RUAJ NDRYSHIMET</button></div><div class="form-card" style="grid-column:1/-1;"><h3>PLANI JUAJ & UPGRADET</h3><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;" id="planCards"></div></div></div></div>
   </div>
 </div>
 
-<!-- MODALS -->
 <div class="modal-overlay" id="promoteModal"><div class="modal"><button class="modal-close" onclick="closeModal('promoteModal')">✕</button><h3>Promovo Pjesën</h3><p id="promotePartName" style="color:var(--text-muted);margin-bottom:1rem;"></p><input type="hidden" id="promotePartId" /><input type="hidden" id="promoteSelectedTier" value="" /><div id="promoTierOptions" style="display:flex;flex-direction:column;gap:0.75rem;margin-bottom:1.25rem;"></div><p style="font-size:0.8rem;color:var(--text-muted);margin-bottom:1rem;">⚠️ Pasi të aprovohet nga administratori, promocioni aktivizohet menjëherë.</p><div style="display:flex;gap:1rem;"><button class="tbl-btn" id="confirmPromoteBtn" style="flex:1;padding:11px;background:#f57c00;opacity:0.5;" disabled onclick="confirmPromote()">PROMOVO</button><button class="tbl-btn outline" style="flex:1;padding:11px;" onclick="closeModal('promoteModal')">Anulo</button></div></div></div>
 <div class="modal-overlay" id="orderDetailModal"><div class="modal"><button class="modal-close" onclick="closeModal('orderDetailModal')">✕</button><h3>Detajet e Porosisë</h3><div id="orderDetailContent"></div></div></div>
 <div class="modal-overlay" id="deleteModal"><div class="modal"><button class="modal-close" onclick="closeModal('deleteModal')">✕</button><h3>FSHI PJESËN?</h3><p style="color:var(--text-muted);">Kjo veprim nuk mund të zhbëhet.</p><div style="display:flex;gap:1rem;"><button class="tbl-btn" style="flex:1;background:var(--danger);" onclick="confirmDelete()">PO, FSHI</button><button class="tbl-btn outline" style="flex:1;" onclick="closeModal('deleteModal')">Anulo</button></div></div></div>
@@ -116,7 +109,6 @@ const PROMO_TIERS={basic:{name:'Basic',icon:'🥉',price:3,durationDays:7,refres
 
 let currentUser=null,currentBiz=null,myParts=[],myOrders=[],currentPage='dashboard',currentOrderFilter='all',deletePartId=null;
 let salesChart=null,selectedImages=[],bulkImportData=[],editPartId=null;
-const auth=firebase.auth(),db=firebase.firestore();
 
 function listenToBusinessProfile(uid){db.collection("businesses").doc(uid).onSnapshot(function(doc){if(doc.exists){currentBiz=doc.data();updateBizDisplay();}},function(err){console.error(err);});}
 
@@ -126,9 +118,7 @@ auth.onAuthStateChanged(async function(user){
 });
 
 window.doLogin=async function(){var email=g('loginEmail').value.trim(),pass=g('loginPass').value,btn=g('loginBtn');if(!email||!pass){showToast('Plotëso fushat e detyrueshme!',true);return;}btn.textContent='Duke hyrë...';btn.disabled=true;try{await auth.signInWithEmailAndPassword(email,pass);}catch(err){showToast('Gabim: '+err.message,true);btn.textContent='HYRJA →';btn.disabled=false;}};
-
 window.doRegister=async function(){var name=g('regBizName').value.trim(),email=g('regEmail').value.trim(),phone=g('regPhone').value.trim(),pass=g('regPass').value,pass2=g('regPass2').value,city=g('regCity').value,btn=g('regBtn');if(!name||!email||!pass||!phone){showToast('Plotëso fushat e detyrueshme!',true);return;}if(pass!==pass2){showToast('Fjalëkalimet nuk përputhen',true);return;}btn.textContent='Duke u regjistruar...';btn.disabled=true;try{var cred=await auth.createUserWithEmailAndPassword(email,pass);await db.collection("businesses").doc(cred.user.uid).set({businessName:name,email:email,phone:phone,city:city,plan:'basic',commissionRate:8,createdAt:firebase.firestore.FieldValue.serverTimestamp(),uid:cred.user.uid});showToast('Llogaria u krijua!');}catch(err){showToast('Gabim: '+err.message,true);btn.textContent='KRIJO LLOGARINË →';btn.disabled=false;}};
-
 window.doLogout=async function(){await auth.signOut();};
 window.showTab=function(tab,btn){document.querySelectorAll('.auth-tab').forEach(function(t){t.classList.remove('active');});btn.classList.add('active');g('loginForm').style.display=tab==='login'?'block':'none';g('registerForm').style.display=tab==='register'?'block':'none';};
 
@@ -139,7 +129,6 @@ function renderPlanCards(){var plan=currentBiz?.plan||'basic';var pc=g('planCard
 window.requestUpgrade=async function(planKey){if(!currentUser)return;try{await db.collection("plan_requests").add({businessId:currentUser.uid,businessName:currentBiz?.businessName||'',email:currentUser?.email||'',fromPlan:currentBiz?.plan||'basic',toPlan:planKey,status:'pending',createdAt:firebase.firestore.FieldValue.serverTimestamp()});showToast('Kërkesa u dërgua!');}catch(e){showToast('Gabim',true);}};
 
 async function loadMyParts(){if(!currentUser)return;db.collection("parts").where("uid","==",currentUser.uid).onSnapshot(function(snap){myParts=snap.docs.map(function(d){return {id:d.id,...d.data()};});myParts.sort(function(a,b){return (b.createdAt?.toMillis?.()||0)-(a.createdAt?.toMillis?.()||0);});renderMyParts();updateDashboardStats();},function(e){console.error(e);});}
-
 async function loadMyOrders(){if(!currentUser)return;db.collection("orders").where("sellerUid","==",currentUser.uid).onSnapshot(function(snap){myOrders=snap.docs.map(function(d){return {id:d.id,...d.data()};});myOrders.sort(function(a,b){return (b.createdAt?.toMillis?.()||0)-(a.createdAt?.toMillis?.()||0);});renderOrders(currentOrderFilter);renderRecentOrders();updateDashboardStats();updateCharts();updateOrdersBadge();},function(e){console.error(e);});}
 
 function updateOrdersBadge(){var pending=myOrders.filter(function(o){return o.status==='pending';}).length;var badge=g('ordersBadge');if(badge){badge.textContent=pending;badge.style.display=pending>0?'inline-block':'none';}}
@@ -180,32 +169,20 @@ window.showPage=function(page){
 
 window.filterOrders=function(f,btn){currentOrderFilter=f;document.querySelectorAll('.ot-btn').forEach(function(b){b.classList.remove('active');});btn.classList.add('active');renderOrders(f);};
 
-function populateSettings(){
-  if(!currentBiz)return;
-  g('setBizName').value=currentBiz.businessName||'';
-  g('setPhone').value=currentBiz.phone||'';
-  g('setWhatsappPhone').value=currentBiz.whatsappPhone||currentBiz.phone||'';
-  g('setEmail2').value=currentUser?.email||'';
-  var ce=g('setCity');if(ce&&currentBiz.city)ce.value=currentBiz.city;
-  if(currentBiz.photoURL){var preview=g('storePhotoPreview');if(preview){preview.src=currentBiz.photoURL;preview.style.display='block';}}
-}
+function populateSettings(){if(!currentBiz)return;g('setBizName').value=currentBiz.businessName||'';g('setPhone').value=currentBiz.phone||'';g('setWhatsappPhone').value=currentBiz.whatsappPhone||currentBiz.phone||'';g('setEmail2').value=currentUser?.email||'';var ce=g('setCity');if(ce&&currentBiz.city)ce.value=currentBiz.city;if(currentBiz.photoURL){var preview=g('storePhotoPreview');if(preview){preview.src=currentBiz.photoURL;preview.style.display='block';}}}
 
 window.saveSettings=async function(){if(!currentUser)return;var n=g('setBizName').value.trim(),p=g('setPhone').value.trim(),wp=g('setWhatsappPhone').value.trim(),c=g('setCity').value;await db.collection("businesses").doc(currentUser.uid).update({businessName:n,phone:p,whatsappPhone:wp,city:c});currentBiz={...currentBiz,businessName:n,phone:p,whatsappPhone:wp,city:c};updateBizDisplay();showToast('Ndryshimet u ruajtën!');};
-
 function uploadStorePhoto(){var file=g('storePhotoInput').files[0];if(!file)return;var reader=new FileReader();reader.onload=function(e){g('storePhotoPreview').src=e.target.result;g('storePhotoPreview').style.display='block';db.collection("businesses").doc(currentUser.uid).update({photoURL:e.target.result});currentBiz.photoURL=e.target.result;};reader.readAsDataURL(file);}
 
-// ===== PART MANAGEMENT =====
+// ===== PART IMAGE HANDLING =====
 function compressImage(file,maxWidth,maxHeight,quality){return new Promise(function(resolve,reject){var reader=new FileReader();reader.onload=function(e){var img=new Image();img.onload=function(){var width=img.width,height=img.height;if(width>maxWidth){height=Math.round((height*maxWidth)/width);width=maxWidth;}if(height>maxHeight){width=Math.round((width*maxHeight)/height);height=maxHeight;}var canvas=document.createElement('canvas');canvas.width=width;canvas.height=height;var ctx=canvas.getContext('2d');ctx.drawImage(img,0,0,width,height);canvas.toBlob(function(blob){resolve(new File([blob],file.name.replace(/\.[^/.]+$/,'.jpg'),{type:'image/jpeg',lastModified:Date.now()}));},'image/jpeg',quality);};img.onerror=reject;img.src=e.target.result;};reader.onerror=reject;reader.readAsDataURL(file);});}
-
 window.triggerImageUpload=function(){g('imageInput').click();};
 window.handleImageSelect=function(event){var files=event.target.files;if(!files.length)return;for(var i=0;i<files.length;i++){var file=files[i];if(!file.type.match('image.*'))continue;if(selectedImages.length>=5)break;compressImage(file,600,600,0.5).then(function(f){if(f.size>200000){showToast('Foto mbi 200KB',true);}selectedImages.push(f);renderImagePreviews();}).catch(function(){selectedImages.push(file);renderImagePreviews();});}event.target.value='';};
-
 function renderImagePreviews(){var c=g('imagePreviews');if(!c)return;if(!selectedImages.length){c.innerHTML='<div style="color:#888;text-align:center;padding:1rem;">Asnjë foto</div>';return;}c.innerHTML=selectedImages.map(function(file,index){var url=URL.createObjectURL(file);return '<div style="position:relative;display:inline-block;margin:0.25rem;"><img src="'+url+'" style="width:80px;height:80px;object-fit:cover;border-radius:6px;border:2px solid var(--border);" /><button onclick="removeImage('+index+')" style="position:absolute;top:-8px;right:-8px;background:#c62828;color:white;border:none;border-radius:50%;width:22px;height:22px;font-size:0.7rem;cursor:pointer;font-weight:700;">✕</button></div>';}).join('');}
-
 window.removeImage=function(index){selectedImages.splice(index,1);renderImagePreviews();};
-
 async function imagesToBase64(){var results=[];for(var i=0;i<selectedImages.length;i++){var file=selectedImages[i];var base64=await new Promise(function(resolve,reject){var reader=new FileReader();reader.onload=function(e){resolve(e.target.result);};reader.onerror=reject;reader.readAsDataURL(file);});results.push(base64);}return results;}
 
+// ===== PART SUBMIT =====
 window.submitPart=async function(){
   var name=g('fName').value.trim(),price=parseFloat(g('fPrice').value);
   var make=g('partMake').value,model=g('partModel').value;
@@ -231,23 +208,22 @@ function resetAddPartForm(){['fName','fFits','fPrice','fStock','fDesc','fVin','f
 
 window.editPart=function(partId){var part=myParts.find(function(p){return p.id===partId;});if(!part)return;editPartId=partId;g('addPartTitle').textContent='NDRYSHO PJESËN';g('fName').value=getPartName(part);g('fPrice').value=part.basePrice||'';g('fCat').value=part.category||'brakes';g('fCond').value=part.condition||'new';g('fStock').value=part.stock||1;g('fDesc').value=part.description||'';g('fVin').value=part.vin||'';g('fYear').value=part.year||'';g('fGeneration').value=part.generation||'';g('fEngine').value=part.engineType||'';g('fFuel').value=part.fuelType||'';g('fOem').value=part.oemNumber||'';if(part.discount>0){g('fDiscount').checked=true;g('fDiscountVal').value=part.discount;g('fDiscountVal').style.display='inline-block';}populateCarMakes();var fits=part.fits||'',spaceIndex=fits.indexOf(' ');if(spaceIndex>0){g('partMake').value=fits.substring(0,spaceIndex);onPartMakeChange();setTimeout(function(){g('partModel').value=fits.substring(spaceIndex+1);},300);}selectedImages=[];renderImagePreviews();calcFee();showPage('addpart');};
 
+// ===== PROMOTE =====
 window.promotePart=function(partId){var part=myParts.find(function(p){return p.id===partId;});if(!part)return;g('promotePartName').textContent='Pjesa: '+getPartName(part);g('promotePartId').value=partId;g('promoteSelectedTier').value='';var container=g('promoTierOptions');container.innerHTML=Object.entries(PROMO_TIERS).map(function(entry){var key=entry[0],tier=entry[1];return '<div onclick="selectPromoTier(\''+key+'\')" id="promoTier_'+key+'" style="background:var(--surface);border:2px solid var(--border);border-radius:10px;padding:1rem;cursor:pointer;display:flex;align-items:center;gap:1rem;"><div style="font-size:2rem;">'+tier.icon+'</div><div style="flex:1;"><div style="display:flex;justify-content:space-between;"><span style="font-weight:600;color:'+tier.color+';">'+tier.name+'</span><span style="font-weight:600;color:#f57c00;">€'+tier.price+'</span></div><div style="font-size:0.78rem;color:#888;">'+tier.desc+'</div></div></div>';}).join('');g('confirmPromoteBtn').disabled=true;g('promoteModal').classList.add('open');};
-
 window.selectPromoTier=function(tierKey){g('promoteSelectedTier').value=tierKey;var tier=PROMO_TIERS[tierKey],btn=g('confirmPromoteBtn');btn.disabled=false;btn.textContent='PROMOVO PËR €'+tier.price;btn.style.background=tier.color;btn.style.color=(tierKey==='premium'||tierKey==='ultimate')?'#000':'#fff';};
-
 window.confirmPromote=async function(){var partId=g('promotePartId').value,tierKey=g('promoteSelectedTier').value;if(!tierKey){showToast('Zgjidh një plan promocioni!',true);return;}var part=myParts.find(function(p){return p.id===partId;});if(!part)return;var tier=PROMO_TIERS[tierKey],btn=g('confirmPromoteBtn');btn.textContent='Duke dërguar...';btn.disabled=true;try{await db.collection("weekly_promotions").add({partId:partId,partName:getPartName(part),businessId:currentUser.uid,businessName:currentBiz?.businessName||'',email:currentUser?.email||'',tier:tierKey,tierName:tier.name,cost:tier.price,durationDays:tier.durationDays,refreshHours:tier.refreshHours,status:'pending',createdAt:firebase.firestore.FieldValue.serverTimestamp()});showToast('Kërkesa u dërgua!');closeModal('promoteModal');}catch(e){showToast('Gabim: '+e.message,true);}btn.textContent='PROMOVO';btn.disabled=false;};
 
+// ===== DELETE & TOGGLE =====
 window.deletePart=function(id){deletePartId=id;g('deleteModal').classList.add('open');};
 window.confirmDelete=async function(){if(!deletePartId)return;try{await db.collection("parts").doc(deletePartId).delete();showToast('Pjesa u fshi.');}catch(e){showToast('Gabim',true);}closeModal('deleteModal');deletePartId=null;};
 window.togglePartStatus=async function(id,s){var ns=s==='active'?'inactive':'active';await db.collection("parts").doc(id).update({status:ns});showToast('Statusi u ndryshua!');};
 
+// ===== STOCK =====
 window.openUpdateStock=function(partId){var part=myParts.find(function(p){return p.id===partId;});if(!part)return;g('updateStockPartName').textContent='Pjesa: '+getPartName(part);g('updateStockPartId').value=partId;g('currentStockDisplay').value=part.stock||0;g('stockToAdd').value=1;g('newStockDisplay').value=(part.stock||0)+1;g('stockToAdd').oninput=function(){g('newStockDisplay').value=(part.stock||0)+(parseInt(this.value)||0);};g('updateStockModal').classList.add('open');};
-
 window.confirmUpdateStock=async function(){var partId=g('updateStockPartId').value,add=parseInt(g('stockToAdd').value)||0;var part=myParts.find(function(p){return p.id===partId;});if(!part||add<=0)return;var ns=(part.stock||0)+add;try{await db.collection("parts").doc(partId).update({stock:ns,status:ns>0?'active':'inactive'});showToast('Stoku u përditësua!');closeModal('updateStockModal');}catch(e){showToast('Gabim: '+e.message,true);}};
 
 // ===== BULK IMPORT =====
 window.parseBulkImport=function(){var text=g('bulkText').value.trim();if(!text){showToast('Plotëso fushat e detyrueshme!',true);return;}var lines=text.split('\n').filter(function(l){return l.trim();});bulkImportData=lines.map(function(line){var parts=line.split('|').map(function(s){return s.trim();});return {name:parts[0]||'',category:parts[1]||'other',condition:parts[2]||'new',price:parseFloat(parts[3])||0,stock:parseInt(parts[4])||1,make:parts[5]||'',model:parts[6]||'',description:parts[7]||'',vin:parts[8]||''};});showToast('✅ '+bulkImportData.length+' pjesë');};
-
 window.importBulkParts=async function(){if(!bulkImportData.length){showToast('Plotëso fushat e detyrueshme!',true);return;}var btn=g('bulkImportBtn');btn.textContent='Duke importuar...';btn.disabled=true;var imported=0;try{for(var i=0;i<bulkImportData.length;i++){var p=bulkImportData[i];if(!p.name||!p.price)continue;var fits=(p.make&&p.model)?p.make+' '+p.model:'';await db.collection("parts").add({name:{sq:p.name,en:p.name},basePrice:p.price,fits,category:p.category,condition:p.condition,stock:p.stock,description:p.description,vin:(p.vin||'').toUpperCase(),emoji:getCatEmoji(p.category),sellerName:currentBiz?.businessName||currentBiz?.name||'',sellerCity:currentBiz?.city||'',uid:currentUser.uid,status:p.stock>0?'active':'inactive',views:0,sales:0,rating:5,images:[],createdAt:firebase.firestore.FieldValue.serverTimestamp()});imported++;}showToast('✅ '+imported+' pjesë u importuan!');bulkImportData=[];g('bulkText').value='';}catch(e){showToast('Gabim: '+e.message,true);}btn.textContent='IMPORTO TË GJITHA';btn.disabled=false;};
 
 window.setLoginLang=function(lg){currentLang=lg;document.querySelectorAll('.ll-btn').forEach(function(b){b.classList.remove('active');});var btn=document.querySelector('.ll-btn[onclick="setLoginLang(\''+lg+'\')"]');if(btn)btn.classList.add('active');};
