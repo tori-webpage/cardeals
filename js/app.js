@@ -20,7 +20,6 @@ function closeModal(id) {
   if (id) document.getElementById(id).classList.remove('open');
 }
 
-// Close modal on overlay click
 document.addEventListener('click', function(e) {
   if (e.target.classList.contains('modal-overlay')) {
     e.target.classList.remove('open');
@@ -47,30 +46,19 @@ function toggleSidebar() {
 
 // ========== PAGE NAVIGATION ==========
 function showPage(page) {
-  // Hide all pages
   document.querySelectorAll('.page').forEach(function(p) {
     p.classList.remove('active');
   });
   
-  // Show target page
   var targetPage = g('page-' + page);
   if (targetPage) targetPage.classList.add('active');
   
-  // Update nav active state
   document.querySelectorAll('.nav-item').forEach(function(n) {
     n.classList.remove('active');
   });
   var navItem = g('nav-' + page);
   if (navItem) navItem.classList.add('active');
   
-  // Update topbar title
-  var topbarTitle = g('topbarTitle');
-  if (topbarTitle && typeof l === 'function') {
-    var topbarKey = 'topbar' + page.charAt(0).toUpperCase() + page.slice(1);
-    topbarTitle.textContent = l(topbarKey) || page.toUpperCase();
-  }
-  
-  // Close sidebar on mobile
   if (window.innerWidth <= 768) {
     var sidebar = g('sidebar');
     var overlay = g('sidebarOverlay');
@@ -148,14 +136,12 @@ function l(k) { return L[currentLang] && L[currentLang][k] ? L[currentLang][k] :
 function setLang(lg) {
   currentLang = lg;
   
-  // Update all lang buttons
   document.querySelectorAll('.lang-btn').forEach(function(b) {
     b.classList.remove('active');
   });
   var activeBtn = document.querySelector('.lang-btn[onclick="setLang(\'' + lg + '\')"]');
   if (activeBtn) activeBtn.classList.add('active');
   
-  // Update data-l elements
   document.querySelectorAll('[data-l]').forEach(function(el) {
     var key = el.dataset.l;
     if (L[lg] && L[lg][key]) {
@@ -163,19 +149,16 @@ function setLang(lg) {
     }
   });
   
-  // Update placeholders
   document.querySelectorAll('[data-l-placeholder]').forEach(function(el) {
     var key = el.dataset.lPlaceholder;
     if (L[lg] && L[lg][key]) el.placeholder = L[lg][key];
   });
   
-  // Update hero subtitle (contains HTML)
   if (L[lg] && L[lg].heroSub) {
     var heroP = document.querySelector('.hero p');
     if (heroP) heroP.innerHTML = L[lg].heroSub;
   }
   
-  // Update condition filter options
   var cf = g('condFilter');
   if (cf && L[lg]) {
     cf.options[0].textContent = L[lg].condAll;
@@ -274,36 +257,90 @@ function onCarMakeChange() {
   }
 }
 
-// ========== PART NAME HELPER ==========
+// ========== PART HELPERS ==========
 function getPartName(part) {
   if (!part || !part.name) return '—';
   return typeof part.name === 'object' ? (part.name.sq || part.name.en) : part.name;
 }
 
-// ========== DISCOUNTED PRICE HELPER ==========
 function getDiscountedPrice(part) {
   var base = part.basePrice || 0;
   var discount = part.discount || 0;
   return discount > 0 ? Math.round(base * (1 - discount / 100)) : base;
 }
 
-// ========== FINAL PRICE (with platform fee) ==========
 function getFinalPrice(part) {
   var dp = getDiscountedPrice(part);
   var fee = Math.round(dp * (typeof PLATFORM_FEE !== 'undefined' ? PLATFORM_FEE : 0.08));
   return dp + fee;
 }
 
-// ========== NO-IMAGE SVG PLACEHOLDER ==========
 function noImageSVG(category, width, height) {
   var catName = getCatName(category);
   return '<svg width="' + width + '" height="' + height + '" viewBox="0 0 ' + width + ' ' + height + '" xmlns="http://www.w3.org/2000/svg"><rect width="' + width + '" height="' + height + '" fill="#f8f8f8"/><text x="' + (width/2) + '" y="' + (height/2 - 12) + '" text-anchor="middle" font-family="\'Inter\', sans-serif" font-size="' + (width/14) + '" font-weight="700" fill="#d5d5d5" letter-spacing="3">PA FOTO</text><text x="' + (width/2) + '" y="' + (height/2 + 12) + '" text-anchor="middle" font-family="\'Inter\', sans-serif" font-size="' + (width/18) + '" font-weight="500" fill="#d0d0d0">' + catName + '</text></svg>';
 }
 
-// ========== PART IMAGE HTML HELPER ==========
 function partImageHTML(part, width, height) {
   if (part.images && part.images.length) {
     return '<img src="' + part.images[0] + '" alt="' + getPartName(part) + '" loading="lazy" />';
   }
   return noImageSVG(part.category, width || 200, height || 180);
+}
+
+// ========== IMAGE ZOOM ==========
+document.addEventListener('click', function(e) {
+  if (e.target.closest('.part-card-img') && !e.target.closest('button')) {
+    var imgContainer = e.target.closest('.part-card-img');
+    imgContainer.classList.toggle('zoomed');
+    e.stopPropagation();
+  }
+});
+
+// ========== SELLER RATINGS ==========
+function getSellerRating(sellerUid, allPartsData) {
+  var parts = allPartsData || [];
+  var sellerParts = parts.filter(function(p) { return p.uid === sellerUid; });
+  if (!sellerParts.length) return 0;
+  
+  var totalSales = sellerParts.reduce(function(s, p) { return s + (p.sales || 0); }, 0);
+  var activeParts = sellerParts.filter(function(p) { return p.status === 'active'; }).length;
+  
+  if (totalSales > 100 && activeParts > 20) return 5;
+  if (totalSales > 50 && activeParts > 10) return 4;
+  if (totalSales > 20 && activeParts > 5) return 3;
+  if (totalSales > 5) return 2;
+  return 1;
+}
+
+function renderStars(rating) {
+  if (!rating) return '';
+  var full = Math.floor(rating);
+  var empty = 5 - full;
+  return '<span style="color:#f5c518;">' + '★'.repeat(full) + '☆'.repeat(empty) + '</span>';
+}
+
+// ========== WISHLIST ==========
+function toggleWishlist(partId) {
+  var wishlist = getWishlist();
+  var index = wishlist.indexOf(partId);
+  
+  if (index > -1) {
+    wishlist.splice(index, 1);
+    showToast('❌ U hoq nga të preferuarat');
+  } else {
+    wishlist.push(partId);
+    showToast('❤️ Shtuar në të preferuara');
+  }
+  
+  localStorage.setItem('cardeals_wishlist', JSON.stringify(wishlist));
+}
+
+function getWishlist() {
+  try {
+    return JSON.parse(localStorage.getItem('cardeals_wishlist') || '[]');
+  } catch(e) { return []; }
+}
+
+function isWishlisted(partId) {
+  return getWishlist().indexOf(partId) > -1;
 }
