@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /admin.html
+Disallow: /cardeals-backoffice.html
+Sitemap: https://cardeals.al/sitemap.xml
