@@ -7,12 +7,17 @@
 <link rel="icon" type="image/png" href="https://tori-webpage.github.io/cardeals/cardeals-icon.png" />
 <link rel="apple-touch-icon" href="https://tori-webpage.github.io/cardeals/cardeals-icon.png" />
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet">
+
+<!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+
+<!-- Shared scripts — order matters -->
 <script src="js/firebase.js"></script>
 <script src="js/app.js"></script>
 <script src="js/error-handler.js"></script>
+
 <link rel="stylesheet" href="css/dashboard.css" />
 </head>
 <body>
@@ -44,38 +49,10 @@
     <div class="page" id="page-cashback"><div class="info-card"><h3>📅 PERIUDHA AKTUALE (30 DITË)</h3><div class="info-grid"><div class="info-item"><div class="info-val" id="periodStart">—</div><div class="info-lbl">Fillimi i Periudhës</div></div><div class="info-item"><div class="info-val" id="daysLeft">—</div><div class="info-lbl">Ditë të Mbetura</div></div><div class="info-item"><div class="info-val" id="periodTotal">0 L</div><div class="info-lbl">Total Blerjeve</div></div><div class="info-item"><div class="info-val" id="periodCashback">0 L</div><div class="info-lbl">Cashback i Pritshëm (2%)</div></div></div></div><div class="info-card" style="background:var(--primary-glow);border-color:rgba(180,83,9,0.2);"><h3>💳 BALANCI AKTUAL I KREDISË</h3><div style="font-family:'Oswald',sans-serif;font-size:2rem;font-weight:700;color:var(--success);" id="currentBalance">0 L</div><div style="color:var(--text-muted);font-size:0.85rem;margin-top:0.5rem;">Krediti llogaritet çdo 30 ditë si 2% e blerjeve tuaja.</div></div></div>
   </div>
 </div>
+
 <div class="toast" id="toast"></div>
 
-<script>
-let currentUser=null,currentWorkshop=null,myOrders=[],currentPage='dashboard';
-
-auth.onAuthStateChanged(async function(user){
-  if(user){currentUser=user;
-    try{var doc=await db.collection("workshops").doc(user.uid).get();
-      if(doc.exists){currentWorkshop=doc.data();currentWorkshop.id=user.uid;showApp();}
-      else{await auth.signOut();showToast('Kjo llogari nuk është Pikë Shërbimi. Regjistrohu!',true);}
-    }catch(e){console.error(e);showToast('Gabim: '+e.message,true);}
-  }else{currentUser=null;currentWorkshop=null;}
-});
-
-function showApp(){g('loginScreen').style.display='none';g('app').style.display='flex';g('workshopName').textContent=currentWorkshop?.name||'Pikë Shërbimi';loadMyOrders();showPage('dashboard');}
-
-window.doLogin=async function(){var e=g('loginEmail').value.trim(),p=g('loginPass').value,btn=g('loginBtn');if(!e||!p){showToast('Plotëso të gjitha fushat!',true);return;}btn.textContent='Duke hyrë...';btn.disabled=true;try{await auth.signInWithEmailAndPassword(e,p);}catch(err){showToast('❌ Email ose fjalëkalim i gabuar!',true);btn.textContent='HYRJA →';btn.disabled=false;}};
-
-window.doRegister=function(){var email=document.getElementById('regEmail').value.trim();var pass=document.getElementById('regPass').value;var pass2=document.getElementById('regPass2').value;var name=document.getElementById('regName').value.trim();if(!name||!email||!pass||!pass2){showToast('Plotëso të gjitha fushat!',true);return;}if(pass!==pass2){showToast('❌ Fjalëkalimet nuk përputhen!',true);return;}if(pass.length<6){showToast('❌ Fjalëkalimi duhet të jetë së paku 6 karaktere!',true);return;}var btn=document.getElementById('regBtn');btn.textContent='Duke u regjistruar...';btn.disabled=true;auth.createUserWithEmailAndPassword(email,pass).then(function(cred){return db.collection("workshops").doc(cred.user.uid).set({name:document.getElementById('regName').value,email:email,phone:document.getElementById('regPhone').value,city:document.getElementById('regCity').value,creditBalance:0,totalPurchases:0,currentPeriodStart:new Date(),currentPeriodTotal:0,lastPayout:null,createdAt:firebase.firestore.FieldValue.serverTimestamp()});}).then(function(){showToast('✅ Llogaria u krijua!');btn.textContent='REGJISTROHU →';btn.disabled=false;}).catch(function(err){console.error(err);showToast('❌ '+err.message,true);btn.textContent='REGJISTROHU →';btn.disabled=false;});};
-
-window.doLogout=async function(){await auth.signOut();};
-window.showTab=function(tab){if(tab==='login'){g('tabLogin').style.background='var(--primary)';g('tabLogin').style.color='white';g('tabRegister').style.background='transparent';g('tabRegister').style.color='var(--text-muted)';g('loginForm').style.display='block';g('registerForm').style.display='none';}else{g('tabRegister').style.background='var(--primary)';g('tabRegister').style.color='white';g('tabLogin').style.background='transparent';g('tabLogin').style.color='var(--text-muted)';g('registerForm').style.display='block';g('loginForm').style.display='none';}};
-
-async function loadMyOrders(){if(!currentUser)return;db.collection("orders").where("buyerUid","==",currentUser.uid).orderBy("createdAt","desc").onSnapshot(function(snap){myOrders=snap.docs.map(function(d){return {id:d.id,...d.data()};});if(currentPage==='dashboard')updateDashboard();if(currentPage==='orders')renderAllOrders();if(currentPage==='cashback')renderCashback();});}
-
-function updateDashboard(){var total=myOrders.reduce(function(s,o){return s+(o.totalPrice||0);},0);var now=new Date();var thisMonth=myOrders.filter(function(o){var d=o.createdAt?.toDate?o.createdAt.toDate():new Date();return d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear();});var monthTotal=thisMonth.reduce(function(s,o){return s+(o.totalPrice||0);},0);var cashback=Math.round(monthTotal*0.02);g('statTotal').textContent=total.toLocaleString()+' L';g('statOrders').textContent=myOrders.length;g('statMonth').textContent=monthTotal.toLocaleString()+' L';g('statCashback').textContent=cashback.toLocaleString()+' L';g('statBalance').textContent=(currentWorkshop?.creditBalance||0).toLocaleString()+' L';var recent=myOrders.slice(0,5);var tbody=g('recentOrdersBody');tbody.innerHTML=recent.length?recent.map(function(o){var date=formatDate(o.createdAt);var status=o.status==='sold'?'<span style="color:#2e7d32;">Shitur</span>':o.status==='pending'?'<span style="color:#f57c00;">Në Pritje</span>':'<span style="color:#c62828;">Anuluar</span>';return '<tr><td>'+(o.partEmoji||'')+' '+o.partName+'</td><td>'+formatPrice(o.totalPrice)+'</td><td>'+status+'</td><td>'+date+'</td></tr>';}).join(''):'<tr><td colspan="4">Ende nuk keni blerje.</td></tr>';}
-
-function renderAllOrders(){var tbody=g('allOrdersBody');tbody.innerHTML=myOrders.length?myOrders.map(function(o){var date=formatDate(o.createdAt);var cashback=Math.round((o.totalPrice||0)*0.02);var status=o.status==='sold'?'<span style="color:#2e7d32;">Shitur</span>':o.status==='pending'?'<span style="color:#f57c00;">Në Pritje</span>':'<span style="color:#c62828;">Anuluar</span>';return '<tr><td style="color:#b45309;font-weight:600;">#'+(o.id||'').slice(-6).toUpperCase()+'</td><td>'+(o.partEmoji||'')+' '+o.partName+'</td><td>'+(o.sellerName||'—')+'</td><td style="font-weight:600;">'+formatPrice(o.totalPrice)+'</td><td style="color:#2e7d32;">+'+cashback.toLocaleString()+' L</td><td>'+status+'</td><td>'+date+'</td></tr>';}).join(''):'<tr><td colspan="7">Ende nuk keni blerje.</td></tr>';}
-
-function renderCashback(){var periodStart=currentWorkshop?.currentPeriodStart?.toDate?currentWorkshop.currentPeriodStart.toDate():new Date();var now=new Date();var daysLeft=30-Math.floor((now-periodStart)/(1000*60*60*24));if(daysLeft<0)daysLeft=0;var periodOrders=myOrders.filter(function(o){var d=o.createdAt?.toDate?o.createdAt.toDate():new Date();return d>=periodStart;});var periodTotal=periodOrders.reduce(function(s,o){return s+(o.totalPrice||0);},0);var projectedCashback=Math.round(periodTotal*0.02);g('periodStart').textContent=periodStart.toLocaleDateString('sq-AL');g('daysLeft').textContent=daysLeft+' ditë';g('periodTotal').textContent=periodTotal.toLocaleString()+' L';g('periodCashback').textContent=projectedCashback.toLocaleString()+' L';g('currentBalance').textContent=(currentWorkshop?.creditBalance||0).toLocaleString()+' L';}
-
-window.showPage=function(page){currentPage=page;document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active');});g('page-'+page).classList.add('active');document.querySelectorAll('.nav-item').forEach(function(n){n.classList.remove('active');});g('nav-'+page).classList.add('active');if(page==='dashboard')updateDashboard();if(page==='orders')renderAllOrders();if(page==='cashback')renderCashback();if(window.innerWidth<=768)g('sidebar')?.classList.remove('open');};
-</script>
+<!-- Page-specific script — always last -->
+<script src="js/workshop.js"></script>
 </body>
 </html>
