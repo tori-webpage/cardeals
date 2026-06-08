@@ -1,0 +1,505 @@
+/* =============================================
+   Cardeals.al — Marketplace (index.html) Logic
+   Depends on: firebase.js, app.js
+   ============================================= */
+
+// ===== STATE =====
+let allParts = [], currentFilter = 'all', currentCondition = 'all';
+let selectedPart = null, currentBuyer = null;
+let currentCarMake = '', currentCarModel = '';
+let currentPageNum = 1, itemsPerPage = 24;
+let filteredParts = [], totalPages = 1, lastPage = 1;
+let cart = [];
+
+// ===== AUTH =====
+auth.onAuthStateChanged(function(user) {
+  currentBuyer = user;
+  var rb = g('registerBtn');
+  if (rb) {
+    if (user) {
+      rb.textContent = user.email.split('@')[0];
+      rb.onclick = toggleUserMenu;
+    } else {
+      rb.textContent = L[currentLang] ? L[currentLang].register : 'Regjistrohu';
+      rb.onclick = openRegisterModal;
+    }
+  }
+});
+
+// ===== INIT =====
+loadCart();
+populateCarMakes();
+loadParts();
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js');
+}
+
+// ===== MODALS & AUTH =====
+function openRegisterModal() { g('authModal').classList.add('open'); showAuthTab('login'); }
+function toggleAdvancedFilters() { g('advancedFilters').classList.toggle('open'); }
+
+function resetAdvancedFilters() {
+  ['filterYearFrom', 'filterYearTo', 'filterGeneration', 'filterEngine', 'filterOem', 'filterMaxPrice'].forEach(function(id) {
+    var el = g(id); if (el) el.value = '';
+  });
+  g('filterFuel').value = '';
+  renderParts();
+}
+
+function showAuthTab(tab) {
+  var lb = g('tabLogin'), rb = g('tabRegister');
+  var lf = g('authLoginForm'), rf = g('authRegisterForm');
+  if (tab === 'login') {
+    lb.style.background = 'var(--primary)'; lb.style.color = 'white';
+    rb.style.background = 'transparent'; rb.style.color = 'var(--text-secondary)';
+    lf.style.display = 'block'; rf.style.display = 'none';
+  } else {
+    rb.style.background = 'var(--primary)'; rb.style.color = 'white';
+    lb.style.background = 'transparent'; lb.style.color = 'var(--text-secondary)';
+    rf.style.display = 'block'; lf.style.display = 'none';
+  }
+}
+
+function buyerRegister() {
+  var n = g('regName').value.trim(), e = g('regEmail').value.trim();
+  var ph = g('regPhone').value.trim(), p = g('regPass').value;
+  if (!n || !e || !p || !ph) { showToast('Plotëso të gjitha fushat!', true); return; }
+  if (p.length < 6) { showToast('Fjalëkalimi duhet 6+ karaktere', true); return; }
+  auth.createUserWithEmailAndPassword(e, p).then(function(cred) {
+    return db.collection('buyers').doc(cred.user.uid).set({
+      name: n, email: e, phone: ph,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+  }).then(function() {
+    closeModal('authModal');
+    showToast('✅ Llogaria u krijua!');
+  }).catch(function(err) { showToast('❌ ' + err.message, true); });
+}
+
+function buyerLogin() {
+  var e = g('authEmail').value.trim(), p = g('authPass').value;
+  if (!e || !p) { showToast('Plotëso të gjitha fushat!', true); return; }
+  auth.signInWithEmailAndPassword(e, p).then(function() {
+    closeModal('authModal');
+    showToast('✅ Mirë se vini!');
+  }).catch(function(err) { showToast('❌ ' + err.message, true); });
+}
+
+function toggleUserMenu() {
+  var dd = g('userDropdown');
+  if (dd) dd.style.display = dd.style.display === 'none' ? 'block' : 'none';
+}
+
+function buyerLogout() {
+  auth.signOut();
+  g('userDropdown').style.display = 'none';
+  showToast('✅ U dol nga llogaria!');
+}
+
+function showMyOrders() {
+  g('userDropdown').style.display = 'none';
+  if (!currentBuyer) { openRegisterModal(); return; }
+  g('myOrdersModal').classList.add('open');
+  var c = g('myOrdersContent');
+  c.innerHTML = '<div class="spinner"></div>';
+  db.collection("orders").where("buyerUid", "==", currentBuyer.uid)
+    .orderBy("createdAt", "desc").get()
+    .then(function(snap) {
+      if (snap.empty) {
+        c.innerHTML = '<div style="text-align:center;padding:2rem;color:var(--text-muted);">📦 Nuk keni porosi.</div>';
+        return;
+      }
+      var h = '<table style="width:100%;border-collapse:collapse;"><thead><tr><th style="text-align:left;padding:8px;font-size:0.7rem;color:var(--text-muted);">#</th><th style="text-align:left;padding:8px;font-size:0.7rem;color:var(--text-muted);">Pjesa</th><th style="text-align:left;padding:8px;font-size:0.7rem;color:var(--text-muted);">Shitësi</th><th style="text-align:left;padding:8px;font-size:0.7rem;color:var(--text-muted);">Çmimi</th><th style="text-align:left;padding:8px;font-size:0.7rem;color:var(--text-muted);">Statusi</th></tr></thead><tbody>';
+      snap.docs.forEach(function(d) {
+        var o = d.data(); o.id = d.id;
+        var sc = o.status === 'sold' ? '#2e7d32' : o.status === 'pending' ? '#f57c00' : '#c62828';
+        var st = o.status === 'sold' ? 'Shitur' : o.status === 'pending' ? 'Në Pritje' : 'Anuluar';
+        h += '<tr><td style="padding:8px;font-size:0.8rem;color:#b45309;font-weight:600;">#' + o.id.slice(-6).toUpperCase() + '</td><td style="padding:8px;font-size:0.8rem;">' + o.partName + '</td><td style="padding:8px;font-size:0.8rem;">' + o.sellerName + '</td><td style="padding:8px;font-size:0.8rem;font-weight:600;">' + (o.totalPrice || 0).toLocaleString() + ' L</td><td style="padding:8px;font-size:0.8rem;color:' + sc + ';font-weight:600;">' + st + '</td></tr>';
+      });
+      h += '</tbody></table>';
+      c.innerHTML = h;
+    }).catch(function(err) {
+      c.innerHTML = '<div style="text-align:center;padding:2rem;color:#c62828;">Gabim: ' + err.message + '</div>';
+    });
+}
+
+function showMyProfile() {
+  g('userDropdown').style.display = 'none';
+  if (!currentBuyer) { openRegisterModal(); return; }
+  g('profileName').value = currentBuyer.email ? currentBuyer.email.split('@')[0] : '';
+  g('profileEmail').value = currentBuyer.email || '';
+  g('profileModal').classList.add('open');
+}
+
+// ===== CONTACT =====
+function submitContact() {
+  var n = g('contactName').value.trim(), e = g('contactEmail').value.trim(), m = g('contactMsg').value.trim();
+  if (!n || !e || !m) { showToast('Plotëso të gjitha fushat!', true); return; }
+  db.collection('contact_messages').add({
+    name: n, email: e, message: m, status: 'unread',
+    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+  }).then(function() {
+    showToast('✅ Mesazhi u dërgua!');
+    g('contactName').value = ''; g('contactEmail').value = ''; g('contactMsg').value = '';
+  }).catch(function(err) { showToast('❌ Gabim', true); });
+}
+
+// ===== SEARCH & FILTER =====
+function searchByCar() {
+  currentCarMake = g('carMakeSelect').value;
+  currentCarModel = g('carModelInput').value.trim();
+  g('searchInput').value = '';
+  renderParts();
+}
+
+function filterCatGlobal(el, cat) {
+  currentFilter = cat;
+  document.querySelectorAll('.cat-card').forEach(function(c) { c.classList.remove('active'); });
+  el.classList.add('active');
+  g('breadcrumbCurrent').textContent = cat === 'all' ? 'Të Gjitha Pjesët' : getCatName(cat);
+  renderParts();
+}
+
+function filterCond(val) { currentCondition = val; renderParts(); }
+
+// ===== DATA LOADING =====
+function loadParts() {
+  db.collection('parts').where('status', '==', 'active').onSnapshot(function(snap) {
+    allParts = snap.docs.map(function(d) { return { id: d.id, ...d.data() }; });
+    allParts.sort(function(a, b) {
+      return (b.createdAt?.toMillis?.() || 0) - (a.createdAt?.toMillis?.() || 0);
+    });
+    renderParts();
+    renderDeals();
+    updateCategoryCounts();
+    g('heroPartCount').textContent = allParts.length.toLocaleString();
+  }, function(err) { console.error(err); });
+}
+
+function updateCategoryCounts() {
+  var cats = ['all', 'engine', 'brakes', 'electrical', 'suspension', 'body', 'ac'];
+  cats.forEach(function(cat) {
+    var el = g('count' + (cat.charAt(0).toUpperCase() + cat.slice(1)));
+    if (el) {
+      var count = cat === 'all' ? allParts.length : allParts.filter(function(p) { return p.category === cat; }).length;
+      el.textContent = count + ' pjesë';
+    }
+  });
+}
+
+function renderDeals() {
+  var deals = allParts.filter(function(p) { return p.discount > 0 || p.weeklyPromo; }).slice(0, 10);
+  var strip = g('dealsStrip'), scroll = g('dealsScroll');
+  if (!deals.length) { strip.style.display = 'none'; return; }
+  strip.style.display = 'block';
+  scroll.innerHTML = deals.map(function(p) {
+    var name = getPartName(p);
+    var dp = getDiscountedPrice(p), fin = getFinalPrice(p);
+    var image = p.images && p.images.length ? p.images[0] : null;
+    return '<div class="deal-card" onclick="openModal(\'' + p.id + '\')">'
+      + '<div class="deal-card-img">' + (image ? '<img src="' + image + '" alt="' + name + '" loading="lazy" />' : noImageSVG(p.category, 200, 140)) + '</div>'
+      + '<div class="deal-card-body"><div class="deal-card-name">' + name + '</div>'
+      + '<div class="deal-card-price"><span class="deal-new">' + formatPrice(fin) + '</span>'
+      + (p.discount > 0 ? '<span class="deal-old">' + formatPrice(p.basePrice) + '</span><span class="deal-disc">-' + p.discount + '%</span>' : '')
+      + '</div></div></div>';
+  }).join('');
+}
+
+// ===== FILTER LOGIC =====
+function applyFilters() {
+  var search = g('searchInput').value.toLowerCase();
+  var brand = currentCarMake, model = currentCarModel.toLowerCase();
+  var yearFrom = parseInt(g('filterYearFrom').value) || null;
+  var yearTo = parseInt(g('filterYearTo').value) || null;
+  var generation = g('filterGeneration').value.toLowerCase();
+  var engine = g('filterEngine').value.toLowerCase();
+  var fuel = g('filterFuel').value;
+  var oem = g('filterOem').value.toLowerCase();
+  var maxPrice = parseFloat(g('filterMaxPrice').value) || Infinity;
+
+  return allParts.filter(function(p) {
+    var name = getPartName(p).toLowerCase();
+    var fits = (p.fits || '').toLowerCase();
+    var pYear = p.year || 0;
+    var pGen = (p.generation || '').toLowerCase();
+    var pEngine = (p.engineType || '').toLowerCase();
+    var pFuel = p.fuelType || '';
+    var pOem = (p.oemNumber || '').toLowerCase();
+
+    if (currentFilter !== 'all' && p.category !== currentFilter) return false;
+    if (currentCondition !== 'all' && p.condition !== currentCondition) return false;
+    if (search && name.indexOf(search) === -1 && fits.indexOf(search) === -1 && pEngine.indexOf(search) === -1 && pOem.indexOf(search) === -1 && pGen.indexOf(search) === -1 && String(pYear).indexOf(search) === -1) return false;
+    if (brand && fits.indexOf(brand.toLowerCase()) === -1) return false;
+    if (model && fits.indexOf(model) === -1) return false;
+    if (yearFrom && pYear < yearFrom) return false;
+    if (yearTo && pYear > yearTo) return false;
+    if (generation && pGen.indexOf(generation) === -1) return false;
+    if (engine && pEngine.indexOf(engine) === -1) return false;
+    if (fuel && pFuel !== fuel) return false;
+    if (oem && pOem.indexOf(oem) === -1) return false;
+    if ((p.basePrice || 0) > maxPrice) return false;
+    return true;
+  });
+}
+
+// ===== RENDER PARTS =====
+function renderParts() {
+  filteredParts = applyFilters();
+  totalPages = Math.ceil(filteredParts.length / itemsPerPage);
+  if (currentPageNum > totalPages) currentPageNum = 1;
+  if (totalPages === 0) { currentPageNum = 1; totalPages = 1; }
+  lastPage = totalPages;
+
+  var start = (currentPageNum - 1) * itemsPerPage;
+  var paginatedParts = filteredParts.slice(start, start + itemsPerPage);
+  g('resultCount').textContent = filteredParts.length + ' pjesë';
+
+  var grid = g('partsGrid');
+  if (!filteredParts.length) {
+    grid.innerHTML = '<div class="empty-state">Nuk u gjet asnjë pjesë.</div>';
+    g('paginationControls').style.display = 'none';
+    return;
+  }
+
+  grid.innerHTML = paginatedParts.map(function(p) {
+    var name = getPartName(p);
+    var dp = getDiscountedPrice(p), fin = getFinalPrice(p), stk = p.stock || 0;
+    var image = p.images && p.images.length ? p.images[0] : null;
+    var promoted = p.weeklyPromo && p.promoExpiresAt && new Date() < (p.promoExpiresAt.toDate ? p.promoExpiresAt.toDate() : new Date(p.promoExpiresAt));
+    var metaHTML = [];
+    if (p.year) metaHTML.push(p.year);
+    if (p.generation) metaHTML.push(p.generation);
+    if (p.engineType) metaHTML.push(p.engineType);
+    var rating = renderStars(getSellerRating(p.uid, allParts));
+    return '<div class="part-card" onclick="openModal(\'' + p.id + '\')">'
+      + '<div class="part-card-img">'
+      + (image ? '<img src="' + image + '" alt="' + name + '" loading="lazy" />' : '<span class="no-img">' + noImageSVG(p.category, 200, 180) + '</span>')
+      + '<span class="cond-tag ' + (p.condition === 'new' ? 'cond-new' : 'cond-used') + '">' + (p.condition === 'new' ? 'E Re' : 'E Përdorur') + '</span>'
+      + (promoted ? '<span class="promo-tag">Promo</span>' : '')
+      + '<button class="wishlist-btn" data-part-id="' + p.id + '" onclick="event.stopPropagation();toggleWishlist(\'' + p.id + '\')" style="position:absolute;bottom:8px;right:8px;background:white;border:none;border-radius:50%;width:30px;height:30px;cursor:pointer;font-size:1rem;box-shadow:0 1px 3px rgba(0,0,0,0.1);">' + (isWishlisted(p.id) ? '❤️' : '🤍') + '</button>'
+      + '</div>'
+      + '<div class="part-card-body">'
+      + '<div class="part-card-name">' + name + '</div>'
+      + '<div class="part-card-fits">🚗 ' + (p.fits || '') + ' · 🏪 <a href="dyqani.html?id=' + (p.uid || '') + '" onclick="event.stopPropagation();">' + (p.sellerName || '') + '</a> ' + rating + '</div>'
+      + (metaHTML.length ? '<div class="part-card-meta">' + metaHTML.join(' · ') + (p.oemNumber ? ' · OEM: ' + p.oemNumber : '') + '</div>' : '')
+      + '<div class="part-card-footer"><div class="part-card-price">' + formatPrice(fin) + '</div>'
+      + '<span class="part-card-stock ' + (stk === 0 ? 'stock-out' : stk <= 3 ? 'stock-low' : 'stock-ok') + '">' + (stk === 0 ? 'Jashtë Stokut' : stk + ' copë') + '</span>'
+      + '</div></div></div>';
+  }).join('');
+
+  var pag = g('paginationControls');
+  if (totalPages > 1) {
+    pag.style.display = 'flex';
+    updatePaginationButtons();
+  } else {
+    pag.style.display = 'none';
+  }
+}
+
+function updatePaginationButtons() {
+  g('pageInfo').textContent = currentPageNum + ' / ' + totalPages;
+  g('firstPageBtn').disabled = currentPageNum === 1;
+  g('prevPageBtn').disabled = currentPageNum === 1;
+  g('nextPageBtn').disabled = currentPageNum === totalPages;
+  g('lastPageBtn').disabled = currentPageNum === totalPages;
+}
+
+function goToPage(page) {
+  if (page < 1 || page > totalPages) return;
+  currentPageNum = page;
+  renderParts();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function nextPage() { if (currentPageNum < totalPages) goToPage(currentPageNum + 1); }
+function prevPage() { if (currentPageNum > 1) goToPage(currentPageNum - 1); }
+
+// ===== PART MODAL =====
+function openModal(id) {
+  selectedPart = allParts.find(function(p) { return p.id === id; });
+  if (!selectedPart) return;
+  var name = getPartName(selectedPart);
+  var dp = getDiscountedPrice(selectedPart), fin = getFinalPrice(selectedPart);
+  var stk = selectedPart.stock || 0;
+  var image = selectedPart.images && selectedPart.images.length ? selectedPart.images[0] : null;
+  var imgEl = g('mImage');
+  if (image) { imgEl.src = image; imgEl.style.display = 'block'; }
+  else { imgEl.style.display = 'none'; }
+  g('mName').textContent = name;
+  g('mSeller').innerHTML = '<a href="dyqani.html?id=' + (selectedPart.uid || '') + '" style="color:var(--primary);">' + (selectedPart.sellerName || '') + '</a> · ' + (selectedPart.sellerCity || '');
+  g('mStockInfo').innerHTML = stk === 0
+    ? '<span style="color:#c62828;">⚠️ Jashtë stokut</span>'
+    : stk <= 3 ? '<span style="color:#f57c00;">⚠️ Mbeten ' + stk + ' copë</span>'
+    : '<span style="color:#2e7d32;">✓ ' + stk + ' copë në stok</span>';
+  g('mPriceSummary').innerHTML = '<div style="display:flex;justify-content:space-between;padding:4px 0;"><span>Çmimi Total</span><span style="color:#2e7d32;font-weight:700;">' + formatPrice(fin) + '</span></div>';
+  g('buyModal').classList.add('open');
+  if (typeof Analytics !== 'undefined') Analytics.partView(id, name);
+}
+
+// ===== CART =====
+function loadCart() {
+  try { var saved = localStorage.getItem('cardeals_cart'); if (saved) cart = JSON.parse(saved); }
+  catch(e) { cart = []; }
+  updateCartBadge();
+}
+
+function saveCart() { localStorage.setItem('cardeals_cart', JSON.stringify(cart)); updateCartBadge(); }
+
+function updateCartBadge() {
+  var count = cart.reduce(function(s, i) { return s + (i.qty || 1); }, 0);
+  var b = g('cartBadge');
+  if (b) { b.textContent = count; b.style.display = count > 0 ? 'inline-block' : 'none'; }
+}
+
+function removeFromCart(i) { cart.splice(i, 1); saveCart(); renderCart(); }
+
+function updateCartQty(i, d) {
+  cart[i].qty = Math.max(1, (cart[i].qty || 1) + d);
+  saveCart(); renderCart();
+}
+
+function openCart() { renderCart(); g('cartModal').classList.add('open'); }
+
+function addToCart(partId) {
+  var part = allParts.find(function(p) { return p.id === partId; });
+  if (!part) return;
+  var existing = cart.find(function(item) { return item.partId === partId; });
+  if (existing) { existing.qty = (existing.qty || 1) + 1; }
+  else {
+    var name = getPartName(part);
+    cart.push({
+      partId: partId, name: name, partName: name,
+      sellerUid: part.uid || '', sellerName: part.sellerName || '',
+      sellerCity: part.sellerCity || '', basePrice: part.basePrice || 0,
+      discount: part.discount || 0, image: part.images?.[0] || '', qty: 1
+    });
+  }
+  saveCart();
+  showToast('✅ Shtuar në shportë!');
+  closeModal('buyModal');
+}
+
+function addToCartFromModal() { if (selectedPart) addToCart(selectedPart.id); }
+
+function renderCart() {
+  var c = g('cartContent'), cs = g('cartCheckoutSection');
+  if (!cart.length) {
+    c.innerHTML = '<div style="text-align:center;padding:2.5rem;color:var(--text-muted);">Shporta është bosh</div>';
+    cs.style.display = 'none'; return;
+  }
+
+  var groups = {};
+  cart.forEach(function(item, i) {
+    var key = item.sellerUid || 'unknown';
+    if (!groups[key]) groups[key] = { sellerName: item.sellerName, sellerCity: item.sellerCity, sellerUid: item.sellerUid, items: [], subtotal: 0, shipping: 0 };
+    var dp = item.discount > 0 ? Math.round((item.basePrice || 0) * (1 - (item.discount || 0) / 100)) : (item.basePrice || 0);
+    var fee = Math.round(dp * PLATFORM_FEE), fin = dp + fee, it = fin * (item.qty || 1);
+    groups[key].items.push({ ...item, index: i, fin: fin, itemTotal: it });
+    groups[key].subtotal += it;
+  });
+
+  var html = '', grandTotal = 0;
+  Object.values(groups).forEach(function(g) {
+    var shipping = calculateShipping(g.subtotal, 'online');
+    g.shipping = shipping;
+    var groupTotal = g.subtotal + shipping;
+    grandTotal += groupTotal;
+    html += '<div style="background:var(--primary-light);border:1px solid rgba(180,83,9,0.2);border-radius:var(--radius-sm);padding:0.75rem;margin-bottom:0.75rem;">';
+    html += '<div style="font-weight:700;color:var(--primary);margin-bottom:0.5rem;">🏪 ' + g.sellerName + ' · ' + g.sellerCity + '</div>';
+    g.items.forEach(function(item) {
+      html += '<div class="cart-item"><div class="cart-item-img">' + (item.image ? '<img src="' + item.image + '" alt="' + item.partName + '" />' : '<span style="font-size:0.7rem;font-weight:700;color:#d5d5d5;">PA FOTO</span>') + '</div><div class="cart-item-info"><div class="cart-item-name">' + item.partName + '</div><div class="cart-item-price">' + formatPrice(item.itemTotal) + '</div></div><div class="cart-item-qty"><button class="qty-btn" onclick="updateCartQty(' + item.index + ',-1)">−</button><span style="font-weight:700;font-size:0.85rem;">' + item.qty + '</span><button class="qty-btn" onclick="updateCartQty(' + item.index + ',1)">+</button><button class="qty-btn cart-item-remove" onclick="removeFromCart(' + item.index + ')">✕</button></div></div>';
+    });
+    html += '<div style="display:flex;justify-content:space-between;font-size:0.8rem;padding-top:0.5rem;border-top:1px solid rgba(180,83,9,0.15);"><span>Nëntotali</span><span>' + formatPrice(g.subtotal) + '</span></div>';
+    html += '<div style="display:flex;justify-content:space-between;font-size:0.8rem;color:var(--text-muted);"><span>Transporti</span><span>' + (shipping > 0 ? formatPrice(shipping) : '<span style="color:#2e7d32;">FALAS</span>') + '</span></div>';
+    html += '<div style="display:flex;justify-content:space-between;font-weight:700;font-size:0.9rem;"><span>Totali</span><span style="color:var(--success);">' + formatPrice(groupTotal) + '</span></div></div>';
+  });
+  c.innerHTML = html;
+  g('cartSubtotal').textContent = 'Shiko më poshtë';
+  g('cartShipping').textContent = '';
+  g('cartGrandTotal').textContent = formatPrice(grandTotal);
+  cs.style.display = 'block';
+}
+
+// ===== CHECKOUT =====
+function proceedToAddress() {
+  if (!cart.length) return;
+  closeModal('cartModal');
+  g('addressModal').classList.add('open');
+  var totalItems = cart.reduce(function(s, i) { return s + (i.qty || 1); }, 0);
+  g('confirmAddressBtn').innerHTML = 'KONFIRMO POROSINË (' + totalItems + ' pjesë)';
+}
+
+async function confirmAddress() {
+  var addr = g('deliveryAddress').value.trim(), city = g('deliveryCity').value.trim();
+  var phone = g('deliveryPhone').value.trim(), email = g('deliveryEmail').value.trim();
+  var payMethod = document.querySelector('input[name="payMethod"]:checked')?.value || 'cash';
+  if (!addr || !city || !phone || !email) { showToast('Plotëso të gjitha fushat!', true); return; }
+
+  var groups = {};
+  cart.forEach(function(item) {
+    var key = item.sellerUid || 'unknown';
+    if (!groups[key]) groups[key] = [];
+    groups[key].push(item);
+  });
+
+  try {
+    var batch = db.batch();
+    for (var sellerUid in groups) {
+      var sellerItems = groups[sellerUid], sellerSubtotal = 0;
+      sellerItems.forEach(function(item) {
+        var dp = item.discount > 0 ? Math.round((item.basePrice || 0) * (1 - (item.discount || 0) / 100)) : (item.basePrice || 0);
+        var fee = Math.round(dp * PLATFORM_FEE), fin = dp + fee;
+        sellerSubtotal += fin * (item.qty || 1);
+      });
+      var shipping = calculateShipping(sellerSubtotal, 'online');
+      var orderItems = [];
+      sellerItems.forEach(function(item) {
+        var dp = item.discount > 0 ? Math.round((item.basePrice || 0) * (1 - (item.discount || 0) / 100)) : (item.basePrice || 0);
+        var fee = Math.round(dp * PLATFORM_FEE), fin = dp + fee, total = fin * (item.qty || 1);
+        orderItems.push({ partId: item.partId, partName: item.partName, partEmoji: '⚙️', basePrice: dp, quantity: item.qty || 1, platformFee: fee * (item.qty || 1), totalPrice: total });
+      });
+
+      var orderRef = db.collection('orders').doc();
+      var orderData = {
+        sellerUid: sellerUid, sellerName: sellerItems[0].sellerName, sellerCity: sellerItems[0].sellerCity,
+        items: orderItems, partCount: orderItems.length,
+        partName: orderItems.map(function(i) { return i.partName; }).join(', '),
+        partEmoji: '⚙️', basePrice: sellerSubtotal,
+        quantity: orderItems.reduce(function(s, i) { return s + i.quantity; }, 0),
+        platformFee: orderItems.reduce(function(s, i) { return s + i.platformFee; }, 0),
+        totalPrice: sellerSubtotal, shippingFee: shipping, grandTotal: sellerSubtotal + shipping,
+        deliveryAddress: addr, deliveryCity: city, deliveryPhone: phone, deliveryEmail: email,
+        payMethod: payMethod, status: 'pending',
+        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+        buyerUid: currentBuyer?.uid || null,
+        buyerName: currentBuyer?.email?.split('@')[0] || 'Klient',
+        buyerPhone: phone
+      };
+      batch.set(orderRef, orderData);
+
+      for (var j = 0; j < sellerItems.length; j++) {
+        var item = sellerItems[j];
+        var partRef = db.collection('parts').doc(item.partId);
+        var partDoc = await partRef.get();
+        if (partDoc.exists) {
+          var currentStock = partDoc.data().stock || 0;
+          var newStock = Math.max(0, currentStock - (item.qty || 1));
+          batch.update(partRef, { stock: newStock, status: newStock > 0 ? 'active' : 'inactive', sales: (partDoc.data().sales || 0) + (item.qty || 1) });
+        }
+      }
+    }
+    await batch.commit();
+    cart = []; saveCart(); closeModal('addressModal');
+    showToast('✅ Porosia u regjistrua!');
+    g('deliveryAddress').value = ''; g('deliveryCity').value = '';
+    g('deliveryPhone').value = ''; g('deliveryEmail').value = '';
+  } catch(e) { showToast('❌ ' + e.message, true); }
+}
+
+// ===== DOCUMENT CLICK (close user dropdown) =====
+document.addEventListener('click', function(e) {
+  if (!e.target.closest('.user-menu')) {
+    var dd = g('userDropdown');
+    if (dd && dd.style.display === 'block') dd.style.display = 'none';
+  }
+});
