@@ -78,7 +78,7 @@ window.doRegister = async function() {
 window.doLogout = async function() { await auth.signOut(); };
 
 window.showTab = function(tab, btn) {
-  document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.auth-tab').forEach(function(t) { t.classList.remove('active'); });
   btn.classList.add('active');
   g('loginForm').style.display = tab === 'login' ? 'block' : 'none';
   g('registerForm').style.display = tab === 'register' ? 'block' : 'none';
@@ -206,7 +206,7 @@ function renderMyParts() {
 function renderRecentOrders() {
   var tbody = g('recentOrdersBody'); if (!tbody) return;
   var recent = myOrders.slice(0, 5);
-  tbody.innerHTML = recent.length ? recent.map(function(o) { return orderRow(o); }).join('') : '<tr><td colspan="8" style="text-align:center;padding:2rem;">Ende nuk keni porosi.</td></tr>';
+  tbody.innerHTML = recent.length ? recent.map(function(o) { return orderRow(o); }).join('') : '<tr><td colspan="7" style="text-align:center;padding:2rem;">Ende nuk keni porosi.</td></tr>';
 }
 
 function renderOrders(filter) {
@@ -525,7 +525,13 @@ window.editPart = function(partId) {
   if (part.discount > 0) { g('fDiscount').checked = true; g('fDiscountVal').value = part.discount; g('fDiscountVal').style.display = 'inline-block'; }
   populateCarMakes();
   var fits = part.fits || '', spaceIndex = fits.indexOf(' ');
-  if (spaceIndex > 0) { g('partMake').value = fits.substring(0, spaceIndex); onPartMakeChange(); setTimeout(function() { g('partModel').value = fits.substring(spaceIndex + 1); }, 300); }
+  if (spaceIndex > 0) {
+    var savedMake = fits.substring(0, spaceIndex);
+    var savedModel = fits.substring(spaceIndex + 1);
+    g('partMake').value = savedMake;
+    onPartMakeChange();
+    setTimeout(function() { g('partModel').value = savedModel; }, 400);
+  }
   selectedImages = []; renderImagePreviews(); calcFee(); showPage('addpart');
 };
 
@@ -618,6 +624,7 @@ window.parseBulkImport = function() {
     var parts = line.split('|').map(function(s) { return s.trim(); });
     return { name: parts[0] || '', category: parts[1] || 'other', condition: parts[2] || 'new', price: parseFloat(parts[3]) || 0, stock: parseInt(parts[4]) || 1, make: parts[5] || '', model: parts[6] || '', description: parts[7] || '', vin: parts[8] || '' };
   });
+  g('bulkCount').textContent = bulkImportData.length + ' pjesë';
   showToast('✅ ' + bulkImportData.length + ' pjesë');
 };
 
@@ -642,7 +649,7 @@ window.importBulkParts = async function() {
       imported++;
     }
     showToast('✅ ' + imported + ' pjesë u importuan!');
-    bulkImportData = []; g('bulkText').value = '';
+    bulkImportData = []; g('bulkText').value = ''; g('bulkCount').textContent = '0 pjesë';
   } catch (e) { showToast('Gabim: ' + e.message, true); }
   btn.textContent = 'IMPORTO TË GJITHA'; btn.disabled = false;
 };
@@ -654,3 +661,40 @@ window.setLoginLang = function(lg) {
   var btn = document.querySelector('.ll-btn[onclick="setLoginLang(\'' + lg + '\')"]');
   if (btn) btn.classList.add('active');
 };
+
+// ===== CAR MAKE/MODEL FOR BACKOFFICE =====
+// These use the backoffice-specific element IDs: partMake, partModel
+
+function populateCarMakes() {
+  var sel = g('partMake');
+  if (!sel) return;
+  sel.innerHTML = '<option value="">Zgjidh Markën</option>';
+  carBrands.forEach(function(b) {
+    var o = document.createElement('option');
+    o.value = b;
+    o.textContent = b;
+    sel.appendChild(o);
+  });
+}
+
+function onPartMakeChange() {
+  var make = g('partMake').value;
+  var modelSelect = g('partModel');
+  
+  if (!modelSelect) return;
+  
+  modelSelect.innerHTML = '<option value="">Zgjidh Modelin</option>';
+  
+  if (make && carModels[make]) {
+    modelSelect.disabled = false;
+    carModels[make].forEach(function(m) {
+      var o = document.createElement('option');
+      o.value = m;
+      o.textContent = m;
+      modelSelect.appendChild(o);
+    });
+  } else {
+    modelSelect.disabled = true;
+    modelSelect.value = '';
+  }
+}
