@@ -20,8 +20,50 @@ let currentUser = null, currentBiz = null;
 let myParts = [], myOrders = [];
 let currentPage = 'dashboard', currentOrderFilter = 'all';
 let salesChart = null;
-let selectedImages = [], bulkImportData = [], editPartId = null;
+let selectedImages = [], editPartId = null;
 let deletePartId = null;
+
+// ===== SMART BULK IMPORT =====
+let bulkFileHeaders = [];
+let bulkFileRows = [];
+let bulkColumnMapping = {};
+let bulkImportData = [];
+
+const CARD_FIELDS = {
+  name: 'Emri i Pjesës *',
+  category: 'Kategoria',
+  condition: 'Gjendja',
+  price: 'Çmimi *',
+  stock: 'Stoku',
+  make: 'Marka',
+  model: 'Modeli',
+  description: 'Përshkrimi',
+  vin: 'VIN',
+  year: 'Viti',
+  generation: 'Gjenerata',
+  engine: 'Motori',
+  fuel: 'Karburanti',
+  oem: 'OEM'
+};
+
+function autoDetectField(header) {
+  var h = header.toLowerCase().trim();
+  if (h.indexOf('emri') > -1 || h.indexOf('emër') > -1 || h.indexOf('name') > -1 || h.indexOf('titull') > -1 || h.indexOf('pjesa') > -1) return 'name';
+  if (h.indexOf('kategori') > -1 || h.indexOf('category') > -1 || h.indexOf('kat') > -1 || h.indexOf('lloji') > -1) return 'category';
+  if (h.indexOf('gjendj') > -1 || h.indexOf('condition') > -1 || h.indexOf('status') > -1 || h.indexOf('e re') > -1) return 'condition';
+  if (h.indexOf('çmim') > -1 || h.indexOf('cmim') > -1 || h.indexOf('price') > -1 || h.indexOf('vlere') > -1 || h.indexOf('kosto') > -1) return 'price';
+  if (h.indexOf('stok') > -1 || h.indexOf('stock') > -1 || h.indexOf('sasi') > -1 || h.indexOf('cope') > -1 || h.indexOf('gjendje') > -1) return 'stock';
+  if (h.indexOf('mark') > -1 || h.indexOf('make') > -1 || h.indexOf('brand') > -1 || h.indexOf('prodhu') > -1) return 'make';
+  if (h.indexOf('model') > -1 || h.indexOf('modeli') > -1) return 'model';
+  if (h.indexOf('pershkrim') > -1 || h.indexOf('përshkrim') > -1 || h.indexOf('description') > -1 || h.indexOf('shenim') > -1) return 'description';
+  if (h === 'vin' || h.indexOf('vin') > -1 || h.indexOf('shasi') > -1) return 'vin';
+  if (h.indexOf('vit') > -1 || h.indexOf('year') > -1) return 'year';
+  if (h.indexOf('gjenerat') > -1 || h.indexOf('generation') > -1) return 'generation';
+  if (h.indexOf('motor') > -1 || h.indexOf('engine') > -1) return 'engine';
+  if (h.indexOf('karburant') > -1 || h.indexOf('fuel') > -1 || h.indexOf('naft') > -1 || h.indexOf('benzin') > -1) return 'fuel';
+  if (h.indexOf('oem') > -1 || h.indexOf('origjinal') > -1 || h.indexOf('numer') > -1) return 'oem';
+  return null;
+}
 
 // ===== AUTH =====
 auth.onAuthStateChanged(async function(user) {
@@ -352,6 +394,14 @@ window.showPage = function(page) {
     if (!editPartId) resetAddPartForm();
     setTimeout(function() { populateCarMakes(); }, 50);
   }
+  if (page === 'bulkimport') {
+    bulkImportData = [];
+    g('bulkStep1').style.display = 'block';
+    g('bulkStep2').style.display = 'none';
+    g('bulkStep3').style.display = 'none';
+    g('bulkFileName').textContent = 'Asnjë skedar i zgjedhur';
+    g('bulkCount').textContent = '0 pjesë';
+  }
   if (window.innerWidth <= 768) { g('sidebar')?.classList.remove('open'); g('sidebarOverlay')?.classList.remove('show'); }
 };
 
@@ -620,42 +670,202 @@ window.confirmUpdateStock = async function() {
   catch (e) { showToast('Gabim: ' + e.message, true); }
 };
 
-// ===== BULK IMPORT =====
-window.parseBulkImport = function() {
-  var text = g('bulkText').value.trim(); if (!text) { showToast('Plotëso fushat e detyrueshme!', true); return; }
-  var lines = text.split('\n').filter(function(l) { return l.trim(); });
-  bulkImportData = lines.map(function(line) {
-    var parts = line.split('|').map(function(s) { return s.trim(); });
-    return { name: parts[0] || '', category: parts[1] || 'other', condition: parts[2] || 'new', price: parseFloat(parts[3]) || 0, stock: parseInt(parts[4]) || 1, make: parts[5] || '', model: parts[6] || '', description: parts[7] || '', vin: parts[8] || '' };
-  });
-  g('bulkCount').textContent = bulkImportData.length + ' pjesë';
-  showToast('✅ ' + bulkImportData.length + ' pjesë');
+// ===== SMART BULK IMPORT =====
+window.handleBulkFile = function(event) {
+  var file = event.target.files[0];
+  if (!file) return;
+  
+  g('bulkFileName').textContent = file.name;
+  
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    var text = e.target.result;
+    g('bulkText').value = text;
+    parseWithHeaders(text);
+  };
+  reader.readAsText(file);
+  event.target.value = '';
 };
 
+window.parseBulkImport = function() {
+  var text = g('bulkText').value.trim();
+  if (!text) { showToast('Ngarko një skedar ose ngjit të dhënat!', true); return; }
+  parseWithHeaders(text);
+};
+
+function parseWithHeaders(text) {
+  var lines = text.split('\n').filter(function(l) { return l.trim(); });
+  if (lines.length < 2) { showToast('Skedari duhet të ketë të paktën 1 rresht të dhënash + kokë!', true); return; }
+  
+  var delimiter = lines[0].indexOf(',') > -1 ? ',' : '|';
+  
+  bulkFileHeaders = lines[0].split(delimiter).map(function(h) { return h.trim(); });
+  bulkFileRows = [];
+  
+  for (var i = 1; i < lines.length; i++) {
+    var values = lines[i].split(delimiter).map(function(v) { return v.trim(); });
+    bulkFileRows.push(values);
+  }
+  
+  bulkColumnMapping = {};
+  bulkFileHeaders.forEach(function(header, index) {
+    var detected = autoDetectField(header);
+    if (detected) bulkColumnMapping[detected] = index;
+  });
+  
+  renderColumnMapping();
+  g('bulkStep1').style.display = 'none';
+  g('bulkStep2').style.display = 'block';
+  g('bulkStep3').style.display = 'none';
+}
+
+function renderColumnMapping() {
+  var area = g('bulkMappingArea');
+  var html = '';
+  
+  var fieldKeys = ['name', 'category', 'condition', 'price', 'stock', 'make', 'model', 'description', 'vin', 'year', 'generation', 'engine', 'fuel', 'oem'];
+  
+  fieldKeys.forEach(function(fieldKey) {
+    var isRequired = fieldKey === 'name' || fieldKey === 'price';
+    var label = CARD_FIELDS[fieldKey] + (isRequired ? '' : '');
+    var currentMapping = bulkColumnMapping[fieldKey];
+    
+    html += '<div style="display:flex;align-items:center;gap:0.5rem;">';
+    html += '<span style="font-weight:600;font-size:0.8rem;min-width:100px;">' + label + '</span>';
+    html += '<select onchange="setBulkMapping(\'' + fieldKey + '\', this.value)" style="flex:1;padding:6px 8px;border:2px solid var(--border);border-radius:6px;font-size:0.8rem;font-family:Inter,sans-serif;">';
+    html += '<option value="">Injoro</option>';
+    
+    bulkFileHeaders.forEach(function(header, index) {
+      var selected = currentMapping === index ? ' selected' : '';
+      html += '<option value="' + index + '"' + selected + '>' + header + '</option>';
+    });
+    
+    html += '</select></div>';
+  });
+  
+  area.innerHTML = html;
+}
+
+window.setBulkMapping = function(fieldKey, value) {
+  if (value === '') {
+    delete bulkColumnMapping[fieldKey];
+  } else {
+    bulkColumnMapping[fieldKey] = parseInt(value);
+  }
+};
+
+window.applyBulkMapping = function() {
+  if (!bulkColumnMapping['name'] && !bulkColumnMapping['price']) {
+    showToast('Duhet të paktën Emri dhe Çmimi!', true);
+    return;
+  }
+  
+  bulkImportData = bulkFileRows.map(function(row) {
+    function getVal(fieldKey, defaultVal) {
+      var index = bulkColumnMapping[fieldKey];
+      return (index !== undefined && index < row.length) ? row[index] : defaultVal;
+    }
+    
+    return {
+      name: getVal('name', ''),
+      category: getVal('category', 'other'),
+      condition: getVal('condition', 'new'),
+      price: parseFloat(getVal('price', '0')) || 0,
+      stock: parseInt(getVal('stock', '1')) || 1,
+      make: getVal('make', ''),
+      model: getVal('model', ''),
+      description: getVal('description', ''),
+      vin: getVal('vin', ''),
+      year: getVal('year', ''),
+      generation: getVal('generation', ''),
+      engine: getVal('engine', ''),
+      fuel: getVal('fuel', ''),
+      oem: getVal('oem', '')
+    };
+  }).filter(function(item) { return item.name && item.price > 0; });
+  
+  renderBulkPreview();
+  g('bulkStep2').style.display = 'none';
+  g('bulkStep3').style.display = 'block';
+};
+
+function renderBulkPreview() {
+  g('bulkPreviewCount').textContent = bulkImportData.length;
+  g('bulkCount').textContent = bulkImportData.length;
+  
+  var tbody = g('bulkPreviewBody');
+  tbody.innerHTML = bulkImportData.slice(0, 50).map(function(item, i) {
+    return '<tr>'
+      + '<td>' + (i + 1) + '</td>'
+      + '<td>' + item.name + '</td>'
+      + '<td>' + getCatName(item.category) + '</td>'
+      + '<td>' + (item.condition === 'new' ? 'E Re' : 'E Përdorur') + '</td>'
+      + '<td>' + formatPrice(item.price) + '</td>'
+      + '<td>' + item.stock + '</td>'
+      + '<td>' + item.make + '</td>'
+      + '<td>' + item.model + '</td>'
+      + '</tr>';
+  }).join('');
+  
+  if (bulkImportData.length > 50) {
+    tbody.innerHTML += '<tr><td colspan="8" style="text-align:center;color:var(--text-muted);">+ ' + (bulkImportData.length - 50) + ' të tjera</td></tr>';
+  }
+}
+
 window.importBulkParts = async function() {
-  if (!bulkImportData.length) { showToast('Plotëso fushat e detyrueshme!', true); return; }
-  var btn = g('bulkImportBtn'); btn.textContent = 'Duke importuar...'; btn.disabled = true;
+  if (!bulkImportData.length) { showToast('Asnjë pjesë për të importuar!', true); return; }
+  
+  var btn = g('bulkImportBtn');
+  btn.textContent = 'Duke importuar...'; btn.disabled = true;
   var imported = 0;
+  
   try {
     for (var i = 0; i < bulkImportData.length; i++) {
-      var p = bulkImportData[i]; if (!p.name || !p.price) continue;
+      var p = bulkImportData[i];
+      if (!p.name || !p.price) continue;
+      
       var fits = (p.make && p.model) ? p.make + ' ' + p.model : p.make || '';
+      
       await db.collection("parts").add({
-        name: { sq: p.name, en: p.name }, basePrice: p.price, fits,
-        category: p.category, condition: p.condition, stock: p.stock,
-        description: p.description, vin: (p.vin || '').toUpperCase(),
-        emoji: getCatEmoji(p.category),
+        name: { sq: p.name, en: p.name },
+        basePrice: p.price,
+        fits: fits,
+        category: p.category || 'other',
+        condition: p.condition || 'new',
+        stock: p.stock || 1,
+        description: p.description || '',
+        vin: (p.vin || '').toUpperCase(),
+        year: p.year || null,
+        generation: p.generation || '',
+        engineType: p.engine || '',
+        fuelType: p.fuel || '',
+        oemNumber: (p.oem || '').toUpperCase(),
+        emoji: getCatEmoji(p.category || 'other'),
         sellerName: currentBiz?.businessName || currentBiz?.name || '',
-        sellerCity: currentBiz?.city || '', uid: currentUser.uid,
-        status: p.stock > 0 ? 'active' : 'inactive', views: 0, sales: 0, rating: 5,
-        images: [], createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        sellerCity: currentBiz?.city || '',
+        uid: currentUser.uid,
+        status: (p.stock || 1) > 0 ? 'active' : 'inactive',
+        views: 0, sales: 0, rating: 5,
+        images: [],
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
       });
       imported++;
     }
+    
     showToast('✅ ' + imported + ' pjesë u importuan!');
-    bulkImportData = []; g('bulkText').value = ''; g('bulkCount').textContent = '0 pjesë';
-  } catch (e) { showToast('Gabim: ' + e.message, true); }
-  btn.textContent = 'IMPORTO TË GJITHA'; btn.disabled = false;
+    bulkImportData = [];
+    g('bulkText').value = '';
+    g('bulkFileName').textContent = 'Asnjë skedar i zgjedhur';
+    g('bulkStep3').style.display = 'none';
+    g('bulkStep1').style.display = 'block';
+    g('bulkCount').textContent = '0 pjesë';
+    
+  } catch (e) {
+    showToast('Gabim: ' + e.message, true);
+  }
+  
+  btn.textContent = 'IMPORTO PJESË';
+  btn.disabled = false;
 };
 
 // ===== LOGIN LANGUAGE =====
