@@ -65,6 +65,500 @@ function autoDetectField(header) {
   return null;
 }
 
+// ===== STOCK IMAGES (SVG) =====
+function getStockImage(partName, category) {
+  var name = (partName || '').toLowerCase();
+  
+  var specificMap = {
+    'filtër vaji|filtri vajit|oil filter': oilFilterSVG,
+    'filtër ajri|filtri ajrit|air filter': airFilterSVG,
+    'filtër karburanti|filtri karburantit|fuel filter': fuelFilterSVG,
+    'alternator|alternatori': alternatorSVG,
+    'motor starter|starter|startues': starterSVG,
+    'turbinë|turbina|turbo': turboSVG,
+    'kandelë|kandela|spark plug|bobina': sparkPlugSVG,
+    'rrip kohor|rripi kohor|timing belt': timingBeltSVG,
+    'pompë uji|pompa ujit|water pump': waterPumpSVG,
+    'pompë vaji|pompa vajit|oil pump': oilPumpSVG,
+    'radiator|radiatorë': radiatorSVG,
+    'termostat|termostati': thermostatSVG,
+    'katalizator|katalizatori': catalyticSVG,
+    'injektor|injektorë': injectorSVG,
+    'tambllaqe|disqe frena|diskun e frenave|disk frenash|brake disc': brakeDiscSVG,
+    'tabela frenash|tabelat e frenave|brake pads|pads': brakePadsSVG,
+    'kaliper|kaliperi': caliperSVG,
+    'pompë frenash|pompa frenave': brakePumpSVG,
+    'amortizator|amortizatorë': shockSVG,
+    'sustë|susta|spring': springSVG,
+    'krahun|krahu|control arm': controlArmSVG,
+    'bateri|bateria|akumulator': batterySVG,
+    'motor fshirëse|fshirëse': wiperMotorSVG,
+    'centralinë|centralina|ecu': ecuSVG,
+    'sensori|sensor': sensorSVG,
+    'fener|fenerët|dritë|drita|far|fari': headlightSVG,
+    'parakolp|parakolpi': bumperSVG,
+    'pasqyrë|pasqyra': mirrorSVG,
+    'kapak|kapaku': hoodSVG,
+    'portë|porta|derë|dera': doorSVG,
+    'parafango|parafang': fenderSVG,
+    'xham|xhami': windowSVG,
+    'kompresor kondicioneri|kompresori|ac compressor': acCompressorSVG,
+    'ventilator|ventilatori|fan': fanSVG,
+    'tufë|tufa|clutch': clutchSVG,
+    'kambio|kambia|gearbox|transmision': transmissionSVG,
+    'volant|volanti': flywheelSVG,
+    'shkarkim|shkarkimi|exhaust|silenciator': exhaustSVG,
+    'filtër|filtri|filter': filterSVG,
+    'bllok motor|blloku motorit': engineBlockSVG,
+  };
+  
+  for (var keywords in specificMap) {
+    var parts = keywords.split('|');
+    for (var i = 0; i < parts.length; i++) {
+      if (name.indexOf(parts[i].trim()) > -1) {
+        return specificMap[keywords]();
+      }
+    }
+  }
+  
+  var catMap = {
+    engine: engineSVG,
+    brakes: brakeSVG,
+    electrical: electricalSVG,
+    suspension: suspensionSVG,
+    body: bodySVG,
+    ac: acSVG,
+  };
+  
+  return (catMap[category] || engineSVG)();
+}
+
+function svgWrap(body, label) {
+  var lbl = label ? '<text x="100" y="180" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#aaa" font-weight="600">' + label + '</text>' : '';
+  return 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><rect width="200" height="200" fill="#fafafa" rx="8"/><rect x="10" y="10" width="180" height="160" rx="6" fill="#f0f0f0"/>' + body + lbl + '</svg>');
+}
+
+function engineSVG() {
+  return svgWrap('<text x="100" y="85" text-anchor="middle" font-size="48">⚙️</text><text x="100" y="125" text-anchor="middle" font-family="sans-serif" font-size="13" fill="#888" font-weight="600">MOTOR</text>', 'Pjesë Motori');
+}
+function brakeSVG() {
+  return svgWrap('<text x="100" y="85" text-anchor="middle" font-size="48">🔘</text><text x="100" y="125" text-anchor="middle" font-family="sans-serif" font-size="13" fill="#888" font-weight="600">FRENA</text>', 'Sistem Frenimi');
+}
+function electricalSVG() {
+  return svgWrap('<text x="100" y="85" text-anchor="middle" font-size="48">⚡</text><text x="100" y="125" text-anchor="middle" font-family="sans-serif" font-size="13" fill="#888" font-weight="600">ELEKTRIK</text>', 'Pjesë Elektrike');
+}
+function suspensionSVG() {
+  return svgWrap('<text x="100" y="85" text-anchor="middle" font-size="48">🔩</text><text x="100" y="125" text-anchor="middle" font-family="sans-serif" font-size="13" fill="#888" font-weight="600">AMORTIZATORË</text>', 'Sistem Pezullimi');
+}
+function bodySVG() {
+  return svgWrap('<text x="100" y="85" text-anchor="middle" font-size="48">🚗</text><text x="100" y="125" text-anchor="middle" font-family="sans-serif" font-size="13" fill="#888" font-weight="600">KARROCERI</text>', 'Pjesë Karrocerie');
+}
+function acSVG() {
+  return svgWrap('<text x="100" y="85" text-anchor="middle" font-size="48">🌡️</text><text x="100" y="125" text-anchor="middle" font-family="sans-serif" font-size="13" fill="#888" font-weight="600">KLIMË</text>', 'Sistem Klimatizimi');
+}
+
+function oilFilterSVG() {
+  return svgWrap(
+    '<rect x="70" y="35" width="60" height="100" rx="12" fill="#e8e8e8" stroke="#ccc" stroke-width="2"/>' +
+    '<rect x="78" y="48" width="44" height="8" rx="2" fill="#b45309"/>' +
+    '<rect x="78" y="64" width="44" height="8" rx="2" fill="#b45309"/>' +
+    '<rect x="78" y="80" width="44" height="8" rx="2" fill="#b45309"/>' +
+    '<circle cx="100" cy="50" r="6" fill="#92400e"/>' +
+    '<text x="100" y="155" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#888">FILTËR VAJI</text>',
+    'Filtër Vaji'
+  );
+}
+function airFilterSVG() {
+  return svgWrap(
+    '<rect x="40" y="55" width="120" height="70" rx="8" fill="#e8e8e8" stroke="#ccc" stroke-width="2"/>' +
+    '<rect x="50" y="65" width="100" height="50" rx="4" fill="#f5f5f5" stroke="#ddd" stroke-width="1"/>' +
+    '<line x1="60" y1="70" x2="140" y2="70" stroke="#ddd" stroke-width="1"/>' +
+    '<line x1="60" y1="78" x2="140" y2="78" stroke="#ddd" stroke-width="1"/>' +
+    '<line x1="60" y1="86" x2="140" y2="86" stroke="#ddd" stroke-width="1"/>' +
+    '<line x1="60" y1="94" x2="140" y2="94" stroke="#ddd" stroke-width="1"/>' +
+    '<line x1="60" y1="102" x2="140" y2="102" stroke="#ddd" stroke-width="1"/>' +
+    '<text x="100" y="155" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#888">FILTËR AJRI</text>',
+    'Filtër Ajri'
+  );
+}
+function fuelFilterSVG() {
+  return svgWrap(
+    '<rect x="65" y="40" width="70" height="90" rx="10" fill="#e8e8e8" stroke="#ccc" stroke-width="2"/>' +
+    '<circle cx="100" cy="55" r="8" fill="#f57c00"/>' +
+    '<line x1="100" y1="63" x2="100" y2="115" stroke="#ccc" stroke-width="2"/>' +
+    '<text x="100" y="155" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#888">FILTËR KARBURANTI</text>',
+    'Filtër Karburanti'
+  );
+}
+function alternatorSVG() {
+  return svgWrap(
+    '<circle cx="100" cy="85" r="45" fill="#e8e8e8" stroke="#ccc" stroke-width="2"/>' +
+    '<circle cx="100" cy="85" r="25" fill="#f0f0f0" stroke="#ddd" stroke-width="1"/>' +
+    '<circle cx="100" cy="85" r="8" fill="#b45309"/>' +
+    '<rect x="94" y="25" width="12" height="20" rx="3" fill="#ccc"/>' +
+    '<text x="100" y="155" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#888">ALTERNATOR</text>',
+    'Alternator'
+  );
+}
+function starterSVG() {
+  return svgWrap(
+    '<rect x="55" y="55" width="90" height="50" rx="8" fill="#e8e8e8" stroke="#ccc" stroke-width="2"/>' +
+    '<rect x="70" y="60" width="60" height="40" rx="4" fill="#f0f0f0" stroke="#ddd" stroke-width="1"/>' +
+    '<circle cx="100" cy="80" r="10" fill="#b45309"/>' +
+    '<rect x="95" y="30" width="10" height="25" rx="3" fill="#ccc"/>' +
+    '<text x="100" y="155" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#888">MOTOR STARTER</text>',
+    'Motor Starter'
+  );
+}
+function turboSVG() {
+  return svgWrap(
+    '<circle cx="70" cy="80" r="30" fill="#e8e8e8" stroke="#ccc" stroke-width="2"/>' +
+    '<circle cx="130" cy="80" r="30" fill="#e8e8e8" stroke="#ccc" stroke-width="2"/>' +
+    '<rect x="95" y="70" width="10" height="20" rx="2" fill="#b45309"/>' +
+    '<path d="M40,80 Q70,55 100,80 Q130,55 160,80" fill="none" stroke="#b45309" stroke-width="3"/>' +
+    '<text x="100" y="140" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#888">TURBINË</text>',
+    'Turbinë'
+  );
+}
+function sparkPlugSVG() {
+  return svgWrap(
+    '<rect x="80" y="30" width="40" height="20" rx="4" fill="#fff" stroke="#ccc" stroke-width="2"/>' +
+    '<rect x="88" y="50" width="24" height="60" rx="4" fill="#e8e8e8" stroke="#ccc" stroke-width="2"/>' +
+    '<rect x="88" y="110" width="24" height="15" rx="2" fill="#b45309"/>' +
+    '<line x1="100" y1="15" x2="100" y2="30" stroke="#888" stroke-width="2"/>' +
+    '<text x="100" y="155" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#888">KANDELË</text>',
+    'Kandelë'
+  );
+}
+function timingBeltSVG() {
+  return svgWrap(
+    '<circle cx="45" cy="80" r="20" fill="none" stroke="#ccc" stroke-width="4"/>' +
+    '<circle cx="155" cy="80" r="20" fill="none" stroke="#ccc" stroke-width="4"/>' +
+    '<circle cx="45" cy="80" r="6" fill="#b45309"/>' +
+    '<circle cx="155" cy="80" r="6" fill="#b45309"/>' +
+    '<line x1="45" y1="60" x2="155" y2="60" stroke="#888" stroke-width="5"/>' +
+    '<line x1="45" y1="100" x2="155" y2="100" stroke="#888" stroke-width="5"/>' +
+    '<text x="100" y="155" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#888">RRIP KOHOR</text>',
+    'Rrip Kohor'
+  );
+}
+function waterPumpSVG() {
+  return svgWrap(
+    '<circle cx="100" cy="80" r="35" fill="#e8e8e8" stroke="#ccc" stroke-width="2"/>' +
+    '<circle cx="100" cy="80" r="15" fill="#4fc3f7" opacity="0.5"/>' +
+    '<path d="M100,50 L100,40 L90,45 Z" fill="#ccc"/>' +
+    '<path d="M100,110 L100,120 L90,115 Z" fill="#ccc"/>' +
+    '<text x="100" y="155" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#888">POMPË UJI</text>',
+    'Pompë Uji'
+  );
+}
+function oilPumpSVG() {
+  return svgWrap(
+    '<circle cx="100" cy="80" r="35" fill="#e8e8e8" stroke="#ccc" stroke-width="2"/>' +
+    '<circle cx="100" cy="80" r="15" fill="#b45309" opacity="0.4"/>' +
+    '<path d="M100,50 L100,40 L90,45 Z" fill="#ccc"/>' +
+    '<path d="M100,110 L100,120 L90,115 Z" fill="#ccc"/>' +
+    '<text x="100" y="155" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#888">POMPË VAJI</text>',
+    'Pompë Vaji'
+  );
+}
+function radiatorSVG() {
+  return svgWrap(
+    '<rect x="40" y="40" width="120" height="90" rx="6" fill="#e8e8e8" stroke="#ccc" stroke-width="2"/>' +
+    '<rect x="48" y="48" width="104" height="74" rx="3" fill="#f5f5f5" stroke="#ddd" stroke-width="1"/>' +
+    '<line x1="60" y1="50" x2="60" y2="120" stroke="#ddd" stroke-width="2"/>' +
+    '<line x1="75" y1="50" x2="75" y2="120" stroke="#ddd" stroke-width="2"/>' +
+    '<line x1="90" y1="50" x2="90" y2="120" stroke="#ddd" stroke-width="2"/>' +
+    '<line x1="105" y1="50" x2="105" y2="120" stroke="#ddd" stroke-width="2"/>' +
+    '<line x1="120" y1="50" x2="120" y2="120" stroke="#ddd" stroke-width="2"/>' +
+    '<line x1="135" y1="50" x2="135" y2="120" stroke="#ddd" stroke-width="2"/>' +
+    '<text x="100" y="155" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#888">RADIATOR</text>',
+    'Radiator'
+  );
+}
+function thermostatSVG() {
+  return svgWrap(
+    '<circle cx="100" cy="80" r="30" fill="#e8e8e8" stroke="#ccc" stroke-width="2"/>' +
+    '<circle cx="100" cy="80" r="15" fill="#f0f0f0" stroke="#ddd" stroke-width="1"/>' +
+    '<line x1="100" y1="65" x2="100" y2="50" stroke="#ccc" stroke-width="3"/>' +
+    '<text x="100" y="155" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#888">TERMOSTAT</text>',
+    'Termostat'
+  );
+}
+function catalyticSVG() {
+  return svgWrap(
+    '<rect x="30" y="55" width="140" height="55" rx="10" fill="#e8e8e8" stroke="#ccc" stroke-width="2"/>' +
+    '<rect x="38" y="62" width="124" height="41" rx="6" fill="#f5f5f5" stroke="#ddd" stroke-width="1"/>' +
+    '<circle cx="75" cy="82" r="6" fill="#b45309"/>' +
+    '<circle cx="100" cy="82" r="6" fill="#b45309"/>' +
+    '<circle cx="125" cy="82" r="6" fill="#b45309"/>' +
+    '<text x="100" y="155" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#888">KATALIZATOR</text>',
+    'Katalizator'
+  );
+}
+function injectorSVG() {
+  return svgWrap(
+    '<rect x="75" y="30" width="50" height="12" rx="3" fill="#e8e8e8" stroke="#ccc" stroke-width="1"/>' +
+    '<rect x="80" y="42" width="40" height="70" rx="4" fill="#e8e8e8" stroke="#ccc" stroke-width="2"/>' +
+    '<circle cx="100" cy="100" r="4" fill="#b45309"/>' +
+    '<line x1="100" y1="18" x2="100" y2="30" stroke="#888" stroke-width="1"/>' +
+    '<text x="100" y="155" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#888">INJEKTOR</text>',
+    'Injektor'
+  );
+}
+function engineBlockSVG() {
+  return svgWrap(
+    '<rect x="35" y="40" width="130" height="80" rx="8" fill="#d0d0d0" stroke="#aaa" stroke-width="2"/>' +
+    '<rect x="45" y="50" width="110" height="60" rx="4" fill="#e8e8e8" stroke="#ccc" stroke-width="1"/>' +
+    '<circle cx="65" cy="70" r="12" fill="#999" stroke="#888" stroke-width="1"/>' +
+    '<circle cx="100" cy="70" r="12" fill="#999" stroke="#888" stroke-width="1"/>' +
+    '<circle cx="135" cy="70" r="12" fill="#999" stroke="#888" stroke-width="1"/>' +
+    '<text x="100" y="155" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#888">BLLOK MOTORI</text>',
+    'Bllok Motori'
+  );
+}
+function filterSVG() {
+  return svgWrap(
+    '<rect x="60" y="45" width="80" height="80" rx="10" fill="#e8e8e8" stroke="#ccc" stroke-width="2"/>' +
+    '<line x1="75" y1="60" x2="125" y2="60" stroke="#b45309" stroke-width="4"/>' +
+    '<line x1="75" y1="75" x2="125" y2="75" stroke="#b45309" stroke-width="4"/>' +
+    '<line x1="75" y1="90" x2="125" y2="90" stroke="#b45309" stroke-width="4"/>' +
+    '<line x1="75" y1="105" x2="125" y2="105" stroke="#b45309" stroke-width="4"/>' +
+    '<text x="100" y="155" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#888">FILTËR</text>',
+    'Filtër'
+  );
+}
+
+function brakeDiscSVG() {
+  return svgWrap(
+    '<circle cx="100" cy="75" r="50" fill="#e0e0e0" stroke="#ccc" stroke-width="3"/>' +
+    '<circle cx="100" cy="75" r="30" fill="#f5f5f5" stroke="#ddd" stroke-width="1"/>' +
+    '<circle cx="100" cy="75" r="10" fill="#bbb"/>' +
+    '<circle cx="100" cy="75" r="5" fill="#888"/>' +
+    '<text x="100" y="155" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#888">DISK FRENASH</text>',
+    'Disk Frenash'
+  );
+}
+function brakePadsSVG() {
+  return svgWrap(
+    '<rect x="40" y="55" width="120" height="22" rx="6" fill="#e8e8e8" stroke="#ccc" stroke-width="2"/>' +
+    '<rect x="40" y="85" width="120" height="22" rx="6" fill="#e8e8e8" stroke="#ccc" stroke-width="2"/>' +
+    '<rect x="50" y="62" width="100" height="8" rx="2" fill="#b45309"/>' +
+    '<rect x="50" y="92" width="100" height="8" rx="2" fill="#b45309"/>' +
+    '<text x="100" y="155" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#888">TABELA FRENASH</text>',
+    'Tabela Frenash'
+  );
+}
+function caliperSVG() {
+  return svgWrap(
+    '<path d="M40,50 Q70,40 100,50 Q130,40 160,50 L150,110 Q100,120 50,110 Z" fill="#e8e8e8" stroke="#ccc" stroke-width="2"/>' +
+    '<circle cx="100" cy="80" r="8" fill="#b45309"/>' +
+    '<text x="100" y="155" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#888">KALIPER</text>',
+    'Kaliper'
+  );
+}
+function brakePumpSVG() {
+  return svgWrap(
+    '<rect x="60" y="45" width="80" height="20" rx="4" fill="#e8e8e8" stroke="#ccc" stroke-width="2"/>' +
+    '<rect x="70" y="65" width="60" height="50" rx="6" fill="#e8e8e8" stroke="#ccc" stroke-width="2"/>' +
+    '<circle cx="100" cy="90" r="12" fill="#b45309"/>' +
+    '<text x="100" y="155" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#888">POMPË FRENASH</text>',
+    'Pompë Frenash'
+  );
+}
+function shockSVG() {
+  return svgWrap(
+    '<rect x="70" y="25" width="60" height="100" rx="8" fill="#e8e8e8" stroke="#ccc" stroke-width="2"/>' +
+    '<rect x="78" y="40" width="44" height="70" rx="4" fill="#f0f0f0" stroke="#ddd" stroke-width="1"/>' +
+    '<line x1="85" y1="50" x2="115" y2="50" stroke="#ccc" stroke-width="2"/>' +
+    '<line x1="85" y1="65" x2="115" y2="65" stroke="#ccc" stroke-width="2"/>' +
+    '<line x1="85" y1="80" x2="115" y2="80" stroke="#ccc" stroke-width="2"/>' +
+    '<line x1="85" y1="95" x2="115" y2="95" stroke="#ccc" stroke-width="2"/>' +
+    '<text x="100" y="155" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#888">AMORTIZATOR</text>',
+    'Amortizator'
+  );
+}
+function springSVG() {
+  return svgWrap(
+    '<path d="M60,40 Q80,30 100,40 Q120,50 140,40 L135,55 Q115,65 100,55 Q85,45 65,55 Z" fill="none" stroke="#ccc" stroke-width="4"/>' +
+    '<path d="M60,55 Q80,45 100,55 Q120,65 140,55 L135,70 Q115,80 100,70 Q85,60 65,70 Z" fill="none" stroke="#ccc" stroke-width="4"/>' +
+    '<path d="M60,70 Q80,60 100,70 Q120,80 140,70 L135,85 Q115,95 100,85 Q85,75 65,85 Z" fill="none" stroke="#ccc" stroke-width="4"/>' +
+    '<text x="100" y="155" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#888">SUSTË</text>',
+    'Sustë'
+  );
+}
+function controlArmSVG() {
+  return svgWrap(
+    '<line x1="40" y1="60" x2="160" y2="100" stroke="#ccc" stroke-width="10" stroke-linecap="round"/>' +
+    '<circle cx="40" cy="60" r="10" fill="#e8e8e8" stroke="#ccc" stroke-width="2"/>' +
+    '<circle cx="160" cy="100" r="10" fill="#e8e8e8" stroke="#ccc" stroke-width="2"/>' +
+    '<text x="100" y="155" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#888">KRAHU</text>',
+    'Krahu'
+  );
+}
+function batterySVG() {
+  return svgWrap(
+    '<rect x="50" y="45" width="100" height="75" rx="8" fill="#e8e8e8" stroke="#ccc" stroke-width="2"/>' +
+    '<rect x="80" y="35" width="40" height="15" rx="3" fill="#ccc"/>' +
+    '<rect x="85" y="30" width="30" height="8" rx="2" fill="#b45309"/>' +
+    '<text x="75" y="80" text-anchor="middle" font-family="sans-serif" font-size="16" fill="#b45309">+</text>' +
+    '<text x="125" y="80" text-anchor="middle" font-family="sans-serif" font-size="16" fill="#888">−</text>' +
+    '<text x="100" y="155" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#888">BATERI</text>',
+    'Bateri'
+  );
+}
+function wiperMotorSVG() {
+  return svgWrap(
+    '<rect x="60" y="55" width="80" height="50" rx="8" fill="#e8e8e8" stroke="#ccc" stroke-width="2"/>' +
+    '<circle cx="100" cy="75" r="12" fill="#b45309"/>' +
+    '<line x1="100" y1="63" x2="100" y2="40" stroke="#ccc" stroke-width="3"/>' +
+    '<text x="100" y="155" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#888">MOTOR FSHIRËSE</text>',
+    'Motor Fshirëse'
+  );
+}
+function ecuSVG() {
+  return svgWrap(
+    '<rect x="40" y="45" width="120" height="75" rx="6" fill="#1a1a2e" stroke="#333" stroke-width="2"/>' +
+    '<rect x="50" y="55" width="100" height="55" rx="3" fill="#16213e"/>' +
+    '<circle cx="75" cy="75" r="3" fill="#4fc3f7"/>' +
+    '<circle cx="90" cy="75" r="3" fill="#4fc3f7"/>' +
+    '<circle cx="105" cy="75" r="3" fill="#4fc3f7"/>' +
+    '<circle cx="120" cy="75" r="3" fill="#4fc3f7"/>' +
+    '<text x="100" y="155" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#888">CENTRALINË</text>',
+    'Centralinë'
+  );
+}
+function sensorSVG() {
+  return svgWrap(
+    '<rect x="70" y="30" width="60" height="20" rx="4" fill="#e8e8e8" stroke="#ccc" stroke-width="2"/>' +
+    '<rect x="75" y="50" width="50" height="50" rx="6" fill="#e8e8e8" stroke="#ccc" stroke-width="2"/>' +
+    '<circle cx="100" cy="75" r="8" fill="#f57c00"/>' +
+    '<line x1="100" y1="20" x2="100" y2="30" stroke="#888" stroke-width="2"/>' +
+    '<text x="100" y="155" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#888">SENSOR</text>',
+    'Sensor'
+  );
+}
+function headlightSVG() {
+  return svgWrap(
+    '<ellipse cx="100" cy="75" rx="50" ry="40" fill="#fffde7" stroke="#ccc" stroke-width="2"/>' +
+    '<ellipse cx="100" cy="75" rx="30" ry="25" fill="#fff9c4"/>' +
+    '<circle cx="100" cy="75" r="12" fill="#f57c00"/>' +
+    '<text x="100" y="155" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#888">FENER</text>',
+    'Fener'
+  );
+}
+function bumperSVG() {
+  return svgWrap(
+    '<path d="M20,60 Q60,40 100,35 Q140,40 180,60 L170,110 Q100,120 30,110 Z" fill="#e8e8e8" stroke="#ccc" stroke-width="2"/>' +
+    '<text x="100" y="155" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#888">PARAKOLP</text>',
+    'Parakolp'
+  );
+}
+function mirrorSVG() {
+  return svgWrap(
+    '<ellipse cx="95" cy="75" rx="40" ry="50" fill="#e8e8e8" stroke="#ccc" stroke-width="2"/>' +
+    '<ellipse cx="95" cy="75" rx="30" ry="40" fill="#e3f2fd"/>' +
+    '<rect x="125" y="65" width="25" height="20" rx="4" fill="#ccc"/>' +
+    '<text x="100" y="155" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#888">PASQYRË</text>',
+    'Pasqyrë'
+  );
+}
+function hoodSVG() {
+  return svgWrap(
+    '<path d="M30,60 L170,60 L150,110 Q100,120 50,110 Z" fill="#e8e8e8" stroke="#ccc" stroke-width="2"/>' +
+    '<line x1="100" y1="60" x2="100" y2="115" stroke="#ddd" stroke-width="1"/>' +
+    '<text x="100" y="155" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#888">KAPAK</text>',
+    'Kapak'
+  );
+}
+function doorSVG() {
+  return svgWrap(
+    '<rect x="40" y="40" width="120" height="100" rx="8" fill="#e8e8e8" stroke="#ccc" stroke-width="2"/>' +
+    '<rect x="48" y="48" width="104" height="84" rx="4" fill="#fafafa" stroke="#ddd" stroke-width="1"/>' +
+    '<rect x="130" y="80" width="18" height="8" rx="2" fill="#ccc"/>' +
+    '<text x="100" y="155" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#888">PORTË</text>',
+    'Portë'
+  );
+}
+function fenderSVG() {
+  return svgWrap(
+    '<path d="M30,40 Q100,30 170,50 L170,120 Q100,130 30,110 Z" fill="#e8e8e8" stroke="#ccc" stroke-width="2"/>' +
+    '<text x="100" y="155" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#888">PARAFANGO</text>',
+    'Parafango'
+  );
+}
+function windowSVG() {
+  return svgWrap(
+    '<rect x="30" y="40" width="140" height="90" rx="8" fill="#e3f2fd" stroke="#ccc" stroke-width="2"/>' +
+    '<line x1="30" y1="85" x2="170" y2="85" stroke="#fff" stroke-width="3" opacity="0.6"/>' +
+    '<text x="100" y="155" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#888">XHAM</text>',
+    'Xham'
+  );
+}
+function acCompressorSVG() {
+  return svgWrap(
+    '<circle cx="100" cy="75" r="45" fill="#e8e8e8" stroke="#ccc" stroke-width="2"/>' +
+    '<circle cx="100" cy="75" r="20" fill="#f0f0f0" stroke="#ddd" stroke-width="1"/>' +
+    '<circle cx="100" cy="75" r="6" fill="#4fc3f7"/>' +
+    '<text x="100" y="155" text-anchor="middle" font-family="sans-serif" font-size="8" fill="#888">KOMPRESOR AC</text>',
+    'Kompresor AC'
+  );
+}
+function fanSVG() {
+  return svgWrap(
+    '<circle cx="100" cy="80" r="45" fill="#e8e8e8" stroke="#ccc" stroke-width="2"/>' +
+    '<circle cx="100" cy="80" r="10" fill="#ccc"/>' +
+    '<ellipse cx="100" cy="50" rx="12" ry="25" fill="#ddd"/>' +
+    '<ellipse cx="100" cy="50" rx="12" ry="25" fill="#ddd" transform="rotate(120,100,80)"/>' +
+    '<ellipse cx="100" cy="50" rx="12" ry="25" fill="#ddd" transform="rotate(240,100,80)"/>' +
+    '<text x="100" y="155" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#888">VENTILATOR</text>',
+    'Ventilator'
+  );
+}
+function clutchSVG() {
+  return svgWrap(
+    '<circle cx="100" cy="75" r="50" fill="#e8e8e8" stroke="#ccc" stroke-width="3"/>' +
+    '<circle cx="100" cy="75" r="30" fill="#f0f0f0" stroke="#ddd" stroke-width="1"/>' +
+    '<circle cx="100" cy="75" r="8" fill="#b45309"/>' +
+    '<circle cx="100" cy="75" r="25" fill="none" stroke="#ddd" stroke-width="1" stroke-dasharray="4,4"/>' +
+    '<text x="100" y="155" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#888">TUFË</text>',
+    'Tufë'
+  );
+}
+function transmissionSVG() {
+  return svgWrap(
+    '<rect x="35" y="50" width="130" height="65" rx="10" fill="#d0d0d0" stroke="#aaa" stroke-width="2"/>' +
+    '<circle cx="65" cy="82" r="18" fill="#e8e8e8" stroke="#ccc" stroke-width="2"/>' +
+    '<circle cx="135" cy="82" r="18" fill="#e8e8e8" stroke="#ccc" stroke-width="2"/>' +
+    '<circle cx="65" cy="82" r="8" fill="#b45309"/>' +
+    '<circle cx="135" cy="82" r="8" fill="#b45309"/>' +
+    '<text x="100" y="155" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#888">KAMBIO</text>',
+    'Kambio'
+  );
+}
+function flywheelSVG() {
+  return svgWrap(
+    '<circle cx="100" cy="80" r="50" fill="#e8e8e8" stroke="#ccc" stroke-width="3"/>' +
+    '<circle cx="100" cy="80" r="35" fill="#f0f0f0" stroke="#ddd" stroke-width="1"/>' +
+    '<circle cx="100" cy="80" r="10" fill="#888"/>' +
+    '<text x="100" y="155" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#888">VOLANT</text>',
+    'Volant'
+  );
+}
+function exhaustSVG() {
+  return svgWrap(
+    '<rect x="25" y="55" width="150" height="30" rx="10" fill="#e8e8e8" stroke="#ccc" stroke-width="2"/>' +
+    '<rect x="30" y="60" width="140" height="20" rx="6" fill="#f0f0f0" stroke="#ddd" stroke-width="1"/>' +
+    '<circle cx="40" cy="70" r="5" fill="#888"/>' +
+    '<circle cx="70" cy="70" r="5" fill="#888"/>' +
+    '<circle cx="100" cy="70" r="5" fill="#888"/>' +
+    '<circle cx="130" cy="70" r="5" fill="#888"/>' +
+    '<circle cx="160" cy="70" r="5" fill="#888"/>' +
+    '<text x="100" y="155" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#888">SHKARKIM</text>',
+    'Shkarkim'
+  );
+}
+
 // ===== AUTH =====
 auth.onAuthStateChanged(async function(user) {
   if (user) {
@@ -538,7 +1032,8 @@ window.submitPart = async function() {
     sellerName: currentBiz?.businessName || currentBiz?.name || '',
     sellerCity: currentBiz?.city || '', uid: currentUser.uid,
     status: stock > 0 ? 'active' : 'inactive', views: 0, sales: 0, rating: 5,
-    images: [], createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    images: selectedImages.length > 0 ? [] : [getStockImage(name, cat)],
+    createdAt: firebase.firestore.FieldValue.serverTimestamp()
   };
 
   try {
@@ -846,7 +1341,7 @@ window.importBulkParts = async function() {
         uid: currentUser.uid,
         status: (p.stock || 1) > 0 ? 'active' : 'inactive',
         views: 0, sales: 0, rating: 5,
-        images: [],
+        images: [getStockImage(p.name, p.category || 'other')],
         createdAt: firebase.firestore.FieldValue.serverTimestamp()
       });
       imported++;
