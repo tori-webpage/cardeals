@@ -348,7 +348,10 @@ window.showPage = function(page) {
   if (page === 'earnings') renderEarnings();
   if (page === 'settings') populateSettings();
   if (page === 'dashboard') updateCharts();
-  if (page === 'addpart' && !editPartId) { populateCarMakes(); g('partModel').disabled = true; resetAddPartForm(); }
+  if (page === 'addpart') {
+    if (!editPartId) resetAddPartForm();
+    setTimeout(function() { populateCarMakes(); }, 50);
+  }
   if (window.innerWidth <= 768) { g('sidebar')?.classList.remove('open'); g('sidebarOverlay')?.classList.remove('show'); }
 };
 
@@ -462,7 +465,8 @@ async function imagesToBase64() {
 window.submitPart = async function() {
   var name = g('fName').value.trim(), price = parseFloat(g('fPrice').value);
   var make = g('partMake').value, model = g('partModel').value;
-  var fits = (make && model) ? make + ' ' + model : '';
+  var fits = make || '';
+  if (make && model) fits = make + ' ' + model;
   var vin = g('fVin')?.value.trim().toUpperCase() || '';
   var cat = g('fCat').value, cond = g('fCond').value;
   var stock = parseInt(g('fStock').value) || 1, desc = g('fDesc').value.trim();
@@ -471,7 +475,7 @@ window.submitPart = async function() {
   var freeShipping = g('fFreeShipping').checked || false, limitedStock = g('fLimitedStock').checked || false;
   var bestSeller = g('fBestSeller').checked || false;
   var btn = g('submitPartBtn');
-  if (!name || !price || !fits) { showToast('Plotëso fushat e detyrueshme!', true); return; }
+  if (!name || !price || !make) { showToast('Plotëso fushat e detyrueshme! (Emri, Çmimi, Marka)', true); return; }
   btn.textContent = editPartId ? 'Duke përditësuar...' : 'Duke publikuar...'; btn.disabled = true;
 
   var partData = {
@@ -635,7 +639,7 @@ window.importBulkParts = async function() {
   try {
     for (var i = 0; i < bulkImportData.length; i++) {
       var p = bulkImportData[i]; if (!p.name || !p.price) continue;
-      var fits = (p.make && p.model) ? p.make + ' ' + p.model : '';
+      var fits = (p.make && p.model) ? p.make + ' ' + p.model : p.make || '';
       await db.collection("parts").add({
         name: { sq: p.name, en: p.name }, basePrice: p.price, fits,
         category: p.category, condition: p.condition, stock: p.stock,
@@ -663,8 +667,6 @@ window.setLoginLang = function(lg) {
 };
 
 // ===== CAR MAKE/MODEL FOR BACKOFFICE =====
-// These use the backoffice-specific element IDs: partMake, partModel
-
 function populateCarMakes() {
   var sel = g('partMake');
   if (!sel) return;
