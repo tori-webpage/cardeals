@@ -86,7 +86,58 @@
       <div style="display:flex;gap:1rem;"><button class="tbl-btn" style="padding:12px 2rem;" id="submitPartBtn" onclick="submitPart()">PUBLIKO PJESËN</button><button class="tbl-btn outline" style="padding:12px 2rem;" onclick="showPage('parts')">Anulo</button></div>
     </div>
 
-    <div class="page" id="page-bulkimport"><div class="form-card"><h3>IMPORTO PJESË ME SHUMICË</h3><p style="color:var(--text-muted);font-size:0.85rem;">Formati: Emri | Kategoria | Gjendja | Çmimi | Stoku | Marka | Modeli | Përshkrimi | VIN</p><div class="field-group form-full"><textarea id="bulkText" rows="8"></textarea></div><div style="display:flex;gap:1rem;"><button class="tbl-btn" onclick="parseBulkImport()">SHIKO PARAPAMJEN</button><button class="tbl-btn" id="bulkImportBtn" onclick="importBulkParts()" style="background:var(--success);">IMPORTO TË GJITHA</button><span id="bulkCount">0 pjesë</span></div></div></div>
+    <div class="page" id="page-bulkimport">
+      <div class="form-card">
+        <h3>IMPORTO PJESË ME SHUMICË</h3>
+        
+        <div id="bulkStep1">
+          <p style="color:var(--text-muted);font-size:0.85rem;margin-bottom:1rem;">
+            Ngarko skedarin tënd Excel ose CSV. Kolonat nuk kanë nevojë të jenë në ndonjë renditje të caktuar.
+          </p>
+          <div style="display:flex;gap:1rem;align-items:center;margin-bottom:1.5rem;">
+            <label class="tbl-btn" style="cursor:pointer;display:inline-flex;align-items:center;gap:0.5rem;padding:10px 20px;">
+              📂 Zgjidh Skedarin
+              <input type="file" id="bulkFileInput" accept=".csv,.txt,.xls,.xlsx" onchange="handleBulkFile(event)" style="display:none;" />
+            </label>
+            <span id="bulkFileName" style="color:var(--text-muted);font-size:0.85rem;">Asnjë skedar i zgjedhur</span>
+          </div>
+          
+          <p style="font-size:0.8rem;color:var(--text-muted);margin-bottom:1.5rem;">
+            💡 Këshillë: Ruaj Excel-in si CSV (File → Save As → CSV) para se ta ngarkosh.
+          </p>
+          
+          <div class="field-group form-full">
+            <label>Ose ngjit të dhënat këtu</label>
+            <textarea id="bulkText" rows="8" placeholder="Emri,Kategoria,Gjendja,Çmimi,Stoku,Marka,Modeli,Përshkrimi,VIN&#10;Filtri Vajit,engine,new,2500,10,Audi,A4,Filtër origjinal,"></textarea>
+          </div>
+        </div>
+        
+        <div id="bulkStep2" style="display:none;">
+          <p style="color:var(--text-muted);font-size:0.85rem;margin-bottom:1rem;">
+            Lidh kolonat e skedarit tënd me fushat e Cardeals. Zgjidh "Injoro" për kolonat që nuk duhen.
+          </p>
+          <div id="bulkMappingArea" style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;margin-bottom:1.5rem;"></div>
+          <div style="display:flex;gap:1rem;">
+            <button class="tbl-btn" onclick="applyBulkMapping()">SHIKO PARAPAMJEN</button>
+            <button class="tbl-btn" onclick="document.getElementById('bulkStep2').style.display='none';document.getElementById('bulkStep1').style.display='block';">← Mbrapsht</button>
+          </div>
+        </div>
+        
+        <div id="bulkStep3" style="display:none;">
+          <p style="font-weight:600;margin-bottom:0.5rem;">Parapamje (<span id="bulkPreviewCount">0</span> pjesë)</p>
+          <div style="overflow-x:auto;margin-bottom:1rem;max-height:300px;overflow-y:auto;">
+            <table style="min-width:600px;font-size:0.78rem;" id="bulkPreviewTable">
+              <thead><tr><th>#</th><th>Emri</th><th>Kat.</th><th>Gjendja</th><th>Çmimi</th><th>Stoku</th><th>Marka</th><th>Modeli</th></tr></thead>
+              <tbody id="bulkPreviewBody"></tbody>
+            </table>
+          </div>
+          <div style="display:flex;gap:1rem;">
+            <button class="tbl-btn" id="bulkImportBtn" onclick="importBulkParts()" style="background:var(--success);">IMPORTO <span id="bulkCount">0</span> PJESË</button>
+            <button class="tbl-btn outline" onclick="document.getElementById('bulkStep3').style.display='none';document.getElementById('bulkStep1').style.display='block';">Anulo</button>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <div class="page" id="page-orders"><div class="order-timeline"><button class="ot-btn active" onclick="filterOrders('all',this)">Të Gjitha</button><button class="ot-btn" onclick="filterOrders('pending',this)">Në Pritje</button><button class="ot-btn" onclick="filterOrders('sold',this)">Shitur</button><button class="ot-btn" onclick="filterOrders('pickup',this)">Marrje</button></div><div class="table-card"><div class="table-header"><h3>TË GJITHA POROSITË</h3><span id="orderCount"></span></div><table><thead><tr><th>#</th><th>Pjesa</th><th>Blerësi</th><th>Shitësi</th><th>Data</th><th>Çmimi</th><th>Statusi</th><th>Pagesa</th><th>Veprime</th></tr></thead><tbody id="allOrdersBody"></tbody></table></div></div>
 
